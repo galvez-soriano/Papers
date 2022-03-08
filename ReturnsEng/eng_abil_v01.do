@@ -215,8 +215,9 @@ gen eng_2=eng==1
 destring state, replace
 gen age_state=age*state
 
+/* Full sample */
 eststo clear
-eststo: reg lincome eng edu expe expe2 female rural [aw=weight] if age>=16 ///
+eststo: reg lincome eng edu expe expe2 [aw=weight] if age>=16 ///
 & age<=65, vce(cluster geo)
 eststo: reg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if age>=16 & age<=65, vce(cluster geo)
@@ -227,4 +228,69 @@ married [aw=weight] if age>=16 & age<=65, absorb(geo) vce(cluster geo)
 eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if age>=16 & age<=65, absorb(age_state) vce(cluster geo)
 esttab using "$doc\tab_returns_eng.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Student achievement) keep(eng) replace
+star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng) keep(eng) replace
+
+/* Men */
+eststo clear
+eststo: reg lincome eng edu expe expe2 [aw=weight] if (age>=16 ///
+& age<=65) & female==0, vce(cluster geo)
+eststo: reg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if (age>=16 & age<=65) & female==0, vce(cluster geo)
+eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if (age>=16 & age<=65) & female==0, absorb(state) vce(cluster geo)
+eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if (age>=16 & age<=65) & female==0, absorb(geo) vce(cluster geo)
+eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if (age>=16 & age<=65) & female==0, absorb(age_state) vce(cluster geo)
+esttab using "$doc\tab_returns_eng_men.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng (Men)) keep(eng) replace
+
+/* Women */
+eststo clear
+eststo: reg lincome eng edu expe expe2 [aw=weight] if (age>=16 ///
+& age<=65) & female==1, vce(cluster geo)
+eststo: reg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if (age>=16 & age<=65) & female==1, vce(cluster geo)
+eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if (age>=16 & age<=65) & female==1, absorb(state) vce(cluster geo)
+eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if (age>=16 & age<=65) & female==1, absorb(geo) vce(cluster geo)
+eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if (age>=16 & age<=65) & female==1, absorb(age_state) vce(cluster geo)
+esttab using "$doc\tab_returns_eng_women.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng (Women)) keep(eng) replace
+
+/* Gender */
+gen eng_female=eng*female
+eststo clear
+eststo: reg lincome eng_female eng edu expe expe2 female [aw=weight] if age>=16 ///
+& age<=65, vce(cluster geo)
+eststo: reg lincome eng_female eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if age>=16 & age<=65, vce(cluster geo)
+eststo: areg lincome eng_female eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if age>=16 & age<=65, absorb(state) vce(cluster geo)
+eststo: areg lincome eng_female eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if age>=16 & age<=65, absorb(geo) vce(cluster geo)
+eststo: areg lincome eng_female eng edu expe expe2 female rural female_hh age_hh edu_hh ///
+married [aw=weight] if age>=16 & age<=65, absorb(age_state) vce(cluster geo)
+esttab using "$doc\tab_returns_eng_gender.tex", ar2 cells(b(star fmt(%9.3f)) p()) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng) keep(eng_female) replace
+
+/* Education */
+gen eng_edu=eng*edu
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24{
+gen engedu`x'=eng_edu==`x'
+label var engedu`x' "`x'"
+}
+
+areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh married ///
+engedu* [aw=weight] if age>=16 & age<=65, absorb(geo) vce(cluster geo)
+
+graph set window fontface "Times New Roman"
+coefplot, vertical keep(engedu*) yline(0) ///
+ytitle("Returns to English abilities by education", size(small) height(5)) ///
+ylabel(-5(2.5)5, labs(small) grid) ///
+xtitle("Years of education", size(small) height(5)) xlabel(,labs(small)) ///
+graphregion(color(white)) scheme(s2mono) recast(connected) ciopts(recast(rcap)) ///
+ysc(r(-0.5 1)) 
+graph export "$doc\eng_abil_edu.png", replace 
