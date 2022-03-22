@@ -202,21 +202,116 @@ size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\eng_abil.png", replace 
 
 *========================================================================*
+/* Descriptive statistics */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+*gen eng_2=eng==1
+eststo clear
+eststo full_sample: quietly estpost sum eng edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
+if eng!=. & age>=16 & age<=65 
+eststo eng: quietly estpost sum eng edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
+if eng==1 & age>=16 & age<=65
+eststo no_eng: quietly estpost sum eng edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
+if eng==0 & age>=16 & age<=65
+eststo diff: quietly estpost ttest eng edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size if age>=16 ///
+& age<=65, by(eng) unequal
+esttab full_sample eng no_eng diff using "$doc\sum_stats.tex", ///
+cells("mean(pattern(1 1 1 0) fmt(2)) b(star pattern(0 0 0 1) fmt(2))") ///
+star(* 0.10 ** 0.05 *** 0.01) label replace
+
+eststo clear
+foreach x in edu expe age female married income student work rural ///
+female_hh age_hh edu_hh hh_size{
+eststo: quietly reg `x' eng [aw=weight] if age>=16 & age<=65, vce(robust)
+}
+esttab using "$doc\sum_stats_diff.tex", ar2 cells(b(star fmt(%9.2f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng) replace
+*========================================================================*
+/* Missing are zeros? */
+gen eng_0=eng==.
+replace eng_0=. if eng==1
+label var eng_0 "English (speaking ability)"
+eststo clear
+eststo missing: quietly estpost sum eng_0 edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
+if eng_0==1 & age>=16 & age<=65
+eststo no_eng: quietly estpost sum eng_0 edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
+if eng_0==0 & age>=16 & age<=65
+eststo diff: quietly estpost ttest eng_0 edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size if age>=16 ///
+& age<=65, by(eng_0) unequal
+esttab missing no_eng diff using "$doc\sum_stats_miss.tex", ///
+cells("mean(pattern(1 1 0) fmt(2)) b(star pattern(0 0 1) fmt(2))") ///
+star(* 0.10 ** 0.05 *** 0.01) label replace
+
+eststo clear
+foreach x in edu expe age female married income student work rural ///
+female_hh age_hh edu_hh hh_size{
+eststo: quietly reg `x' eng_0 [aw=weight] if age>=16 & age<=65, vce(robust)
+}
+esttab using "$doc\sum_stats_diff_miss.tex", ar2 cells(b(star fmt(%9.2f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng_0) replace
+*========================================================================*
+/* Adding only real zeros by excluding high achieving and adding rural adults */
+replace eng_0=. if (edu>8 & eng_0==1) | (eng_0==1 & income>20000)
+replace eng_0=1 if rural==1 & eng!=1 & eng_0==.
+eststo clear
+eststo missing: quietly estpost sum eng_0 edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
+if eng_0==1 & age>=16 & age<=65
+eststo no_eng: quietly estpost sum eng_0 edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
+if eng_0==0 & age>=16 & age<=65
+eststo diff: quietly estpost ttest eng_0 edu expe age female married ///
+income student work rural female_hh age_hh edu_hh hh_size if age>=16 ///
+& age<=65, by(eng_0) unequal
+esttab missing no_eng diff using "$doc\sum_stats_miss_ed.tex", ///
+cells("mean(pattern(1 1 0) fmt(2)) b(star pattern(0 0 1) fmt(2))") ///
+star(* 0.10 ** 0.05 *** 0.01) label replace
+
+eststo clear
+foreach x in edu expe age female married income student work rural ///
+female_hh age_hh edu_hh hh_size{
+eststo: quietly reg `x' eng_0 [aw=weight] if age>=16 & age<=65, vce(robust)
+}
+esttab using "$doc\sum_stats_diff_miss_ed.tex", ar2 cells(b(star fmt(%9.2f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng_0) replace
+/*gen eng2=eng
+replace eng2=0 if eng_0==1 & eng2==.*/
+
+*========================================================================*
+/* Statistics by occupations */
+use "$base\eng_abil.dta", clear
+gen occup=.
+replace occup=1 if (sinco>6101 & sinco<=6131) | (sinco>6201 & sinco<=6231) ///
+| sinco==6999
+replace occup=2 if sinco>=4111 | (sinco>=4211 & sinco<=4312)
+replace occup=3 if sinco>=510 & sinco<=541 //<==================================================
+replace occup=4 if sinco>=7101 & sinco<=7999
+replace occup=5 if sinco>=911 & sinco<=989
+replace occup=6 if sinco==6311 | sinco>=810 & sinco<=899
+replace occup=7 if sinco>=111 & sinco<=399
+replace occup=8 if sinco==6101 | sinco==6201 | sinco==4201
+
+label define occup 1 "Farming" 2 "Commerce" ///
+3 "Services" 4 "Crafts" 5 "Manual unskilled" ///
+6 "Manual skilled" 7 "Professional" 8 "Managerial"
+label values occup occup
+
+*========================================================================*
 /* Returns to English skills */
 *========================================================================*
 use "$base\eng_abil.dta", clear
-gen expe=age-5-edu
-replace expe=0 if age<16
-replace expe=0 if expe<0
-gen expe2=expe^2
 replace income=income+1
 gen lincome=log(income)
-gen eng_2=eng==1
-destring state, replace
-gen age_state=age*state
-
 /* Full sample */
 eststo clear
+eststo: reg lincome eng [aw=weight] if age>=16 & age<=65, vce(cluster geo)
 eststo: reg lincome eng edu expe expe2 [aw=weight] if age>=16 ///
 & age<=65, vce(cluster geo)
 eststo: reg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
@@ -225,13 +320,13 @@ eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if age>=16 & age<=65, absorb(state) vce(cluster geo)
 eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if age>=16 & age<=65, absorb(geo) vce(cluster geo)
-eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
-married [aw=weight] if age>=16 & age<=65, absorb(age_state) vce(cluster geo)
-esttab using "$doc\tab_returns_eng.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng) keep(eng) replace
+/*esttab using "$doc\tab_returns_eng.tex", ar2 cells(b(star fmt(%9.3f)) ///
+se(par)) star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng) keep(eng) replace*/
 
 /* Men */
 eststo clear
+eststo: reg lincome eng [aw=weight] if age>=16 & age<=65  & female==0, ///
+vce(cluster geo)
 eststo: reg lincome eng edu expe expe2 [aw=weight] if (age>=16 ///
 & age<=65) & female==0, vce(cluster geo)
 eststo: reg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
@@ -240,13 +335,13 @@ eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if (age>=16 & age<=65) & female==0, absorb(state) vce(cluster geo)
 eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if (age>=16 & age<=65) & female==0, absorb(geo) vce(cluster geo)
-eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
-married [aw=weight] if (age>=16 & age<=65) & female==0, absorb(age_state) vce(cluster geo)
-esttab using "$doc\tab_returns_eng_men.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng (Men)) keep(eng) replace
+/*esttab using "$doc\tab_returns_eng_men.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng (Men)) keep(eng) replace*/
 
 /* Women */
 eststo clear
+eststo: reg lincome eng [aw=weight] if age>=16 & age<=65  & female==1, ///
+vce(cluster geo)
 eststo: reg lincome eng edu expe expe2 [aw=weight] if (age>=16 ///
 & age<=65) & female==1, vce(cluster geo)
 eststo: reg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
@@ -255,14 +350,13 @@ eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if (age>=16 & age<=65) & female==1, absorb(state) vce(cluster geo)
 eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if (age>=16 & age<=65) & female==1, absorb(geo) vce(cluster geo)
-eststo: areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh ///
-married [aw=weight] if (age>=16 & age<=65) & female==1, absorb(age_state) vce(cluster geo)
-esttab using "$doc\tab_returns_eng_women.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng (Women)) keep(eng) replace
+/*esttab using "$doc\tab_returns_eng_women.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng (Women)) keep(eng) replace*/
 
 /* Gender */
 gen eng_female=eng*female
 eststo clear
+eststo: reg lincome eng_female eng female [aw=weight] if age>=16 & age<=65, vce(cluster geo)
 eststo: reg lincome eng_female eng edu expe expe2 female [aw=weight] if age>=16 ///
 & age<=65, vce(cluster geo)
 eststo: reg lincome eng_female eng edu expe expe2 female rural female_hh age_hh edu_hh ///
@@ -271,26 +365,40 @@ eststo: areg lincome eng_female eng edu expe expe2 female rural female_hh age_hh
 married [aw=weight] if age>=16 & age<=65, absorb(state) vce(cluster geo)
 eststo: areg lincome eng_female eng edu expe expe2 female rural female_hh age_hh edu_hh ///
 married [aw=weight] if age>=16 & age<=65, absorb(geo) vce(cluster geo)
-eststo: areg lincome eng_female eng edu expe expe2 female rural female_hh age_hh edu_hh ///
-married [aw=weight] if age>=16 & age<=65, absorb(age_state) vce(cluster geo)
-esttab using "$doc\tab_returns_eng_gender.tex", ar2 cells(b(star fmt(%9.3f)) p()) ///
+esttab using "$doc\tab_returns_eng_gender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Returns to Eng) keep(eng_female) replace
 
 /* Education */
-gen eng_edu=eng*edu
-foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24{
-gen engedu`x'=eng_edu==`x'
-label var engedu`x' "`x'"
-}
+gen edu_level=0
+replace edu_level=1 if edu>=1 & edu<=5
+replace edu_level=2 if edu==6
+replace edu_level=3 if edu>=7 & edu<=8
+replace edu_level=4 if edu==9
+replace edu_level=5 if edu>=10 & edu<=12
+replace edu_level=6 if edu>=13 & edu<=16
+replace edu_level=7 if edu>=17
 
+gen eng_edu=eng*edu_level
+foreach x in 0 1 2 3 4 5 6 7{
+gen engedu`x'=eng_edu==`x'
+}
+replace engedu1=0
+label var engedu0 "No-edu"
+label var engedu1 "Elem-drop"
+label var engedu2 "Elem S"
+label var engedu3 "Middle-drop"
+label var engedu4 "Middle S"
+label var engedu5 "High S"
+label var engedu6 "College"
+label var engedu7 "Graduate"
 areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh married ///
 engedu* [aw=weight] if age>=16 & age<=65, absorb(geo) vce(cluster geo)
 
-graph set window fontface "Times New Roman"
-coefplot, vertical keep(engedu*) yline(0) ///
-ytitle("Returns to English abilities by education", size(small) height(5)) ///
-ylabel(-5(2.5)5, labs(small) grid) ///
-xtitle("Years of education", size(small) height(5)) xlabel(,labs(small)) ///
+*graph set window fontface "Times New Roman"
+coefplot, vertical keep(engedu*) yline(0) omitted baselevels ///
+ytitle("Returns to English abilities by education levels", size(small) height(5)) ///
+ylabel(-4(2)4, labs(small) grid) ///
+xtitle("Levels of education", size(small) height(5)) xlabel(,labs(small)) ///
 graphregion(color(white)) scheme(s2mono) recast(connected) ciopts(recast(rcap)) ///
 ysc(r(-0.5 1)) 
 graph export "$doc\eng_abil_edu.png", replace 
