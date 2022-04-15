@@ -10,93 +10,17 @@ gl github= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EngInst
 gl base= "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New"
 gl doc= "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Doc"
 *========================================================================*
-/*use "$data\personas00.dta", clear
-
-keep ent mun factor sexo edad asisten mun_asi ent_pais_asi escoacum ///
-ent_pais_res_5a mun_res_5a conact ocupacion_c vacaciones servicio_medico ///
-incap_sueldo sar_afore credito_vivienda ingtrmen hortra actividades_c ///
-mun_trab ent_pais_trab tamloc utilidades
-
-rename ent state
-rename sexo female
-recode female (1=0) (3=1)
-rename edad age
-rename asisten student
-recode student (3=0) (9=.)
-replace student=1 if conact==50
-rename escoacum edu
-replace edu=. if edu==99
-rename ent_pais_res_5a state5
-rename mun_res_5a mun5
-gen work=0
-replace work=1 if conact<=30
-gen formal=0 if work==1 & conact!=30
-replace formal=1 if (vacaciones==3 | servicio_medico==5 | incap_sueldo==1 | ///
- sar_afore==3 | credito_vivienda==5 | utilidades==7)
-drop vacaciones servicio_medico incap_sueldo sar_afore credito_vivienda utilidades
-rename ingtrmen wage
-replace wage=. if wage==999999
-rename hortra hrs_w
-replace hrs_w=. if hrs_w==999
-rename mun_trab mun_w 
-rename ent_pais_trab state_w
-gen rural=0
-replace rural=1 if tamloc==1
-replace state5=. if state5>32
-tostring state5, replace format(%02.0f) force
-tostring mun5, replace format(%03.0f) force
-gen str geo=(state5+mun5)
-replace geo="." if mun5=="."
-
-save "$data\census20.dta", replace
 *========================================================================*
 use "$data\census20.dta", clear
-
-gen cohort=.
-replace cohort=1997 if age==23
-replace cohort=1998 if age==22
-replace cohort=1999 if age==21
-replace cohort=2000 if age==20
-replace cohort=2001 if age==19
-replace cohort=2002 if age==18
-label var cohort "Age cohorts"
-
-gen ind_act=.
-replace ind_act=0 if work==0 & student==1
-replace ind_act=1 if work==1 & formal==1
-replace ind_act=2 if work==1 & formal==0
-replace ind_act=3 if work==0 & student==0
-
-replace ind_act=. if conact==80
-keep if cohort!=.
-replace wage=1 if wage==0
-gen lwage=log(wage)
-gen age2=age^2
-
-catplot ind_act age [fw=factor], percent(age) ///
-graphregion(fcolor(white)) scheme(s2mono) ///
-var1opts(label(labsize(small))) ///
-var2opts(label(labsize(small)) relabel(`r(relabel)')) ///
-ytitle("Percentage of individuals by labor market status", size(small)) ///
-asyvars stack ///
-legend(rows(1) stack size(small) ///
-order(1 "Student" 2 "Formal worker" ///
-3 "Informal worker" 4 "Inactive") ///
-symplacement(center))
-graph export "$doc\labor_census20.png", replace
-
-save "$data\census20.dta", replace */
-*========================================================================*
-use "$data\census20.dta", clear
-
+rename geo geo_mun_s
 merge m:m geo_mun_s cohort using "$github/exposure_mun.dta"
 drop if _merge!=3
 drop _merge
 
-drop geo
+drop geo_mun_s
 tostring state, replace format(%02.0f) force
 tostring mun, replace format(%03.0f) force
-gen str geo=(state+mun)
+gen str geo_mun_s=(state+mun)
 
 merge m:m geo_mun_s using "$github/p_stud_census2020.dta"
 drop _merge
@@ -118,37 +42,6 @@ replace labor=1 if ind_act==1 | ind_act==2
 individuals working in formal sector, probably because of the KIA automotive
 company recently established there */
 drop if geo=="19041"
-/* County Pueblo Nuevo Solistahuacán, Chiapas has a private university offering 
-education from primary to graduate degrees 07062*/
-*drop if geo=="07062"
-
-gen p_enrol=.
-replace p_enrol=0 if p_stud<=0.05
-replace p_enrol=1 if p_stud>0.05 & p_stud<=0.06
-replace p_enrol=2 if p_stud>0.06 & p_stud<=0.07
-replace p_enrol=3 if p_stud>0.07 & p_stud<=0.08
-replace p_enrol=4 if p_stud>0.08 & p_stud<=0.09
-replace p_enrol=5 if p_stud>0.09 & p_stud<=0.10
-replace p_enrol=6 if p_stud>0.10 & p_stud<=0.11
-replace p_enrol=7 if p_stud>0.11 & p_stud<=0.12
-replace p_enrol=8 if p_stud>0.12 & p_stud<=0.13
-replace p_enrol=9 if p_stud>0.13 & p_stud<=0.14
-replace p_enrol=10 if p_stud>0.14 & p_stud<=0.15
-
-label define enrol 0 "p<=0.05" 1 "0.05<p<=0.06" 2 "0.06<p<=0.07" 3 "0.07<p<=0.08" ///
-4 "0.08<p<=0.09" 5 "0.09<p<=0.10" 6 "0.10<p<=0.11" 7 "0.11<p<=0.12" 8 ///
-"0.12<p<=0.13" 9 "0.13<p<=0.14" 10 "0.14<p<=0.15" 
-label values p_enrol enrol
-
-graph hbar (sum) factor, over(p_enrol) ///
-graphregion(fcolor(white)) scheme(s2mono) ///
-ytitle("Number of inhabitants")
-graph export "$doc\p_enroll_inhab.png", replace
-
-graph hbar (mean) formal [fw=factor], over(p_enrol) ///
-graphregion(fcolor(white)) scheme(s2mono) ///
-ytitle("Proportion of workers in formal sector")
-graph export "$doc\p_enroll_formal.png", replace
 
 catplot ind_act cohort [fw=factor] if p_stud<=0.09, percent(cohort) ///
 graphregion(fcolor(white)) scheme(s2mono) ///
@@ -227,6 +120,24 @@ esttab using "$doc\tab2_census_women.tex", ar2 cells(b(star fmt(%9.3f)) se(par))
 star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) replace
 
 label var hrs_exp "Proportion of individuals enrolled in school"
+
+eststo clear
+foreach x in 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45{
+areg formal_s hrs_exp rural female age i.cohort [aw=factor] if ps`x'==1, absorb(geo_mun_s) vce(cluster geo_mun_s)
+estimates store formal`x'
+}
+coefplot (formal30, label(p<=0.30)) (formal31, label(p<=0.31)) (formal32, ///
+label(p<=0.32)) (formal33, label(p<=0.33)) (formal34, label(p<=0.34)) ///
+(formal35, label(p<=0.35)) (formal36, label(p<=0.36)) (formal37, ///
+label(p<=0.37)) (formal38, label(p<=0.38)) (formal39, label(p<=0.39)) ///
+(formal40, label(p<=0.40)) (formal41, label(p<=0.41)) (formal42, ///
+label(p<=0.42)) (formal43, label(p<=0.43)) (formal44, label(p<=0.44)) ///
+(formal45, label(p<=0.45)), vertical keep(hrs_exp) yline(0) ///
+ytitle("Probability of working in formal sector", size(medium) height(5)) ///
+ylabel(-0.15(0.05)0.15, labs(medium) grid format(%5.2f)) ///
+legend( pos(1) ring(0) col(4)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\formal_cpv20.png", replace
 
 eststo clear
 foreach x in 05 06 07 08 09 10 11 12 13 14 15{
