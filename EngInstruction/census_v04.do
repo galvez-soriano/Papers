@@ -516,79 +516,126 @@ eststo: areg other_ea eng_fem hrs_exp rural rural#cohort female#cohort female#st
 esttab using "$doc\tab_ea_gender_formal.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(eng_fem) replace
 *============ Occupations ============*
-gen occup=.
-replace occup=1 if ocupacion_c>=610 & ocupacion_c<=699
-replace occup=2 if ocupacion_c>=411 & ocupacion_c<=499
-replace occup=3 if ocupacion_c>=510 & ocupacion_c<=541
-replace occup=4 if ocupacion_c>=710 & ocupacion_c<=799
-replace occup=5 if ocupacion_c>=911 & ocupacion_c<=989
-replace occup=6 if ocupacion_c>=810 & ocupacion_c<=899
-replace occup=7 if ocupacion_c>=111 & ocupacion_c<=399
+use "$base\labor_census20.dta", clear
+destring state5, replace
+rename ocupacion_c sinco
 
-label define occup 1 "Agriculture" 2 "Commerce" ///
-3 "Services" 4 "Crafts" 5 "Manual work" ///
-6 "Skilled job" 7 "Professional" 
+gen occup=.
+replace occup=1 if (sinco>610 & sinco<=613) | (sinco>620 & sinco<=623) ///
+| sinco==699
+replace occup=2 if (sinco>=911 & sinco<=989) 
+replace occup=3 if (sinco>=711 & sinco<=719) | (sinco>=721 & sinco<=729) ///
+| (sinco>=731 & sinco<=739) | (sinco==741) | (sinco>=751 & sinco<=759) ///
+| (sinco>=761 & sinco<=799)
+replace occup=4 if (sinco==511) | (sinco>=521 & sinco<=529) ///
+| (sinco==531) | (sinco==541)
+replace occup=5 if sinco==411 | (sinco>=421 & sinco<=423) | (sinco==431) ///
+| (sinco==499)
+replace occup=6 if sinco==631 | (sinco>=811 & sinco<=819) | (sinco==821) ///
+| (sinco>=831 & sinco<=899)
+replace occup=7 if (sinco>=311 & sinco<=314) | (sinco>=321 & sinco<=399)
+replace occup=8 if (sinco>=111 & sinco<=199) | sinco==231 | sinco==310 ///
+| sinco==320 | sinco==420 | sinco==430 | sinco==510 | sinco==520 ///
+| sinco==530 | sinco==540 | sinco==610 | sinco==620 | sinco==710 ///
+| sinco==720 | sinco==730 | sinco==740 | sinco==750 | sinco==760 ///
+| sinco==810 | sinco==820 | sinco==830
+replace occup=9 if (sinco>=211 & sinco<=299)
+
+label define occup 1 "Farming" 2 "Elementary occupations" 3 "Crafts" ///
+4 "Services" 5 "Commerce" 6 "Machine operators" 7 "Clerical support" ///
+8 "Managerial" 9 "Professionals/Technicians"
 label values occup occup
 
-gen ag_o=1 if occup==1
-replace ag_o=0 if occup!=1 & occup!=.
-gen com_o=1 if occup==2
-replace com_o=0 if occup!=2 & occup!=.
-gen ser_o=1 if occup==3
-replace ser_o=0 if occup!=3 & occup!=.
-gen cft_o=1 if occup==4
-replace cft_o=0 if occup!=4 & occup!=.
-gen man_o=1 if occup==5
-replace man_o=0 if occup!=5 & occup!=.
-gen skil_o=1 if occup==6
-replace skil_o=0 if occup!=6 & occup!=.
-gen prof_o=1 if occup==7
-replace prof_o=0 if occup!=7 & occup!=.
+gen farm_o=occup==1
+gen elem_o=occup==2
+gen cft_o=occup==3
+gen ser_o=occup==4
+gen com_o=occup==5
+gen mach_o=occup==6
+gen cler_o=occup==7
+gen mana_o=occup==8
+gen prof_o=occup==9
 
 /* Full sample */
 eststo clear
-eststo: areg ag_o hrs_exp rural female edu age age2 i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg com_o hrs_exp rural female edu age age2 i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg ser_o hrs_exp rural female edu age age2 i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg cft_o hrs_exp rural female edu age age2 i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg man_o hrs_exp rural female edu age age2 i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg skil_o hrs_exp rural female edu age age2 i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg prof_o hrs_exp rural female edu age age2 i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_occup.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) replace
+eststo: areg farm_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+eststo: areg elem_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+eststo: areg cft_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+eststo: areg ser_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+eststo: areg com_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+eststo: areg mach_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+eststo: areg cler_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+eststo: areg mana_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+eststo: areg prof_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=., absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_occup.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Occupations - Census estimations) keep(hrs_exp) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /* Low enrollment sample */
 eststo clear
-eststo: areg ag_o hrs_exp rural female edu age age2 i.cohort if p_stud<=0.09 [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg com_o hrs_exp rural female edu age age2 i.cohort if p_stud<=0.09 [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg ser_o hrs_exp rural female edu age age2 i.cohort if p_stud<=0.09 [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg cft_o hrs_exp rural female edu age age2 i.cohort if p_stud<=0.09 [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg man_o hrs_exp rural female edu age age2 i.cohort if p_stud<=0.09 [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg skil_o hrs_exp rural female edu age age2 i.cohort if p_stud<=0.09 [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg prof_o hrs_exp rural female edu age age2 i.cohort if p_stud<=0.09 [aw=factor], absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_occup_low.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) replace
+eststo: areg farm_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg elem_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg cft_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg ser_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg com_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg mach_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg cler_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg mana_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg prof_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_occup_low.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /* Men */
 eststo clear
-eststo: areg ag_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==0 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg com_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==0 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg ser_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==0 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg cft_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==0 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg man_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==0 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg skil_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==0 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg prof_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==0 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_occup_men.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) replace
+eststo: areg farm_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg elem_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg cft_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg ser_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg com_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg mach_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg cler_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg mana_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg prof_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==0, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_occup_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /* Women */
 eststo clear
-eststo: areg ag_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==1 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg com_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==1 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg ser_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==1 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg cft_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==1 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg man_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==1 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg skil_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==1 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-eststo: areg prof_o hrs_exp rural female edu age age2 i.cohort [aw=factor] if female==1 & p_stud<=0.09, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_occup_women.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) replace
+eststo: areg farm_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg elem_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg cft_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg ser_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg com_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg mach_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg cler_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg mana_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg prof_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1 & female==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_occup_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+/* Gender differences */
+gen eng_fem=hrs_exp*female
+eststo clear
+eststo: areg farm_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg elem_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg cft_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg ser_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg com_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg mach_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg cler_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg mana_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+eststo: areg prof_o eng_fem hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student formal_s i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & ps43==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_occup_gender.tex", cells(b(star fmt(%9.3f)) p(par([ ]))) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_exp) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+*======== Occupations in formal sector ========*
+/* Full sample */
+eststo clear
+eststo: areg farm_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+eststo: areg elem_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+eststo: areg cft_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+eststo: areg ser_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+eststo: areg com_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+eststo: areg mach_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+eststo: areg cler_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+eststo: areg mana_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+eststo: areg prof_o hrs_exp rural rural#cohort female#cohort female#state5 female age age2 edu student i.cohort i.state5 [aw=factor] if cohort>1997 & occup!=. & formal_s==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_occup_formal.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Occupations - Census estimations) keep(hrs_exp) replace
 *========================================================================*
 /* Table occupations and Multinomial Logit */
 *========================================================================*
