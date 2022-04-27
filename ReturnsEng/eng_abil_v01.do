@@ -177,6 +177,7 @@ save "$base\eng_abil.dta", replace
 use "$base\eng_abil.dta", clear
 keep if state=="19" | state=="08"
 drop if state!=state5
+gen cohort=2014-age
 gen treat=state=="19"
 gen after=age<=27
 replace after=. if age<18 | age>37
@@ -197,8 +198,11 @@ replace cohort_87_91=1 if cohort>=1987 & cohort<=1991
 gen cohort_92_96=0
 replace cohort_92_96=1 if cohort>=1992 & cohort<=1996
 
+gen treat_77_81=0
+replace treat_77_81=1 if treat==1 & cohort_77_81==1
+label var treat_77_81 "1977-1981"
 gen treat_82_86=0
-replace treat_82_86=1 if treat==1 & cohort_82_86==1
+*replace treat_82_86=1 if treat==1 & cohort_82_86==1
 label var treat_82_86 "1982-1986"
 gen treat_87_91=0
 replace treat_87_91=1 if treat==1 & cohort_87_91==1
@@ -209,16 +213,80 @@ label var treat_92_96 "1992-1996"
 
 areg eng treat_* treat cohort_* edu female female_hh age_hh edu_hh hh_size ///
 [aw=weight] if age>=18 & age<=37, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) ///
-xline(1.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
 ylabel(-0.5(0.25)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort bins", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 1)) text(1.15 0.95 "Eng program in 6th grade", linegap(.2cm) ///
+ysc(r(-0.5 1)) text(1.15 1.75 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\eng_abil.png", replace 
+*========================================================================*
+/* English abilities in Tamaulipas */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+keep if state=="28" | state=="02"
+drop if state!=state5
+gen cohort=2014-age
+gen treat=state=="28"
+gen after=age<=23
+replace after=. if age<18 | age>29
+gen after_treat=after*treat
+replace eng=0 if eng==.
 
+eststo clear
+eststo: areg eng after_treat treat i.cohort edu female female_hh age_hh edu_hh hh_size ///
+[aw=weight], absorb(geo) vce(cluster geo)
+
+gen cohort_85_87=0
+replace cohort_85_87=1 if cohort>=1985 & cohort<=1987
+gen cohort_88_90=0
+replace cohort_88_90=1 if cohort>=1988 & cohort<=1990
+gen cohort_91_93=0
+replace cohort_91_93=1 if cohort>=1991 & cohort<=1993
+gen cohort_94_96=0
+replace cohort_94_96=1 if cohort>=1994 & cohort<=1996
+
+gen treat_85_87=0
+replace treat_85_87=1 if treat==1 & cohort_85_87==1
+label var treat_85_87 "1985-1987"
+gen treat_88_90=0
+label var treat_88_90 "1988-1990"
+gen treat_91_93=0
+replace treat_91_93=1 if treat==1 & cohort_91_93==1
+label var treat_91_93 "1991-1993"
+gen treat_94_96=0
+replace treat_94_96=1 if treat==1 & cohort_94_96==1
+label var treat_94_96 "1994-1996"
+
+areg eng treat_* treat cohort_* edu female female_hh age_hh edu_hh hh_size ///
+[aw=weight] if age>=18 & age<=29, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort bins", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) text(0.6 1.98 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+*========================================================================*
+/* English abilities in Nuevo Leon and Tamaulipas */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+keep if state=="02" | state=="08" | state=="19" | state=="28"
+drop if state!=state5
+destring state, replace
+gen cohort=2014-age
+gen had_policy=0 
+replace had_policy=1 if state=="19" & age>=18 & age<=27
+replace had_policy=1 if state=="28" & age>=18 & age<=23
+
+eststo clear
+eststo: areg eng had_policy i.state i.cohort edu female female_hh age_hh edu_hh hh_size ///
+[aw=weight], absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_eng_abil.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(after_treat) replace
 *========================================================================*
 /* Descriptive statistics */
 *========================================================================*
