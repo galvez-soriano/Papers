@@ -276,17 +276,88 @@ size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 use "$base\eng_abil.dta", clear
 keep if state=="02" | state=="08" | state=="19" | state=="28"
 drop if state!=state5
-destring state, replace
-gen cohort=2014-age
+*gen cohort=2014-age
 gen had_policy=0 
 replace had_policy=1 if state=="19" & age>=18 & age<=27
 replace had_policy=1 if state=="28" & age>=18 & age<=23
-
+destring state, replace
+keep if age>=18 & age<=37
+*replace eng=0 if eng==.
 eststo clear
-eststo: areg eng had_policy i.state i.cohort edu female female_hh age_hh edu_hh hh_size ///
+eststo: areg eng had_policy i.state [aw=weight], absorb(cohort) vce(cluster geo)
+eststo: areg eng had_policy i.state edu female student work female_hh age_hh edu_hh hh_size ///
+[aw=weight], absorb(cohort) vce(cluster geo)
+eststo: areg eng had_policy i.cohort edu female student work female_hh age_hh edu_hh hh_size ///
 [aw=weight], absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_eng_abil.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(after_treat) replace
+esttab using "$doc\tab_eng_abil2.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English instruction and Eng abilities) keep(had_policy) replace
+
+gen cohort_77_78=0
+replace cohort_77_78=1 if cohort>=1977 & cohort<=1978
+gen cohort_79_80=0
+replace cohort_79_80=1 if cohort>=1979 & cohort<=1980
+gen cohort_81_82=0
+replace cohort_81_82=1 if cohort>=1981 & cohort<=1982
+gen cohort_83_84=0
+replace cohort_83_84=1 if cohort>=1983 & cohort<=1984
+gen cohort_85_86=0
+replace cohort_85_86=1 if cohort>=1985 & cohort<=1986
+gen cohort_87_88=0
+replace cohort_87_88=1 if cohort>=1987 & cohort<=1988
+gen cohort_89_90=0
+replace cohort_89_90=1 if cohort>=1989 & cohort<=1990
+gen cohort_91_92=0
+replace cohort_91_92=1 if cohort>=1991 & cohort<=1992
+gen cohort_93_94=0
+replace cohort_93_94=1 if cohort>=1993 & cohort<=1994
+gen cohort_95_96=0
+replace cohort_95_96=1 if cohort>=1995 & cohort<=1996
+
+gen treat_77_78=0
+replace treat_77_78=1 if (state==19 | state==28) & cohort_77_78==1
+label var treat_77_78 "77/78"
+gen treat_79_80=0
+replace treat_79_80=1 if (state==19 | state==28) & cohort_79_80==1
+label var treat_79_80 "79/80"
+gen treat_81_82=0
+replace treat_81_82=1 if (state==19 | state==28) & cohort_81_82==1
+label var treat_81_82 "81/82"
+gen treat_83_84=0
+replace treat_83_84=1 if (state==19 | state==28) & cohort_83_84==1
+label var treat_83_84 "83/84"
+gen treat_85_86=0
+*replace treat_85_86=1 if had_policy==1 & cohort_85_86==1
+label var treat_85_86 "85/86"
+gen treat_87_88=0
+replace treat_87_88=1 if had_policy==1 & cohort_87_88==1
+label var treat_87_88 "87/88"
+gen treat_89_90=0
+replace treat_89_90=1 if had_policy==1 & cohort_89_90==1
+label var treat_89_90 "89/90"
+gen treat_91_92=0
+replace treat_91_92=1 if had_policy==1 & cohort_91_92==1
+label var treat_91_92 "91/92"
+gen treat_93_94=0
+replace treat_93_94=1 if had_policy==1 & cohort_93_94==1
+label var treat_93_94 "93/94"
+gen treat_95_96=0
+replace treat_95_96=1 if had_policy==1 & cohort_95_96==1
+label var treat_95_96 "95/96"
+
+areg eng treat_* i.state cohort_* edu female female_hh age_hh edu_hh hh_size ///
+[aw=weight] if age>=18 & age<=37, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-0.5(0.25)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort bins", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 1)) text(1.15 3.8 "Eng program NL", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+text(1.15 6.2 "Eng program Tam", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\eng_abil2.png", replace 
 *========================================================================*
 /* Descriptive statistics */
 *========================================================================*
