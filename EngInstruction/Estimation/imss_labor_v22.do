@@ -155,27 +155,29 @@ drop if wage==.
 /* Creating industry variable: export industry, non-export, hospitality
 and other services */
 gen industry=.
-replace industry=0 if activity<=17 | (activity>=147 & activity<=154)
-replace industry=1 if (activity>=18 & activity<=107 & activity!=24 & activity!=106) | ///
-activity==112 | activity==114 | activity==116 | activity==118 | activity==126 ///
-| activity==127 | activity==131 | activity==132 | activity==144 
+replace industry=0 if activity<=17 | (activity>=147 & activity<=154) | activity==261
+replace industry=1 if activity==24 | activity==45 | activity==46 ///
+| activity==54 | activity==55 | activity==97 | activity==102 | activity==106 ///
+| (activity>=127 & activity<=130) | (activity>=133 & activity<=136)
 replace industry=2 if activity<=146 & industry==.
-replace industry=3 if (activity>=222 & activity<=223) | (activity>=229 & activity<=231) ///
-| activity==233 | activity==236 | (activity>=242 & activity<=251) | (activity>=271 & activity<=276)
+replace industry=3 if activity==157 | activity==164 | activity==173 ///
+| activity==177 | activity==194 | activity==201 | (activity>=222 & ///
+activity<=223) | (activity>=229 & activity<=231) | activity==233 | ///
+activity==236 | (activity>=242 & activity<=251) | (activity>=271 & activity<=276)
 replace industry=4 if activity>=144 & industry==.
 
 gen agcons_ind=industry==0
-gen nexport_ind=industry==1
-gen export_ind=industry==2
+gen export_ind=industry==1
+gen nexport_ind=industry==2
 gen hosp_telecom_recrea=industry==3
 gen other_ser=industry==4
 /************* Full Sample *************/
 eststo clear
 eststo: areg agcons_ind h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year, absorb(cct) vce(cluster cct)
-eststo: areg nexport_ind h_eng language6 math6 female n_stud age age2 t_colle ///
-t_mast rural perma n_jobs i.cohort i.year, absorb(cct) vce(cluster cct)
 eststo: areg export_ind h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural perma n_jobs i.cohort i.year, absorb(cct) vce(cluster cct)
+eststo: areg nexport_ind h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year, absorb(cct) vce(cluster cct)
 eststo: areg hosp_telecom_recrea h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year, absorb(cct) vce(cluster cct)
@@ -187,9 +189,9 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N a
 eststo clear
 eststo: areg agcons_ind h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg nexport_ind h_eng language6 math6 female n_stud age age2 t_colle ///
-t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
 eststo: areg export_ind h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg nexport_ind h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
 eststo: areg hosp_telecom_recrea h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
@@ -201,9 +203,9 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N a
 eststo clear
 eststo: areg agcons_ind h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==0, absorb(cct) vce(cluster cct)
-eststo: areg nexport_ind h_eng language6 math6 female n_stud age age2 t_colle ///
-t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==0, absorb(cct) vce(cluster cct)
 eststo: areg export_ind h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==0, absorb(cct) vce(cluster cct)
+eststo: areg nexport_ind h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==0, absorb(cct) vce(cluster cct)
 eststo: areg hosp_telecom_recrea h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==0, absorb(cct) vce(cluster cct)
@@ -215,9 +217,9 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N a
 eststo clear
 eststo: areg agcons_ind h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==1, absorb(cct) vce(cluster cct)
-eststo: areg nexport_ind h_eng language6 math6 female n_stud age age2 t_colle ///
-t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==1, absorb(cct) vce(cluster cct)
 eststo: areg export_ind h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==1, absorb(cct) vce(cluster cct)
+eststo: areg nexport_ind h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==1, absorb(cct) vce(cluster cct)
 eststo: areg hosp_telecom_recrea h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1 & female==1, absorb(cct) vce(cluster cct)
@@ -230,9 +232,9 @@ gen eng_female=h_eng*female
 eststo clear
 eststo: areg agcons_ind eng_female h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg nexport_ind eng_female h_eng language6 math6 female n_stud age age2 t_colle ///
-t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
 eststo: areg export_ind eng_female h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg nexport_ind eng_female h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
 eststo: areg hosp_telecom_recrea eng_female h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural perma n_jobs i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
