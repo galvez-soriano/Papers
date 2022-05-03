@@ -437,12 +437,11 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(t_eng) stats(N a
 use "$base\dbase_18_21_final.dta", clear
 
 gen econ_act=.
-replace econ_act=1 if activity<=8 
+replace econ_act=1 if activity<=8 | activity==261
 replace econ_act=2 if (activity>=9 & activity<=17) | (activity>=147 ///
 & activity<=154)
-replace econ_act=3 if activity>=18 & activity<=146
-replace econ_act=4 if activity>=155 & activity<=276
-
+replace econ_act=3 if activity>=18 & activity<=146 & econ_act==.
+replace econ_act=4 if activity>=155 & activity<=276 & econ_act==.
 
 /* Construction includes mining and utilities.
 Hospitaly includes entretainment */
