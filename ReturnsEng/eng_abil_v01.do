@@ -454,16 +454,16 @@ tab occup [fw=weight] if eng!=. & age>=18 & age<=65
 
 /* Low education */
 eststo clear
-eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(occup) nototal c(stat) stat(mean)
-eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(occup) nototal c(stat) stat(mean)
-eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(occup) nototal c(stat) stat(mean)
-eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(occup) nototal c(stat) stat(mean)
+eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(occup) nototal c(stat) stat(mean)
+eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(occup) nototal c(stat) stat(mean)
+eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(occup) nototal c(stat) stat(mean)
+eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(occup) nototal c(stat) stat(mean)
 esttab english income gender education gender using "$doc\fq_occup_eng_ledu.tex", ///
 cells("mean(fmt(%9.2fc))") nonumber noobs label replace
-tab occup [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6
+tab occup [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12
 
 /* Detailed analysis of occupations 
-keep if edu<=6
+keep if edu<=12
 tostring sinco, replace format(%04.0f)
 gen sinco_sub=substr(sinco,1,3)
 destring sinco_sub sinco, replace
@@ -491,16 +491,16 @@ tab occup [fw=weight] if eng!=. & age>=18 & age<=65
 
 /* Low education */
 eststo clear
-eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(occup) nototal c(stat) stat(mean)
-eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(occup) nototal c(stat) stat(mean)
-eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(occup) nototal c(stat) stat(mean)
-eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(occup) nototal c(stat) stat(mean)
+eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(occup) nototal c(stat) stat(mean)
+eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(occup) nototal c(stat) stat(mean)
+eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(occup) nototal c(stat) stat(mean)
+eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(occup) nototal c(stat) stat(mean)
 esttab english income gender education gender using "$doc\fq_occup_eng_ledu_miss.tex", ///
 cells("mean(fmt(%9.3fc))") nonumber noobs label replace
-tab occup [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9
+tab occup [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12
 
 /* Detailed analysis of occupations 
-keep if edu<=6
+keep if edu<=12
 tostring sinco, replace format(%04.0f)
 gen sinco_sub=substr(sinco,1,3)
 destring sinco_sub sinco, replace
@@ -549,16 +549,16 @@ tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65
 
 /* Low education */
 eststo clear
-eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(econ_act) nototal c(stat) stat(mean)
-eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(econ_act) nototal c(stat) stat(mean)
-eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(econ_act) nototal c(stat) stat(mean)
-eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(econ_act) nototal c(stat) stat(mean)
+eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
+eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
+eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
+eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
 esttab english income gender education gender using "$doc\fq_econa_eng_edu.tex", ///
 cells("mean(fmt(%9.2fc))") nonumber noobs label replace
-tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6
+tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12
 
 /* Detailed analysis of occupations 
-keep if edu<=6
+keep if edu<=12
 tostring scian, replace format(%04.0f)
 gen naics_sub=substr(scian,1,3)
 destring naics_sub scian, replace
@@ -587,16 +587,16 @@ tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65
 
 /* Low education */
 eststo clear
-eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
-eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
-eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
-eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
+eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
+eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
+eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
+eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
 esttab english income gender education gender using "$doc\fq_econa_eng_edu_miss.tex", ///
 cells("mean(fmt(%9.3fc))") nonumber noobs label replace
-tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9
+tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12
 
 /* Detailed analysis of occupations 
-keep if edu<=6
+keep if edu<=12
 tostring scian, replace format(%04.0f)
 gen naics_sub=substr(scian,1,3)
 destring naics_sub scian, replace
