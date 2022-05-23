@@ -70,7 +70,7 @@ drop nivelaprob gradoaprob antec_esc edo_conyug act_pnea1
 order id_hh id
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare/2014/ingresos.csv", clear 
+import delimited "$data/ingresos.csv", clear 
 tostring foliohog, replace
 tostring folioviv, replace format(%10.0f) force
 replace folioviv="0"+folioviv in 1/45831
@@ -84,7 +84,7 @@ drop _merge
 replace income=0 if income==.
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare/2014/trabajos.csv", clear
+import delimited "$data/trabajos.csv", clear
 tostring foliohog, replace
 tostring folioviv, replace format(%10.0f) force
 replace folioviv="0"+folioviv in 1/18057
@@ -98,7 +98,7 @@ merge 1:1 id using "$base\eng_abil.dta"
 drop _merge
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare/2014/concentradohogar.csv", clear
+import delimited "$data/concentradohogar.csv", clear
 rename ubica_geo geo
 sort geo
 tostring geo, replace format(%09.0f) force
@@ -124,7 +124,7 @@ merge 1:m id_hh using "$base\eng_abil.dta"
 drop _merge
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare/2014/biare.csv", clear
+import delimited "$data/biare.csv", clear
 tostring foliohog, replace
 tostring folioviv, replace format(%10.0f) force
 replace folioviv="0"+folioviv in 1/10852
@@ -145,4 +145,12 @@ replace formal=1 if med_affil==1 & work==1 & formal==0
 drop trapais pago pres_20 htrab tiene_suel min_wage clas_emp tam_emp ///
 tiene_suel tipoact med_affil ss ss_years segpop
 rename factor_per weight
+save "$base\eng_abil.dta", replace
+*========================================================================*
+use "$base\eng_abil.dta", clear
+collapse (mean) weight, by(id_hh)
+
+merge m:m id_hh using "$base\eng_abil.dta"
+drop _merge
+gen state=substr(geo,1,2)
 save "$base\eng_abil.dta", replace
