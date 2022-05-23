@@ -10,15 +10,49 @@ gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main/biare/2014"
 gl base= "C:\Users\ogalvezs\Documents\Returns to Eng\Data"
 gl doc= "C:\Users\ogalvezs\Documents\Returns to Eng\Doc"
 *========================================================================*
+/* English abilities in Aguascalientes */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+keep if state=="01" | state=="32"
+drop if state!=state5
+gen treat=state=="01"
+gen after=cohort>=1990
+replace after=. if cohort<1986 | cohort>1996
+gen after_treat=after*treat
+replace eng=0 if eng==.
+gen edu2=edu^2
+
+eststo clear
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous [aw=weight], absorb(geo) vce(cluster geo)
+
+foreach x in 86 87 88 89 90 91 92 93 94 95 96 {
+    gen treat_`x'=cohort==19`x'
+	replace treat_`x'=0 if treat==0
+	label var treat_`x' "19`x'"
+}
+replace treat_89=0
+
+areg eng treat_* treat i.cohort cohort edu edu2 female student work indigenous ///
+[aw=weight]if cohort>=1986 & cohort<=1996, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) text(0.6 3 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+*========================================================================*
 /* English abilities in Nuevo Leon */
 *========================================================================*
 use "$base\eng_abil.dta", clear
 keep if state=="19" | state=="08"
 drop if state!=state5
-*gen cohort=2014-age
 gen treat=state=="19"
-gen after=age<=27
-replace after=. if age<18 | age>37
+gen after=cohort>=1985
+replace after=. if cohort<1974 | cohort>1996
 gen after_treat=after*treat
 replace eng=0 if eng==.
 gen edu2=edu^2
@@ -52,23 +86,23 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(after_treat) ///
 scalars( "StateFE State FE" "Controls Controls" "CohortFE Cohort FE" ///
 "CountyFE County FE") replace
 
-foreach x in 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
+foreach x in 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
     gen treat_`x'=cohort==19`x'
 	replace treat_`x'=0 if treat==0
 	label var treat_`x' "19`x'"
 }
-replace treat_86=0
-*recast(connected)
+replace treat_84=0
 areg eng treat_* treat i.cohort edu edu2 female student work indigenous ///
-[aw=weight] if age>=18 & age<=37, absorb(geo) vce(cluster geo)
+[aw=weight] if cohort>=1974 & cohort<=1996, absorb(geo) vce(cluster geo)
+*recast(connected)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(11.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
 ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 6.3 "Eng program in 6th grade", linegap(.2cm) ///
+ysc(r(-0.5 0.5)) text(0.6 8 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\eng_abil_NL.png", replace 
 *========================================================================*
@@ -77,10 +111,9 @@ graph export "$doc\eng_abil_NL.png", replace
 use "$base\eng_abil.dta", clear
 keep if state=="28" | state=="02"
 drop if state!=state5
-*gen cohort=2014-age
 gen treat=state=="28"
-gen after=age<=23
-replace after=. if age<18 | age>29
+gen after=cohort>=1990
+replace after=. if cohort<1983 | cohort>1996
 gen after_treat=after*treat
 replace eng=0 if eng==.
 gen edu2=edu^2
@@ -89,23 +122,58 @@ eststo clear
 eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
 indigenous [aw=weight], absorb(geo) vce(cluster geo)
 
-foreach x in 86 87 88 89 90 91 92 93 94 95 96 {
+foreach x in 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
     gen treat_`x'=cohort==19`x'
 	replace treat_`x'=0 if treat==0
 	label var treat_`x' "19`x'"
 }
-replace treat_90=0
+replace treat_89=0
 
-areg eng treat_* treat cohort* edu female female_hh age_hh edu_hh hh_size ///
-[aw=weight] if age>=18 & age<=29, absorb(geo) vce(cluster geo)
+areg eng treat_* treat i.cohort edu edu2 female student work indigenous ///
+[aw=weight] if cohort>=1983 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
 ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 4.2 "Eng program", linegap(.2cm) ///
+ysc(r(-0.5 0.5)) text(0.6 6.2 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+*========================================================================*
+/* English abilities in Sonora */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+keep if state=="26" | state=="08"
+drop if state!=state5
+gen treat=state=="26"
+gen after=cohort>=1993
+replace after=. if cohort<1989 | cohort>1996
+gen after_treat=after*treat
+replace eng=0 if eng==.
+gen edu2=edu^2
+
+eststo clear
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous [aw=weight], absorb(geo) vce(cluster geo)
+
+foreach x in 89 90 91 92 93 94 95 96 {
+    gen treat_`x'=cohort==19`x'
+	replace treat_`x'=0 if treat==0
+	label var treat_`x' "19`x'"
+}
+replace treat_92=0
+
+areg eng treat_* treat i.cohort edu edu2 female student work indigenous ///
+[aw=weight] if cohort>=1989 & cohort<=1996, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) text(0.6 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 *========================================================================*
 /* English abilities in Nuevo Leon and Tamaulipas */
@@ -138,7 +206,7 @@ foreach x in 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
 }
 replace treat_86=0
 
-areg eng treat_* i.state cohort* edu edu2 female student work indigenous ///
+areg eng treat_* i.state i.cohort edu edu2 female student work indigenous ///
 [aw=weight] if age>=18 & age<=37, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -413,18 +481,15 @@ rename scian naics
 replace naics=2211 if naics==2210
 replace naics=2212 if naics==2221
 replace naics=2213 if naics==2222
-
 gen p_eng=eng
 replace p_eng=0 if eng==.
 collapse (mean) p_eng [fw=weight], by(naics)
 save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace
-
 use "$base\eng_abil.dta", clear
 rename scian naics
 replace naics=2211 if naics==2210
 replace naics=2212 if naics==2221
 replace naics=2213 if naics==2222
-
 keep if edu<=12
 gen p_eng_edu=eng
 replace p_eng_edu=0 if eng==.
@@ -432,7 +497,6 @@ collapse (mean) p_eng_edu [fw=weight], by(naics)
 merge 1:1 naics using "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta"
 replace p_eng_edu=0 if p_eng_edu==.
 drop _merge
-
 xtile eng_dist= p_eng, nq(4)
 xtile eng_dist_edu= p_eng_edu, nq(4)
 save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace */
