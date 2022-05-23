@@ -70,7 +70,7 @@ drop nivelaprob gradoaprob antec_esc edo_conyug act_pnea1
 order id_hh id
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/ingresos.csv", clear 
+import delimited "$data/biare/2014/ingresos.csv", clear 
 tostring foliohog, replace
 tostring folioviv, replace format(%10.0f) force
 replace folioviv="0"+folioviv in 1/45831
@@ -84,7 +84,7 @@ drop _merge
 replace income=0 if income==.
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/trabajos.csv", clear
+import delimited "$data/biare/2014/trabajos.csv", clear
 tostring foliohog, replace
 tostring folioviv, replace format(%10.0f) force
 replace folioviv="0"+folioviv in 1/18057
@@ -98,7 +98,7 @@ merge 1:1 id using "$base\eng_abil.dta"
 drop _merge
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/concentradohogar.csv", clear
+import delimited "$data/biare/2014/concentradohogar.csv", clear
 rename ubica_geo geo
 sort geo
 tostring geo, replace format(%09.0f) force
@@ -124,7 +124,7 @@ merge 1:m id_hh using "$base\eng_abil.dta"
 drop _merge
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare.csv", clear
+import delimited "$data/biare/2014/biare.csv", clear
 tostring foliohog, replace
 tostring folioviv, replace format(%10.0f) force
 replace folioviv="0"+folioviv in 1/10852
@@ -153,4 +153,23 @@ collapse (mean) weight, by(id_hh)
 merge m:m id_hh using "$base\eng_abil.dta"
 drop _merge
 gen state=substr(geo,1,2)
+gen cohort=2014-age
+gen expe=age-5-edu
+replace expe=0 if age<16
+replace expe=0 if expe<0
+gen expe2=expe^2
+label var eng "English (speaking ability)"
+label var edu "Education (years)"
+label var expe "Experience (years)"
+label var age "Age (years)"
+label var female "Female (\%)"
+label var married "Married (\%)"
+label var income "Wage (monthly pesos)"
+label var student "Student (\%)"
+label var work "Worker (\%)"
+label var rural "Rural (\%)"
+label var female_hh "Female household head (\%)"
+label var age_hh "Age household head (years)"
+label var edu_hh "Education household head (\%)"
+label var hh_size "Household size (persons)"
 save "$base\eng_abil.dta", replace
