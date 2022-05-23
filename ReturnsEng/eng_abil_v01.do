@@ -15,7 +15,7 @@ gl doc= "C:\Users\ogalvezs\Documents\Returns to Eng\Doc"
 use "$base\eng_abil.dta", clear
 keep if state=="19" | state=="08"
 drop if state!=state5
-gen cohort=2014-age
+*gen cohort=2014-age
 gen treat=state=="19"
 gen after=age<=27
 replace after=. if age<18 | age>37
@@ -24,10 +24,33 @@ replace eng=0 if eng==.
 gen edu2=edu^2
 
 eststo clear
-eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
-indigenous [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg eng after_treat treat after [aw=weight], absorb(state) vce(cluster geo)
+estadd local  StateFE  "YES"
+estadd local  Controls  "NO"
+estadd local  CohortFE  "NO"
+estadd local  CountyFE  "NO"
+eststo: areg eng after_treat treat after edu edu2 female student work indigenous ///
+[aw=weight], absorb(state) vce(cluster geo)
+estadd local  StateFE  "YES"
+estadd local  Controls  "YES"
+estadd local  CohortFE  "NO"
+estadd local  CountyFE  "NO"
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work indigenous ///
+[aw=weight], absorb(state) vce(cluster geo)
+estadd local  StateFE  "YES"
+estadd local  Controls  "YES"
+estadd local  CohortFE  "YES"
+estadd local  CountyFE  "NO"
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work indigenous ///
+[aw=weight], absorb(geo) vce(cluster geo)
+estadd local  StateFE  "YES"
+estadd local  Controls  "YES"
+estadd local  CohortFE  "YES"
+estadd local  CountyFE  "YES"
 esttab using "$doc\tab_eng_abil.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(after_treat) replace
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(after_treat) ///
+scalars( "StateFE State FE" "Controls Controls" "CohortFE Cohort FE" ///
+"CountyFE County FE") replace
 
 foreach x in 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
     gen treat_`x'=cohort==19`x'
@@ -42,19 +65,19 @@ coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
 ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort bins", size(medium) height(5)) ///
+xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.5 0.5)) text(0.6 6.3 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\eng_abil.png", replace 
+graph export "$doc\eng_abil_NL.png", replace 
 *========================================================================*
 /* English abilities in Tamaulipas */
 *========================================================================*
 use "$base\eng_abil.dta", clear
 keep if state=="28" | state=="02"
 drop if state!=state5
-gen cohort=2014-age
+*gen cohort=2014-age
 gen treat=state=="28"
 gen after=age<=23
 replace after=. if age<18 | age>29
@@ -79,7 +102,7 @@ coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
 ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort bins", size(medium) height(5)) ///
+xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.5 0.5)) text(0.6 4.2 "Eng program", linegap(.2cm) ///
@@ -90,86 +113,44 @@ size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 use "$base\eng_abil.dta", clear
 keep if state=="02" | state=="08" | state=="19" | state=="28"
 drop if state!=state5
-gen cohort=2014-age
+*gen cohort=2014-age
 gen had_policy=0 
 replace had_policy=1 if state=="19" & age>=18 & age<=27
 replace had_policy=1 if state=="28" & age>=18 & age<=23
 destring state, replace
 keep if age>=18 & age<=37
-*replace eng=0 if eng==.
+replace eng=0 if eng==.
+gen edu2=edu^2
+
 eststo clear
 eststo: areg eng had_policy i.state [aw=weight], absorb(cohort) vce(cluster geo)
-eststo: areg eng had_policy i.state edu female student work female_hh age_hh edu_hh hh_size ///
+eststo: areg eng had_policy i.state edu edu2 female student work indigenous ///
 [aw=weight], absorb(cohort) vce(cluster geo)
-eststo: areg eng had_policy i.cohort edu female student work female_hh age_hh edu_hh hh_size ///
+eststo: areg eng had_policy i.cohort edu edu2 female student work indigenous ///
 [aw=weight], absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_eng_abil2.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English instruction and Eng abilities) keep(had_policy) replace
 
-gen cohort_77_78=0
-replace cohort_77_78=1 if cohort>=1977 & cohort<=1978
-gen cohort_79_80=0
-replace cohort_79_80=1 if cohort>=1979 & cohort<=1980
-gen cohort_81_82=0
-replace cohort_81_82=1 if cohort>=1981 & cohort<=1982
-gen cohort_83_84=0
-replace cohort_83_84=1 if cohort>=1983 & cohort<=1984
-gen cohort_85_86=0
-replace cohort_85_86=1 if cohort>=1985 & cohort<=1986
-gen cohort_87_88=0
-replace cohort_87_88=1 if cohort>=1987 & cohort<=1988
-gen cohort_89_90=0
-replace cohort_89_90=1 if cohort>=1989 & cohort<=1990
-gen cohort_91_92=0
-replace cohort_91_92=1 if cohort>=1991 & cohort<=1992
-gen cohort_93_94=0
-replace cohort_93_94=1 if cohort>=1993 & cohort<=1994
-gen cohort_95_96=0
-replace cohort_95_96=1 if cohort>=1995 & cohort<=1996
+foreach x in 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
+    gen treat_`x'=cohort==19`x'
+	replace treat_`x'=0 if state==02 | state==08
+	label var treat_`x' "19`x'"
+}
+replace treat_86=0
 
-gen treat_77_78=0
-replace treat_77_78=1 if (state==19 | state==28) & cohort_77_78==1
-label var treat_77_78 "77/78"
-gen treat_79_80=0
-replace treat_79_80=1 if (state==19 | state==28) & cohort_79_80==1
-label var treat_79_80 "79/80"
-gen treat_81_82=0
-replace treat_81_82=1 if (state==19 | state==28) & cohort_81_82==1
-label var treat_81_82 "81/82"
-gen treat_83_84=0
-replace treat_83_84=1 if (state==19 | state==28) & cohort_83_84==1
-label var treat_83_84 "83/84"
-gen treat_85_86=0
-*replace treat_85_86=1 if had_policy==1 & cohort_85_86==1
-label var treat_85_86 "85/86"
-gen treat_87_88=0
-replace treat_87_88=1 if had_policy==1 & cohort_87_88==1
-label var treat_87_88 "87/88"
-gen treat_89_90=0
-replace treat_89_90=1 if had_policy==1 & cohort_89_90==1
-label var treat_89_90 "89/90"
-gen treat_91_92=0
-replace treat_91_92=1 if had_policy==1 & cohort_91_92==1
-label var treat_91_92 "91/92"
-gen treat_93_94=0
-replace treat_93_94=1 if had_policy==1 & cohort_93_94==1
-label var treat_93_94 "93/94"
-gen treat_95_96=0
-replace treat_95_96=1 if had_policy==1 & cohort_95_96==1
-label var treat_95_96 "95/96"
-
-areg eng treat_* i.state cohort_* edu female female_hh age_hh edu_hh hh_size ///
+areg eng treat_* i.state cohort* edu edu2 female student work indigenous ///
 [aw=weight] if age>=18 & age<=37, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(11.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort bins", size(medium) height(5)) xlabel(,labs(medium)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) /// 
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 1)) text(1.15 3.8 "Eng program NL", linegap(.2cm) ///
+ysc(r(-0.5 0.5)) text(0.62 5.6 "Eng program NL", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
-text(1.15 6.2 "Eng program Tam", linegap(.2cm) ///
+text(0.62 10.2 "Eng program Tam", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\eng_abil2.png", replace 
 *========================================================================*
@@ -363,13 +344,13 @@ tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65
 
 /* Low education */
 eststo clear
-eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
-eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
-eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
-eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
+eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(econ_act) nototal c(stat) stat(mean)
+eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(econ_act) nototal c(stat) stat(mean)
+eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(econ_act) nototal c(stat) stat(mean)
+eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6, by(econ_act) nototal c(stat) stat(mean)
 esttab english income gender education gender using "$doc\fq_econa_eng_edu.tex", ///
 cells("mean(fmt(%9.2fc))") nonumber noobs label replace
-tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12
+tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=6
 
 /* Detailed analysis of occupations 
 keep if edu<=6
@@ -401,13 +382,13 @@ tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65
 
 /* Low education */
 eststo clear
-eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
-eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
-eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
-eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12, by(econ_act) nototal c(stat) stat(mean)
+eststo english: quietly estpost tabstat eng [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
+eststo income: quietly estpost tabstat income [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
+eststo gender: quietly estpost tabstat female [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
+eststo education: quietly estpost tabstat edu [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
 esttab english income gender education gender using "$doc\fq_econa_eng_edu_miss.tex", ///
 cells("mean(fmt(%9.3fc))") nonumber noobs label replace
-tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=12
+tab econ_act [fw=weight] if eng!=. & age>=18 & age<=65 & edu<=9
 
 /* Detailed analysis of occupations 
 keep if edu<=6
@@ -426,6 +407,35 @@ sort eng
 cd "C:\Users\galve\Documents\Papers\Ideas\Education\Returns to Eng Mex\Doc"
 dataout, save(NAICSmiss) tex replace dec(2) 
 */
+/*
+use "$base\eng_abil.dta", clear
+rename scian naics
+replace naics=2211 if naics==2210
+replace naics=2212 if naics==2221
+replace naics=2213 if naics==2222
+
+gen p_eng=eng
+replace p_eng=0 if eng==.
+collapse (mean) p_eng [fw=weight], by(naics)
+save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace
+
+use "$base\eng_abil.dta", clear
+rename scian naics
+replace naics=2211 if naics==2210
+replace naics=2212 if naics==2221
+replace naics=2213 if naics==2222
+
+keep if edu<=12
+gen p_eng_edu=eng
+replace p_eng_edu=0 if eng==.
+collapse (mean) p_eng_edu [fw=weight], by(naics)
+merge 1:1 naics using "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta"
+replace p_eng_edu=0 if p_eng_edu==.
+drop _merge
+
+xtile eng_dist= p_eng, nq(4)
+xtile eng_dist_edu= p_eng_edu, nq(4)
+save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace */
 *========================================================================*
 /* Replicating Table 4 of CIDAC report */
 use "$base\eng_abil.dta", clear
