@@ -158,6 +158,16 @@ gen expe=age-5-edu
 replace expe=0 if age<16
 replace expe=0 if expe<0
 gen expe2=expe^2
+replace eng=0 if eng==.
+gen edu2=edu^2
+gen lwage=log(income)
+replace lwage=0 if lwage==.
+drop if state!=state5 & state5<="32"
+gen inc_hh= income_hh-income
+replace inc_hh=inc_hh+1
+replace inc_hh=log(inc_hh)
+replace work=0 if work==.
+
 label var eng "English (speaking ability)"
 label var edu "Education (years)"
 label var expe "Experience (years)"
@@ -172,4 +182,5 @@ label var female_hh "Female household head (\%)"
 label var age_hh "Age household head (years)"
 label var edu_hh "Education household head (\%)"
 label var hh_size "Household size (persons)"
+
 save "$base\eng_abil.dta", replace
