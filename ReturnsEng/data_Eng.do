@@ -7,7 +7,7 @@ use in this paper */
 *========================================================================*
 clear
 set more off
-gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main/biare/2014"
+gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main"
 gl base= "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\English abilities"
 gl doc= "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Doc"
 *========================================================================*
