@@ -108,10 +108,49 @@ save "$base\d_schools.dta", replace
 use "$base\d_schools.dta", clear
 
 gen str geo=(state + id_mun + id_loc)
-collapse (mean) eng h_group [fw=total_stud], by(geo year)
+collapse (mean) h_group [fw=total_stud], by(geo year)
 
 rename h_group hrs_exp
 replace hrs_exp=0 if hrs_exp==.
+drop if year>2007
+
+bysort geo: gen nobs=_n
+bysort geo: gen nobs_tot=_N
+count
+expand 2 if nobs==10 & nobs_tot==10
+gen obs=_n
+replace year=. if obs>r(N)
+replace hrs_exp=. if obs>r(N)
+sort geo year
+bysort geo: egen sum_year=sum(year)
+replace year=1997 if year==. & sum_year==20025
+replace year=1998 if year==. & sum_year==20024
+replace year=1999 if year==. & sum_year==20023
+replace year=2000 if year==. & sum_year==20022
+replace year=2001 if year==. & sum_year==20021
+replace year=2002 if year==. & sum_year==20020
+replace year=2003 if year==. & sum_year==20019
+replace year=2004 if year==. & sum_year==20018
+replace year=2005 if year==. & sum_year==20017
+replace year=2006 if year==. & sum_year==20016
+replace year=2007 if year==. & sum_year==20015
+
+replace hrs_exp=hrs_exp[_n+1] if missing(hrs_exp) & year==1997
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year!=1997 & year!=2007
+replace hrs_exp=hrs_exp[_n-1] if missing(hrs_exp) & year==2007
+drop nobs nobs_tot obs sum_year
+
+bysort geo: gen nobs=_n
+bysort geo: gen nobs_tot=_N
+count
+expand 3 if nobs==9 & nobs_tot==9
+gen obs=_n
+replace year=. if obs>r(N)
+replace hrs_exp=. if obs>r(N)
+sort geo year
+bysort geo: egen sum_year=sum(year)
+
+
 gen cohort=year-11
 drop year
 
