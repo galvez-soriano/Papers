@@ -147,8 +147,41 @@ expand 3 if nobs==9 & nobs_tot==9
 gen obs=_n
 replace year=. if obs>r(N)
 replace hrs_exp=. if obs>r(N)
+
 sort geo year
-bysort geo: egen sum_year=sum(year)
+bysort geo: gen count_obs=_n+1996
+gen diff_year=count_obs if year!=count_obs
+bysort geo: gen year1997=1 if diff_year==1997
+bysort geo: egen y1997=sum(year1997)
+
+replace diff_year=. if year>=1998 & y1997==1
+replace year=1997 if count_obs==2006 & year==. & y1997==1
+drop year1997 y1997
+
+replace diff_year=0 if diff_year==.
+replace diff_year=diff_year-year[_n-1] if diff_year!=0
+replace diff_year=. if diff_year!=1
+replace diff_year=count_obs if diff_year==1
+bysort geo: egen replace_year=sum(diff_year)
+replace year=replace_year if count_obs==2006 & year==.
+drop count_obs diff_year replace_year
+
+sort geo year
+bysort geo: gen count_obs=_n+1996
+gen diff_year=count_obs if year!=count_obs
+replace diff_year=0 if diff_year==.
+replace diff_year=diff_year-year[_n-1] if diff_year!=0
+replace diff_year=. if diff_year!=1
+replace diff_year=count_obs if diff_year==1
+bysort geo: egen replace_year=sum(diff_year)
+replace year=replace_year if count_obs==2007 & year==.
+keep year hrs_exp
+sort geo year
+replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==9
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==9
+replace hrs_exp=hrs_exp[_n-1] if missing(hrs_exp) & year>=2006 & nobs_tot==9
+replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==9
+
 
 
 gen cohort=year-11
