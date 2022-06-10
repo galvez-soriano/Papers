@@ -956,3 +956,12 @@ gen cohort=year-11
 drop year
 
 save "$base\exposure_loc.dta", replace
+*========================================================================*
+use "$base\exposure_loc.dta", clear
+
+gen check=substr(geo,6,10)
+drop if check==""
+gen geo_mun=substr(geo,1,5)
+collapse (mean) hrs_exp, by(geo_mun cohort)
+rename hrs_exp hrs_exp2
+save "$base\exposure_mun.dta", replace
