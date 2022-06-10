@@ -194,5 +194,6 @@ merge m:m geo_mun cohort using "$base/exposure_mun.dta"
 replace hrs_exp=hrs_exp2 if merge2==1 & hrs_exp==.
 drop if _merge==2
 drop _merge merge2 hrs_exp2
+replace hrs_exp=0 if age>=29
 
 save "$base\eng_abil.dta", replace
