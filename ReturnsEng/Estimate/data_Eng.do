@@ -184,25 +184,28 @@ label var age_hh "Age household head (years)"
 label var edu_hh "Education household head (\%)"
 label var hh_size "Household size (persons)"
 
-merge m:m geo cohort using "$base/exposure_loc.dta"
-drop if _merge==2
+save "$base\eng_abil.dta", replace
+*========================================================================*
+use "$data2/exposure_loc.dta", clear
+
+append using "$data2/exposure_loc_older.dta"
+sort geo cohort
+
+merge m:m geo cohort using "$base\eng_abil.dta"
+drop if _merge==1
 rename _merge merge2
 
 gen geo_mun=substr(geo,1,5)
 
-merge m:m geo_mun cohort using "$base/exposure_mun.dta"
-replace hrs_exp=hrs_exp2 if merge2==1 & hrs_exp==.
+merge m:m geo_mun cohort using "$data2/exposure_mun_older.dta"
+replace hrs_exp=hrs_exp2 if merge2==2 & hrs_exp==.
 drop if _merge==2
-drop _merge merge2 hrs_exp2
 
-merge m:m geo cohort using "$base/exposure_loc_older.dta"
+rename _merge merge3
+merge m:m state cohort using "$data2/exposure_state_older.dta"
+replace hrs_exp=hrs_exp3 if merge2==2 & hrs_exp==.
 drop if _merge==2
-rename _merge merge2
-
-merge m:m geo_mun cohort using "$base/exposure_mun_older.dta"
-replace hrs_exp=hrs_exp2 if merge2==1 & hrs_exp==.
-drop if _merge==2
-drop _merge merge2 hrs_exp2
+drop _merge merge2 merge3 hrs_exp2 hrs_exp3
 replace hrs_exp=0 if age>=33
 
 save "$base\eng_abil.dta", replace
