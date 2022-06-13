@@ -89,6 +89,8 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_female) repl
 /************* Pre-trends analysis *************/
 *========================================================================*
 use "$base\dbase_18_21_final.dta", clear
+graph set window fontface "Times New Roman"
+
 foreach x in 1997 1998 1999 2000 2001 2002{
 gen eng_`x'=0
 label var eng_`x' "`x'"
