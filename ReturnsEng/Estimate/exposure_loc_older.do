@@ -42,13 +42,17 @@ replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1993
 drop nobs nobs_tot obs count_n cohort
 
 gen cohort=year-11
+gen check=substr(geo,6,10)
+drop if check==""
+drop check year
 
+save "$base\exposure_loc_all.dta", replace
+
+keep if cohort<=1985
 save "$base\exposure_loc_older.dta", replace
 *========================================================================*
 use "$base\exposure_loc_older.dta", clear
 
-gen check=substr(geo,6,10)
-drop if check==""
 gen geo_mun=substr(geo,1,5)
 collapse (mean) hrs_exp, by(geo_mun cohort)
 rename hrs_exp hrs_exp2
