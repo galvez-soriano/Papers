@@ -970,3 +970,13 @@ gen geo_mun=substr(geo,1,5)
 collapse (mean) hrs_exp, by(geo_mun cohort)
 rename hrs_exp hrs_exp2
 save "$base\exposure_mun.dta", replace
+*========================================================================*
+use "$base\exposure_loc.dta", clear
+
+gen check=substr(geo,6,10)
+drop if check==""
+gen state=substr(geo,1,2)
+collapse (mean) hrs_exp, by(state cohort)
+rename hrs_exp hrs_exp3
+replace hrs_exp3=hrs_exp3
+save "$base\exposure_state.dta", replace
