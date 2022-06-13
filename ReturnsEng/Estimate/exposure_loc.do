@@ -141,9 +141,10 @@ replace year=2005 if year==. & sum_year==20017
 replace year=2006 if year==. & sum_year==20016
 replace year=2007 if year==. & sum_year==20015
 
-replace hrs_exp=hrs_exp[_n+1] if missing(hrs_exp) & year==1997
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year!=1997 & year!=2007
-replace hrs_exp=hrs_exp[_n-1] if missing(hrs_exp) & year==2007
+sort geo year
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==10
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year!=1997 & year!=2007 & nobs_tot==10
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==10
 drop nobs nobs_tot obs sum_year
 
 /* Two missing years */
@@ -182,11 +183,14 @@ replace diff_year=. if diff_year!=1
 replace diff_year=count_obs if diff_year==1
 bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
+
 sort geo year
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==9
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==9
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==9
-replace hrs_exp=hrs_exp[_n-1]*1.03 if missing(hrs_exp) & year>=2006 & nobs_tot==9
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==9
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==9
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==9
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==9
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==9
 keep geo year hrs_exp
 
 /* Three missing years */
@@ -238,11 +242,12 @@ replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
 
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==8
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==8
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==8
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==8
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & nobs_tot==8
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==8
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==8
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==8
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==8
 keep geo year hrs_exp
 
 /* Four missing years */
@@ -305,12 +310,12 @@ replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
 
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==7
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==7
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==7
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==7
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year<=2006 & nobs_tot==7
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==7
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==7
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==7
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==7
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==7
 keep geo year hrs_exp
 
 /* Five missing years */
@@ -384,12 +389,12 @@ replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
 
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==6
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==6
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==6
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==6
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year<=2006 & nobs_tot==6
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==6
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==6
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==6
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==6
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==6
 keep geo year hrs_exp
 
 /* Six missing years */
@@ -474,12 +479,12 @@ replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
 
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==5
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==5
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==5
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==5
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year<=2006 & nobs_tot==5
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==5
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==5
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==5
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==5
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==5
 keep geo year hrs_exp
 
 /* Seven missing years */
@@ -575,12 +580,12 @@ replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
 
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==4
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==4
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==4
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==4
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year<=2006 & nobs_tot==4
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==4
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==4
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==4
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==4
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==4
 keep geo year hrs_exp
 
 /* Eight missing years */
@@ -687,12 +692,12 @@ replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
 
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==3
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==3
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==3
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==3
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year<=2006 & nobs_tot==3
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==3
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==3
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==3
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==3
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==3
 keep geo year hrs_exp
 
 /* Nine missing years */
@@ -810,12 +815,12 @@ replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
 
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==2
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==2
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==2
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==2
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year<=2006 & nobs_tot==2
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==2
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==2
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==2
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==2
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==2
 keep geo year hrs_exp
 
 /* Nine missing years */
@@ -944,12 +949,12 @@ replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
 
-replace hrs_exp=0 if missing(hrs_exp) & year==1997 & nobs_tot==1
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==1
 replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==1
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==1
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year<=2006 & nobs_tot==1
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==1
-replace hrs_exp=0 if missing(hrs_exp) & nobs_tot==1
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==1
+replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==1
+replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==1
 keep geo year hrs_exp
 
 gen cohort=year-11
