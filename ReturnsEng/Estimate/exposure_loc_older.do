@@ -112,6 +112,7 @@ replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1993
 drop nobs nobs_tot obs count_n
 
 gen cohort=year-11
+drop if year>=1997
 drop year
 
 save "$base\exposure_loc_older.dta", replace
