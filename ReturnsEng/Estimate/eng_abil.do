@@ -26,7 +26,7 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight], absorb(geo) vce(cluster geo)
-*Low Education
+/* Low education */
 eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
 indigenous inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
 eststo: areg work after_treat treat i.cohort edu female indigenous ///
@@ -44,6 +44,13 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight] if female==0, absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight] if female==0, absorb(geo) vce(cluster geo)
+/* Low education */
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_ags_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
@@ -55,10 +62,18 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight] if female==1, absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight] if female==1, absorb(geo) vce(cluster geo)
+/* Low education */
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_ags_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
+*========================================================================*
+/* PTA */
 foreach x in 86 87 88 89 90 91 92 93 94 95 {
     gen treat_`x'=cohort==19`x'
 	replace treat_`x'=0 if treat==0
@@ -97,41 +112,14 @@ areg lwage treat_* treat i.cohort cohort edu edu2 female student indigenous ///
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
-ylabel(-4(1)4, labs(medium) grid format(%5.0f)) ///
+ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-4 4)) text(4.8 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_AGS3.png", replace
-
-*========================================================================*
 /* Low education */
-
-
-
-eststo clear
-eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
-indigenous inc_hh edu_hh [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg work after_treat treat i.cohort edu female indigenous ///
-inc_hh edu_hh [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
-indigenous [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_ags_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
-eststo clear
-eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
-indigenous inc_hh edu_hh [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg work after_treat treat i.cohort edu female indigenous ///
-inc_hh edu_hh [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
-indigenous [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_ags_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
 areg eng treat_* treat i.cohort cohort edu edu2 female student work indigenous ///
 inc_hh edu_hh [aw=weight]if cohort>=1986 & cohort<=1995 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -170,7 +158,6 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_AGS3_edu.png", replace
-
 *========================================================================*
 /* English abilities in Nuevo Leon */
 *========================================================================*
@@ -188,6 +175,13 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight], absorb(geo) vce(cluster geo)
+/* Low education */
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_nl.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
@@ -199,6 +193,13 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight] if female==0, absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight] if female==0, absorb(geo) vce(cluster geo)
+/* Low education */
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_nl_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
@@ -210,10 +211,18 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight] if female==1, absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight] if female==1, absorb(geo) vce(cluster geo)
+/* Low education */
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_nl_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
+*========================================================================*
+/* PTA */
 foreach x in 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
     gen treat_`x'=cohort==19`x'
 	replace treat_`x'=0 if treat==0
@@ -239,11 +248,11 @@ areg work treat_* treat i.cohort cohort edu female indigenous inc_hh edu_hh ///
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+ysc(r(-1 1)) text(1.2 3.2 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_NL2.png", replace
 
@@ -252,13 +261,52 @@ areg lwage treat_* treat i.cohort cohort edu edu2 female student indigenous ///
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
-ylabel(-4(1)4, labs(medium) grid format(%5.0f)) ///
+ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) text(4.8 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+ysc(r(-10 10)) text(12 3.2 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_NL3.png", replace
+/* Low education */
+areg eng treat_* treat i.cohort cohort edu edu2 female student work indigenous ///
+inc_hh edu_hh [aw=weight]if cohort>=1981 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) /// 
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) text(0.6 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_NL_edu.png", replace
+
+areg work treat_* treat i.cohort cohort edu female indigenous inc_hh edu_hh ///
+[aw=weight]if cohort>=1981 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_NL2_edu.png", replace
+
+areg lwage treat_* treat i.cohort cohort edu edu2 female student indigenous ///
+[aw=weight]if cohort>=1981 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
+ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-10 10)) text(12 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_NL3_edu.png", replace
 *========================================================================*
 /* English abilities in Tamaulipas */
 *========================================================================*
@@ -276,6 +324,13 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight], absorb(geo) vce(cluster geo)
+/* Low education */
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_tam.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
@@ -287,6 +342,13 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight] if female==0, absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight] if female==0, absorb(geo) vce(cluster geo)
+/* Low education */
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if female==0 & edu<=9 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if female==0 & edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_tam_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
@@ -298,10 +360,18 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight] if female==1, absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight] if female==1, absorb(geo) vce(cluster geo)
+/* Low education */
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if female==1 & edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_tam_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
+*========================================================================*
+/* PTA */
 foreach x in 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
     gen treat_`x'=cohort==19`x'
 	replace treat_`x'=0 if treat==0
@@ -327,11 +397,11 @@ areg work treat_* treat i.cohort cohort edu female indigenous inc_hh edu_hh ///
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 6 "Eng program", linegap(.2cm) ///
+ysc(r(-1 1)) text(1.2 6 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_TAM2.png", replace
 
@@ -340,13 +410,52 @@ areg lwage treat_* treat i.cohort cohort edu edu2 female student indigenous ///
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
-ylabel(-4(1)4, labs(medium) grid format(%5.0f)) ///
+ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) text(4.8 6 "Eng program", linegap(.2cm) ///
+ysc(r(-10 10)) text(12 6 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_TAM3.png", replace
+/* Low education */
+areg eng treat_* treat i.cohort cohort edu edu2 female student work indigenous ///
+inc_hh edu_hh [aw=weight]if cohort>=1981 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) text(0.6 6 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_TAM_edu.png", replace
+
+areg work treat_* treat i.cohort cohort edu female indigenous inc_hh edu_hh ///
+[aw=weight]if cohort>=1981 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 6 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_TAM2_edu.png", replace
+
+areg lwage treat_* treat i.cohort cohort edu edu2 female student indigenous ///
+[aw=weight]if cohort>=1981 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
+ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-10 10)) text(12 6 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_TAM3_edu.png", replace
 *========================================================================*
 /* English abilities in Nuevo Leon and Tamaulipas */
 *========================================================================*
