@@ -26,6 +26,13 @@ eststo: areg work after_treat treat i.cohort edu female indigenous ///
 inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
 eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
 indigenous [aw=weight], absorb(geo) vce(cluster geo)
+*Low Education
+eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
+indigenous inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg work after_treat treat i.cohort edu female indigenous ///
+inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
+indigenous [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_ags.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
@@ -101,16 +108,7 @@ graph export "$doc\PTA_AGS3.png", replace
 *========================================================================*
 /* Low education */
 
-eststo clear
-eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
-indigenous inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg work after_treat treat i.cohort edu female indigenous ///
-inc_hh edu_hh [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg lwage after_treat treat i.cohort edu edu2 female student ///
-indigenous [aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_ags.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(after_treat) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
 
 eststo clear
 eststo: areg eng after_treat treat i.cohort edu edu2 female student work ///
