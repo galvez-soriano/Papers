@@ -208,4 +208,5 @@ drop if _merge==2
 drop _merge merge2 merge3 hrs_exp2 hrs_exp3
 replace hrs_exp=0 if age>=33
 
+drop check
 save "$base\eng_abil.dta", replace
