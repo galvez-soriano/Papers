@@ -132,7 +132,7 @@ gen eng_edu=eng*edu_level
 foreach x in 0 1 2 3 4 5 6 7{
 gen engedu`x'=eng_edu==`x'
 }
-replace engedu1=0
+replace engedu0=0
 label var engedu0 "No-edu"
 label var engedu1 "Elem-drop"
 label var engedu2 "Elem S"
@@ -141,7 +141,7 @@ label var engedu4 "Middle S"
 label var engedu5 "High S"
 label var engedu6 "College"
 label var engedu7 "Graduate"
-areg lincome eng edu expe expe2 female rural female_hh age_hh edu_hh married ///
+areg lwage eng edu expe expe2 female rural female_hh age_hh edu_hh married ///
 engedu* [aw=weight] if age>=18 & age<=65, absorb(geo) vce(cluster geo)
 
 *graph set window fontface "Times New Roman"
@@ -152,15 +152,6 @@ xtitle("Levels of education", size(small) height(5)) xlabel(,labs(small)) ///
 graphregion(color(white)) scheme(s2mono) recast(connected) ciopts(recast(rcap)) ///
 ysc(r(-0.5 1)) 
 graph export "$doc\eng_abil_edu.png", replace 
-/* Same as above but with missings */
-replace eng=0 if eng==.
-coefplot, vertical keep(engedu*) yline(0) omitted baselevels ///
-ytitle("Returns to English abilities by education levels", size(small) height(5)) ///
-ylabel(-4(2)4, labs(small) grid) ///
-xtitle("Levels of education", size(small) height(5)) xlabel(,labs(small)) ///
-graphregion(color(white)) scheme(s2mono) recast(connected) ciopts(recast(rcap)) ///
-ysc(r(-0.5 1)) 
-graph export "$doc\eng_abil_edu_miss.png", replace 
 *========================================================================*
 /* English abilities in Aguascalientes */
 *========================================================================*
