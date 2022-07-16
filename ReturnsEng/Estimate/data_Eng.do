@@ -9,10 +9,13 @@ clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main"
 gl data2= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
-gl base= "C:\Users\ogalvez\Documents\EngAbil\Data"
-gl doc= "C:\Users\ogalvez\Documents\EngAbil\Doc"
+gl base= "C:\Users\ogalvez\Documents\BIARE"
+gl doc= "C:\Users\ogalvez\Documents\BIARE\Doc"
 *========================================================================*
-use "$base\poblacion.dta", clear
+use "$data/biare/2014/poblacion1.dta", clear
+foreach x in 2 3{
+    append using "$data/biare/2014/poblacion`x'.dta"
+}
 gen str id_hh=(folioviv + foliohog)
 gen str id=(folioviv + foliohog + numren)
 keep id_hh id sexo edad hablaind asis_esc nivel grado nivelaprob gradoaprob ///
