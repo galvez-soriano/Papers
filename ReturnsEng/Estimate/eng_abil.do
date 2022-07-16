@@ -327,7 +327,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1986 & cohort<=1995 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -484,7 +484,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
@@ -536,7 +536,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1981 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
@@ -693,7 +693,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -745,7 +745,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1981 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -954,7 +954,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1985 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1164,7 +1164,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1966 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(16.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-2(1)2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1373,7 +1373,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1966 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(16.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-2(1)2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1582,7 +1582,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1990 & cohort<=1989 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-2(1)2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1739,7 +1739,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1979 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-3(1)3, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
@@ -1791,7 +1791,7 @@ areg hrs_exp treat_* treat i.cohort cohort edu edu2 female student work indigeno
 [aw=weight]if cohort>=1979 & cohort<=1996 & edu<=9, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
