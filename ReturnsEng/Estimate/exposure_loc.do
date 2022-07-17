@@ -957,15 +957,38 @@ replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==1
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==1
 keep geo year hrs_exp
 
+/* Older cohorts */
+sort geo year
+bysort geo: gen nobs=_n
+count
+expand 8 if nobs==1
+gen obs=_n
+replace year=. if obs>r(N)
+replace hrs_exp=. if obs>r(N)
+
+sort geo year
+bysort geo: gen count_obs=_n+1978
+replace year=count_obs if year==.
+drop nobs obs count_obs
+
+sort geo year
+replace hrs_exp=hrs_exp[_n+1]*0.90 if missing(hrs_exp) & year==1996
+replace hrs_exp=hrs_exp[_n+1]*0.90 if missing(hrs_exp) & year==1995
+replace hrs_exp=hrs_exp[_n+1]*0.90 if missing(hrs_exp) & year==1994
+replace hrs_exp=hrs_exp[_n+1]*0.80 if missing(hrs_exp) & year==1993
+replace hrs_exp=hrs_exp[_n+1]*0.80 if missing(hrs_exp) & year==1992
+replace hrs_exp=0 if missing(hrs_exp) & year==1991
+replace hrs_exp=0 if missing(hrs_exp) & year==1990
+
 gen cohort=year-11
-drop year
+gen check=substr(geo,6,10)
+drop if check==""
+drop year check
 
 save "$base\exposure_loc.dta", replace
 *========================================================================*
 use "$base\exposure_loc.dta", clear
 
-gen check=substr(geo,6,10)
-drop if check==""
 gen geo_mun=substr(geo,1,5)
 collapse (mean) hrs_exp, by(geo_mun cohort)
 rename hrs_exp hrs_exp2
@@ -973,8 +996,6 @@ save "$base\exposure_mun.dta", replace
 *========================================================================*
 use "$base\exposure_loc.dta", clear
 
-gen check=substr(geo,6,10)
-drop if check==""
 gen state=substr(geo,1,2)
 collapse (mean) hrs_exp, by(state cohort)
 rename hrs_exp hrs_exp3
