@@ -189,9 +189,8 @@ label var hh_size "Household size (persons)"
 
 save "$base\eng_abil.dta", replace
 *========================================================================*
-use "$data2/exposure_loc.dta", clear
-
-append using "$data2/exposure_loc_older.dta"
+use "$data2/exposure_loc1.dta", clear
+append using "$data2/exposure_loc2.dta"
 sort geo cohort
 
 merge m:m geo cohort using "$base\eng_abil.dta"
@@ -200,16 +199,15 @@ rename _merge merge2
 
 gen geo_mun=substr(geo,1,5)
 
-merge m:m geo_mun cohort using "$data2/exposure_mun_older.dta"
+merge m:m geo_mun cohort using "$data2/exposure_mun.dta"
 replace hrs_exp=hrs_exp2 if merge2==2 & hrs_exp==.
 drop if _merge==2
 
 rename _merge merge3
-merge m:m state cohort using "$data2/exposure_state_older.dta"
+merge m:m state cohort using "$data2/exposure_state.dta"
 replace hrs_exp=hrs_exp3 if merge2==2 & hrs_exp==.
 drop if _merge==2
 drop _merge merge2 merge3 hrs_exp2 hrs_exp3
-replace hrs_exp=0 if age>=33
+replace hrs_exp=0 if cohort<=1980
 
-drop check
 save "$base\eng_abil.dta", replace
