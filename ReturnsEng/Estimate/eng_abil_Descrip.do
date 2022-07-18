@@ -5,7 +5,7 @@
 *========================================================================*
 clear
 set more off
-gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main"
+gl data= "https://raw.githubusercontent.com/galvez-soriano"
 gl base= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
 gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
 *========================================================================*
@@ -148,7 +148,7 @@ gen eng_u=eng if rural==0
 keep if age>=18 & age<=65
 collapse (mean) eng* hrs_exp [fw=weight], by(state)
 
-merge m:m state using "$data/Maps/MexStates/mex_map_state.dta"
+merge m:m state using "$data/data/main/Maps/MexStates/mex_map_state.dta"
 drop if _merge!=3
 drop _merge
 
@@ -215,6 +215,21 @@ esttab english income gender education gender using "$doc\fq_occup_eng_ledu.tex"
 cells("mean(fmt(%9.2fc))") nonumber noobs label replace
 tab occup [fw=weight] if age>=18 & age<=65 & edu<=9
 
+/* Detailed analysis of occupations 
+keep if edu<=6
+tostring sinco, replace format(%04.0f)
+gen sinco_sub=substr(sinco,1,3)
+destring sinco_sub sinco, replace
+collapse (mean) eng [fw=weight], by(sinco_sub)
+merge 1:1 sinco_sub using "$data/biare/sinco_code.dta"
+drop if _merge!=3
+drop _merge
+label var sinco_d "Occupation"
+keep if eng>0.5 & eng!=.
+drop sinco_sub
+sort eng
+cd "C:\Users\galve\Documents\Papers\Ideas\Education\Returns to Eng Mex\Doc"
+dataout, save(Occupation) tex replace dec(2) */
 *========================================================================*
 /* Statistics by economic industries */
 *========================================================================*
@@ -259,6 +274,52 @@ esttab english income gender education gender using "$doc\fq_econa_eng_edu.tex",
 cells("mean(fmt(%9.2fc))") nonumber noobs label replace
 tab econ_act [fw=weight] if age>=18 & age<=65 & edu<=9
 
+/* Detailed analysis of occupations 
+keep if edu<=6
+tostring scian, replace format(%04.0f)
+gen naics_sub=substr(scian,1,3)
+destring naics_sub scian, replace
+replace naics_sub=221 if naics_sub==222
+collapse (mean) eng [fw=weight], by(naics_sub)
+merge 1:1 naics_sub using "$data/biare/naics_code.dta"
+drop if _merge!=3
+drop _merge
+label var naics_d "Econ Industry"
+keep if eng>0.5 & eng!=.
+drop naics_sub
+sort eng
+cd "C:\Users\galve\Documents\Papers\Ideas\Education\Returns to Eng Mex\Doc"
+dataout, save(NAICS) tex replace dec(2) */
+
+/*
+use "$base\eng_abil.dta", clear
+rename scian naics
+replace naics=2211 if naics==2210
+replace naics=2212 if naics==2221
+replace naics=2213 if naics==2222
+
+gen p_eng=eng
+replace p_eng=0 if eng==.
+collapse (mean) p_eng [fw=weight], by(naics)
+save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace
+
+use "$base\eng_abil.dta", clear
+rename scian naics
+replace naics=2211 if naics==2210
+replace naics=2212 if naics==2221
+replace naics=2213 if naics==2222
+
+keep if edu<=12
+gen p_eng_edu=eng
+replace p_eng_edu=0 if eng==.
+collapse (mean) p_eng_edu [fw=weight], by(naics)
+merge 1:1 naics using "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta"
+replace p_eng_edu=0 if p_eng_edu==.
+drop _merge
+
+xtile eng_dist= p_eng, nq(4)
+xtile eng_dist_edu= p_eng_edu, nq(4)
+save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace */
 *========================================================================*
 /* Descriptive statistics */
 *========================================================================*
@@ -290,8 +351,8 @@ star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng) replace
 *========================================================================*
 /* Maps for presentation */
 *========================================================================*
-use "$base\map_names.dta", clear
-merge m:m state using "$data/Maps/MexStates/mex_map_state.dta"
+use "$data/Papers/main/ReturnsEng/Data/map_names.dta", clear
+merge m:m state using "$data/data/main/Maps/MexStates/mex_map_state.dta"
 drop if _merge!=3
 drop _merge
 rename id _ID
@@ -310,7 +371,7 @@ replace tam="" if nobs!=1
 save "$base\map_names.dta", replace
 
 use "$base\map_presentation.dta", clear
-merge m:m state using "$data/Maps/MexStates/mex_map_state.dta"
+merge m:m state using "$data/data/main/Maps/MexStates/mex_map_state.dta"
 drop if _merge!=3
 drop _merge
 
