@@ -287,3 +287,58 @@ eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65, vce(robust)
 }
 esttab using "$doc\sum_stats_diff.tex", ar2 cells(b(star fmt(%9.2fc)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng) replace
+*========================================================================*
+/* Maps for presentation */
+*========================================================================*
+use "$base\map_names.dta", clear
+merge m:m state using "$data/Maps/MexStates/mex_map_state.dta"
+drop if _merge!=3
+drop _merge
+rename id _ID
+merge m:m _ID using "$base\mxcoord.dta"
+bysort state: gen nobs=_n
+replace names="" if nobs!=1
+replace ags="" if nobs!=1
+replace coah="" if nobs!=1
+replace dgo="" if nobs!=1
+replace mor="" if nobs!=1
+replace nl="" if nobs!=1
+replace sin="" if nobs!=1
+replace son="" if nobs!=1
+replace tam="" if nobs!=1
+
+save "$base\map_names.dta", replace
+
+use "$base\map_presentation.dta", clear
+merge m:m state using "$data/Maps/MexStates/mex_map_state.dta"
+drop if _merge!=3
+drop _merge
+
+cd "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
+/* Map for Aguascalientes and Zacatecas */
+spmap ags_zac using "$base\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 1) legend(off) fcolor(Greens) ///
+label(data(map_names) xcoord(_X) ycoord(_Y) color(gray) ///
+label(ags) size(*1.5 ..) pos(1 1) length(22))
+graph export "$doc\map_AGS_ZAC.png", replace
+
+/* Map for Coahuila and Chihuahua */
+spmap coah_chih using "$base\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 1) legend(off) fcolor(Blues) ///
+label(data(map_names) xcoord(_X) ycoord(_Y) color(gray) ///
+label(coah) size(*1.5 ..) pos(1 1) length(22))
+graph export "$doc\map_COAH_CHIH.png", replace
+
+/* Map for Durango and San Luis Potosi */
+spmap dgo_slp using "$base\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 1) legend(off) fcolor(Oranges) ///
+label(data(map_names) xcoord(_X) ycoord(_Y) color(gray) ///
+label(dgo) size(*1.5 ..) pos(1 1) length(22))
+graph export "$doc\map_DGO_SLP.png", replace
+
+/* Map for Morelos and Puebla */
+spmap mor_pue using "$base\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 1) legend(off) fcolor(Purples) ///
+label(data(map_names) xcoord(_X) ycoord(_Y) color(gray) ///
+label(mor) size(*1.5 ..) pos(1 1) length(22))
+graph export "$doc\map_MOR_PUE.png", replace
