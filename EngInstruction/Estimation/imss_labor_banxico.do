@@ -587,128 +587,165 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng q2_eng q3_
 /* Regressions Student Achievement */
 *========================================================================*
 use "$base\dbase_18_21_final_alter.dta", clear
-destring state_s, replace
-gen cohort_state=cohort*state_s
 /************* Full Sample *************/
 eststo clear
-eststo: areg language6 h_eng language5 gender n_stud t_colle t_mast rural if wage!=., absorb(cohort_state) vce(cluster cct)
-eststo: areg language6 h_eng language5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=., absorb(cct) vce(cluster cct)
-eststo: areg math6 h_eng math5 gender n_stud t_colle t_mast rural if wage!=., absorb(cohort_state) vce(cluster cct)
-eststo: areg math6 h_eng math5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=., absorb(cct) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural if wage!=., absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=., absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural if wage!=., absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=., absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud.tex", cells(b(star fmt(%9.4f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Low Enrollment Sample *************/
 eststo clear
-eststo: areg language6 h_eng language5 gender n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(cohort_state) vce(cluster cct)
-eststo: areg language6 h_eng language5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg math6 h_eng math5 gender n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(cohort_state) vce(cluster cct)
-eststo: areg math6 h_eng math5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud_low.tex", cells(b(star fmt(%9.4f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Low Enrollment Sample (Men) *************/
 eststo clear
-eststo: areg language6 h_eng language5 gender n_stud t_colle t_mast rural if wage!=. & ps38==1 & gender==0, absorb(cohort_state) vce(cluster cct)
-eststo: areg language6 h_eng language5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=. & ps38==1 & gender==0, absorb(cct) vce(cluster cct)
-eststo: areg math6 h_eng math5 gender n_stud t_colle t_mast rural if wage!=. & ps38==1 & gender==0, absorb(cohort_state) vce(cluster cct)
-eststo: areg math6 h_eng math5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=. & ps38==1 & gender==0, absorb(cct) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural if wage!=. & ps38==1 & female==0, absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural if wage!=. & ps38==1 & female==0, absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud_men.tex", cells(b(star fmt(%9.4f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Low Enrollment Sample (Women) *************/
 eststo clear
-eststo: areg language6 h_eng language5 gender n_stud t_colle t_mast rural if wage!=. & ps38==1 & gender==1, absorb(cohort_state) vce(cluster cct)
-eststo: areg language6 h_eng language5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=. & ps38==1 & gender==1, absorb(cct) vce(cluster cct)
-eststo: areg math6 h_eng math5 gender n_stud t_colle t_mast rural if wage!=. & ps38==1 & gender==1, absorb(cohort_state) vce(cluster cct)
-eststo: areg math6 h_eng math5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=. & ps38==1 & gender==1, absorb(cct) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural if wage!=. & ps38==1 & female==1, absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural if wage!=. & ps38==1 & female==1, absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud_women.tex", cells(b(star fmt(%9.4f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Low Enrollment Sample (Gender) *************/
 gen eng_female=h_eng*female
 eststo clear
-eststo: areg language6 eng_female h_eng language5 gender n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(cohort_state) vce(cluster cct)
-eststo: areg language6 eng_female h_eng language5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg math6 eng_female h_eng math5 gender n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(cohort_state) vce(cluster cct)
-eststo: areg math6 eng_female h_eng math5 gender n_stud t_colle t_mast rural i.cohort_state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg language6 eng_female h_eng language5 female n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
+eststo: areg language6 eng_female h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg math6 eng_female h_eng math5 female n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
+eststo: areg math6 eng_female h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud_low_gender.tex", ar2 cells(b(star fmt(%9.4f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Student achievement) keep(eng_female) replace
-
+*<<<<<<<<<<<<<<<<<=============================================================================================================================================================
 *========================================================================*
 /* Geographical Heterogeneity */
 *========================================================================*
 use "$base\dbase_18_21_final_alter.dta", clear
 /* By Rural-Urban */
+gen urban=rural==0
 eststo clear
-eststo: areg imss t_eng language6 math6 female n_stud age age2 t_colle ///
+eststo: areg imss h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural i.cohort i.year if ps38==1 & rural==0, absorb(cct) vce(cluster cct)
-eststo: areg lwage t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg lwage h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if ps38==1 & rural==0, absorb(cct) vce(cluster cct)
-eststo: areg ldist t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg ldist h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & rural==0, absorb(cct) vce(cluster cct)
-eststo: areg move_state t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg move_state h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & rural==0, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_labor_low_urban.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(t_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
 eststo clear
-eststo: areg imss t_eng language6 math6 female n_stud age age2 t_colle ///
+eststo: areg imss h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural i.cohort i.year if ps38==1 & rural==1, absorb(cct) vce(cluster cct)
-eststo: areg lwage t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg lwage h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if ps38==1 & rural==1, absorb(cct) vce(cluster cct)
-eststo: areg ldist t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg ldist h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & rural==1, absorb(cct) vce(cluster cct)
-eststo: areg move_state t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg move_state h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & rural==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_labor_low_rural.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(t_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
-gen eng_female=t_eng*female
+gen eng_urban=h_eng*urban
 eststo clear
-eststo: areg imss eng_female t_eng language6 math6 female n_stud age age2 t_colle ///
+eststo: areg imss eng_urban h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg lwage eng_female t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg lwage eng_urban h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg ldist eng_female t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg ldist eng_urban h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg move_state eng_female t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo: areg move_state eng_urban h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_labor_low_context.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_female) replace
-/* By Mexican Regions */
-eststo clear
-eststo: areg imss t_eng language6 math6 female n_stud age age2 t_colle ///
-t_mast rural i.cohort i.year if ps38==1 & female==0, absorb(cct) vce(cluster cct)
-eststo: areg lwage t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if ps38==1 & female==0, absorb(cct) vce(cluster cct)
-eststo: areg ldist t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
-eststo: areg move_state t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
-esttab using "$doc\tab_labor_low.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(t_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_urban) replace
+/* By Mexican Regions
+Using critera from Mexican government
+
+Northern states: Aguascalientes, Baja California, Baja California Sur, 
+Chihuahua, Coahuila, Colima, Durango, Jalisco, Michoacán, Nayarit, Nuevo León, 
+San Luis Potosí, Sinaloa, Sonora, Tamaulipas and Zacatecas 
+
+Central states: Guanajuato, Hidalgo, Mexico City, Morelos, Puebla, Querétaro, 
+State of Mexico and Tlaxcala
+
+Southern states: Campeche, Chiapas, Guerrero, Oaxaca, Quintana Roo, Tabasco, 
+Veracruz and Yucatán
+*/
+gen region=.
+replace region=0 if state_s=="04" | state_s=="07" | state_s=="12" | ///
+state_s=="20" | state_s=="23" | state_s=="27" | state_s=="30" | state_s=="31"
+replace region=1 if state_s=="11" | state_s=="13" | state_s=="09" | ///
+state_s=="17" | state_s=="21" | state_s=="22" | state_s=="15" | state_s=="29"
+replace region=2 if region==.
+gen north_r=region==2
+gen central_r=region==1
+gen south_r=region==0
 
 eststo clear
-eststo: areg imss t_eng language6 math6 female n_stud age age2 t_colle ///
-t_mast rural i.cohort i.year if ps38==1 & female==1, absorb(cct) vce(cluster cct)
-eststo: areg lwage t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if ps38==1 & female==1, absorb(cct) vce(cluster cct)
-eststo: areg ldist t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
-eststo: areg move_state t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
-esttab using "$doc\tab_labor_low.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(t_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+eststo: areg imss h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural i.cohort i.year if ps38==1 & region==0, absorb(cct) vce(cluster cct)
+eststo: areg lwage h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if ps38==1 & region==0, absorb(cct) vce(cluster cct)
+eststo: areg ldist h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & region==0, absorb(cct) vce(cluster cct)
+eststo: areg move_state h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & region==0, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_labor_low_south.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
-gen eng_female=t_eng*female
 eststo clear
-eststo: areg imss eng_female t_eng language6 math6 female n_stud age age2 t_colle ///
-t_mast rural i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg lwage eng_female t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg ldist eng_female t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg move_state eng_female t_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
-n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-esttab using "$doc\tab_labor_low.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_female) replace
+eststo: areg imss h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural i.cohort i.year if ps38==1 & region==1, absorb(cct) vce(cluster cct)
+eststo: areg lwage h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if ps38==1 & region==1, absorb(cct) vce(cluster cct)
+eststo: areg ldist h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & region==1, absorb(cct) vce(cluster cct)
+eststo: areg move_state h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & region==1, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_labor_low_central.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: areg imss h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural i.cohort i.year if ps38==1 & region==2, absorb(cct) vce(cluster cct)
+eststo: areg lwage h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if ps38==1 & region==2, absorb(cct) vce(cluster cct)
+eststo: areg ldist h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & region==2, absorb(cct) vce(cluster cct)
+eststo: areg move_state h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & region==2, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_labor_low_north.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+gen eng_north=h_eng*north_r
+gen eng_central=h_eng*central_r
+gen eng_south=h_eng*south_r
+/* test eng_north eng_central gives the difference between northern and central states
+test eng_north eng_south gives the difference between northern and southern states */
+eststo clear
+eststo: areg imss eng_north eng_central h_eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural i.cohort i.year i.region if ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg lwage eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.region i.state if ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg ldist eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state i.region if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg move_state eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state i.region if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_labor_low_region.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_north eng_central) replace 
 *========================================================================*
 /* Robustness Checks */
 *========================================================================*
@@ -778,8 +815,124 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_female) repl
 
 /********* Are my results sensible to different low enrollment rates? *********/
 use "$base\dbase_18_21_final_alter.dta", clear
+label var h_eng "Proportion of individuals enrolled in school"
+graph set window fontface "Times New Roman"
 
+eststo clear
+foreach x in 36 37 38 39{
+areg imss h_eng language6 math6 female n_stud age age2 i.cohort ///
+t_colle t_mast i.year if ps`x'==1, absorb(cct) vce(cluster cct)
+estimates store formal`x'
+}
+coefplot (formal36, label(p<=0.36)) (formal37, label(p<=0.37)) (formal38, ///
+label(p<=0.38) mcolor(red) ciopts(recast(rcap) color(red))) (formal39, ///
+label(p<=0.39)), vertical keep(h_eng) yline(0) ///
+ytitle("Probability of working in formal sector", size(medium) height(5)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
+legend( pos(1) ring(0) col(4)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\rtest_formal.png", replace
 
+eststo clear
+foreach x in 36 37 38 39{
+areg lwage h_eng language6 math6 female n_stud age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if ps`x'==1, absorb(cct) vce(cluster cct)
+estimates store wage`x'
+}
+coefplot (wage36, label(p<=0.36)) (wage37, label(p<=0.37)) ///
+(wage38, label(p<=0.38) mcolor(red) ciopts(recast(rcap) color(red))) ///
+(wage39, label(p<=0.39)), vertical keep(h_eng) yline(0) ///
+ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) format(%5.2f)) ///
+legend(pos(1) ring(0) col(4)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\rtest_wages.png", replace
+
+eststo clear
+foreach x in 36 37 38 39{
+areg ldist h_eng language6 math6 female n_stud age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if ps`x'==1, absorb(cct) vce(cluster cct)
+estimates store dist`x'
+}
+coefplot (dist36, label(p<=0.36)) (dist37, label(p<=0.37)) ///
+(dist38, label(p<=0.38) mcolor(red) ciopts(recast(rcap) color(red))) ///
+(dist39, label(p<=0.39)), vertical keep(h_eng) yline(0) ///
+ytitle("Percentage change of distance (/100)", size(medium) height(5)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) format(%5.2f)) ///
+legend(pos(1) ring(0) col(4)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\rtest_dist.png", replace
+
+eststo clear
+foreach x in 36 37 38 39{
+areg move_state h_eng language6 math6 female n_stud age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if ps`x'==1, absorb(cct) vce(cluster cct)
+estimates store moves`x'
+}
+coefplot (moves36, label(p<=0.36)) (moves37, label(p<=0.37)) ///
+(moves38, label(p<=0.38) mcolor(red) ciopts(recast(rcap) color(red))) ///
+(moves39, label(p<=0.39)), vertical keep(h_eng) yline(0) ///
+ytitle("Probability of moving from home state", size(medium) height(5)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) format(%5.2f)) ///
+legend(pos(1) ring(0) col(4)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\rtest_moves.png", replace
+
+/********* Did the NEPBE affect other school inputs? *********/
+use "$base\dbase_18_21_final_alter.dta", clear
+
+eststo clear
+eststo: areg n_stud h_eng language6 math6 female t_colle t_mast rural i.cohort if wage!=., absorb(cct) vce(cluster cct)
+eststo: areg t_colle h_eng language6 math6 female n_stud t_mast rural i.cohort if wage!=., absorb(cct) vce(cluster cct)
+eststo: areg t_mast h_eng language6 math6 female n_stud t_colle rural i.cohort if wage!=., absorb(cct) vce(cluster cct)
+eststo: areg y h_eng language6 math6 female n_stud t_colle t_mast rural i.cohort if wage!=., absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_sinput.tex", cells(b(star fmt(%9.4f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: areg n_stud h_eng language6 math6 female t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg t_colle h_eng language6 math6 female n_stud t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg t_mast h_eng language6 math6 female n_stud t_colle rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg y h_eng language6 math6 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_sinput_low.tex", cells(b(star fmt(%9.4f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: areg n_stud h_eng language6 math6 female t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
+eststo: areg t_colle h_eng language6 math6 female n_stud t_mast rural i.cohort if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
+eststo: areg t_mast h_eng language6 math6 female n_stud t_colle rural i.cohort if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
+eststo: areg y h_eng language6 math6 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_sinput_men.tex", cells(b(star fmt(%9.4f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: areg n_stud h_eng language6 math6 female t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
+eststo: areg t_colle h_eng language6 math6 female n_stud t_mast rural i.cohort if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
+eststo: areg t_mast h_eng language6 math6 female n_stud t_colle rural i.cohort if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
+eststo: areg y h_eng language6 math6 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_sinput_women.tex", cells(b(star fmt(%9.4f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+gen eng_female=h_eng*female
+eststo clear
+eststo: areg n_stud eng_female h_eng language6 math6 female t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg t_colle eng_female h_eng language6 math6 female n_stud t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg t_mast eng_female h_eng language6 math6 female n_stud t_colle rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg y h_eng eng_female language6 math6 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_sinput_gender.tex", ar2 cells(b(star fmt(%9.4f)) p(par([ ]))) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Student achievement) keep(eng_female) replace
+/********* Is good the solution to the second selection problem? *********/
+/* We could also use a sample of low ability individuals if we are willing 
+to beleive that low ability individuals are less likely to change their formal
+labor participation given exposure to English instrution. The intuition is that 
+they will not change their motivation for continue studying. In other words, 
+they would had drop out with or without exposure to English instruction */
+use "$base\dbase_18_21_final_alter.dta", clear
+
+/********* What about a Lee bound? *********/
+use "$base\dbase_18_21_final_alter.dta", clear
+ssc install leebounds
+*<<<<<<<<<<<<<<<<<=============================================================================================================================================================
 /******************************* Appendix ********************************/
 
 *========================================================================*
