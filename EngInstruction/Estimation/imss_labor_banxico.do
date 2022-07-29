@@ -685,10 +685,10 @@ Southern states: Campeche, Chiapas, Guerrero, Oaxaca, Quintana Roo, Tabasco,
 Veracruz and Yucatán
 */
 gen region=.
-replace region=0 if state_s=="04" | state_s=="07" | state_s=="12" | ///
-state_s=="20" | state_s=="23" | state_s=="27" | state_s=="30" | state_s=="31"
-replace region=1 if state_s=="11" | state_s=="13" | state_s=="09" | ///
-state_s=="17" | state_s=="21" | state_s=="22" | state_s=="15" | state_s=="29"
+replace region=0 if state_s==04 | state_s==07 | state_s==12 | ///
+state_s==20 | state_s==23 | state_s==27 | state_s==30 | state_s==31
+replace region=1 if state_s==11 | state_s==13 | state_s==09 | ///
+state_s==17 | state_s==21 | state_s==22 | state_s==15 | state_s==29
 replace region=2 if region==.
 gen north_r=region==2
 gen central_r=region==1
@@ -738,12 +738,16 @@ test eng_north eng_south gives the difference between northern and southern stat
 eststo clear
 eststo: areg imss eng_north eng_central h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural i.cohort i.year i.region if ps38==1, absorb(cct) vce(cluster cct)
+test eng_north eng_central
 eststo: areg lwage eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.region i.state if ps38==1, absorb(cct) vce(cluster cct)
+test eng_north eng_central
 eststo: areg ldist eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state i.region if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+test eng_north eng_central
 eststo: areg move_state eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state i.region if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+test eng_north eng_central
 esttab using "$doc\tab_labor_low_region.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_north eng_central) replace 
 *========================================================================*
