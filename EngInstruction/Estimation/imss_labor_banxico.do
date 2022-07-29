@@ -673,14 +673,11 @@ esttab using "$doc\tab_labor_low_context.tex", ar2 cells(b(star fmt(%9.3f)) p(pa
 star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_urban) replace
 /* By Mexican Regions
 Using critera from Mexican government
-
 Northern states: Aguascalientes, Baja California, Baja California Sur, 
 Chihuahua, Coahuila, Colima, Durango, Jalisco, Michoacán, Nayarit, Nuevo León, 
 San Luis Potosí, Sinaloa, Sonora, Tamaulipas and Zacatecas 
-
 Central states: Guanajuato, Hidalgo, Mexico City, Morelos, Puebla, Querétaro, 
 State of Mexico and Tlaxcala
-
 Southern states: Campeche, Chiapas, Guerrero, Oaxaca, Quintana Roo, Tabasco, 
 Veracruz and Yucatán
 */
@@ -734,22 +731,25 @@ gen eng_north=h_eng*north_r
 gen eng_central=h_eng*central_r
 gen eng_south=h_eng*south_r
 /* test eng_north eng_central gives the difference between northern and central states
-test eng_north eng_south gives the difference between northern and southern states */
+test eng_north eng_south gives the difference between northern and southern states 
+eststo, add(diff_imss r(p))
+estout, stat(diff_imss)*/
 eststo clear
-eststo: areg imss eng_north eng_central h_eng language6 math6 female n_stud age age2 t_colle ///
+areg imss eng_north eng_central h_eng language6 math6 female n_stud age age2 t_colle ///
 t_mast rural i.cohort i.year i.region if ps38==1, absorb(cct) vce(cluster cct)
-test eng_north eng_central
-eststo: areg lwage eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo diff_imss: test eng_north eng_central
+areg lwage eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.region i.state if ps38==1, absorb(cct) vce(cluster cct)
-test eng_north eng_central
-eststo: areg ldist eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo diff_wage: test eng_north eng_central
+areg ldist eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state i.region if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-test eng_north eng_central
-eststo: areg move_state eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+eststo diff_dist: test eng_north eng_central
+areg move_state eng_north eng_central h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state i.region if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-test eng_north eng_central
-esttab using "$doc\tab_labor_low_region.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_north eng_central) replace 
+eststo diff_move: test eng_north eng_central
+estout using "$doc\tab_labor_region.tex", stat(diff_imss diff_wage diff_dist ///
+diff_move) cells(b(star fmt(%9.3f)) p(par([ ]))) star(* 0.10 ** 0.05 *** 0.01) ///
+title(Exposure by Regions) replace 
 *========================================================================*
 /* Robustness Checks */
 *========================================================================*
@@ -954,8 +954,7 @@ n_perma t_colle t_mast i.cohort i.year i.state if wage!=., absorb(id_geo_s) vce(
 eststo: areg lwage h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
 n_perma t_colle t_mast i.cohort i.year i.state if wage!=., absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_select_hrs.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace ///
-scalars( "StateFE State FE" "CountyFE County FE" "LocalityFE Locality FE" "SchoolFE School FE")
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace 
 
 eststo clear
 eststo: areg lwage h_eng language6 math6 female n_stud rural age age2 perma n_jobs ///
