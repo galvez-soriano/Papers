@@ -64,6 +64,18 @@ xtset panelid timeid
 	foreach i of local y_var {
 	 gen d_`i' = ((`i'-L.`i')/L.`i')
 	}
+	
+	label var d_totalrevenue_rpc "Revenue"
+	label var d_totaltaxes_rpc "Taxes"
+	label var d_totalexpenditure_rpc "Expenditure"
+	label var d_totalcurrentoper_rpc "Transfers"
+	label var d_totalcapitaloutlays_rpc "Other"
+	
+	label var d_totalrevenue_rsbpc "Revenue"
+	label var d_totaltaxes_rsbpc "Taxes"
+	label var d_totalexpenditure_rsbpc "Expenditure"
+	label var d_totalcurrentoper_rsbpc "Transfers"
+	label var d_totalcapitaloutlays_rsbpc "Other"
 }
 *========================================================================*
 * Running the regressions
@@ -71,28 +83,34 @@ xtset panelid timeid
 * Outcome varibales: city variables
 * Right-hand-side varibales: suburban variables
 *========================================================================*
-xtivreg2 d_totalrevenue_rpc (d_totalrevenue_rsbpc = B_iv_11 B_iv_21 B_iv_22 ///
+eststo clear
+eststo: xtivreg2 d_totalrevenue_rpc (d_totalrevenue_rsbpc = B_iv_11 B_iv_21 B_iv_22 ///
 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 B_iv_54 ///
 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) d_basic_level ///
 d_transfer_level d_other_level, fe r
 
-xtivreg2 d_totaltaxes_rpc (d_totaltaxes_rsbpc = B_iv_11 B_iv_21 B_iv_22 ///
+eststo: xtivreg2 d_totaltaxes_rpc (d_totaltaxes_rsbpc = B_iv_11 B_iv_21 B_iv_22 ///
 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 B_iv_54 ///
 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) d_basic_level ///
 d_transfer_level d_other_level, fe r
 
-xtivreg2 d_totalexpenditure_rpc (d_totalexpenditure_rsbpc = B_iv_11 B_iv_21 ///
+eststo: xtivreg2 d_totalexpenditure_rpc (d_totalexpenditure_rsbpc = B_iv_11 B_iv_21 ///
 B_iv_22 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 ///
 B_iv_54 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) ///
 d_basic_level d_transfer_level d_other_level, fe r
 
-xtivreg2 d_totalcurrentoper_rpc (d_totalcurrentoper_rsbpc = B_iv_11 B_iv_21 ///
+eststo: xtivreg2 d_totalcurrentoper_rpc (d_totalcurrentoper_rsbpc = B_iv_11 B_iv_21 ///
 B_iv_22 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 ///
 B_iv_54 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) ///
 d_basic_level d_transfer_level d_other_level, fe r
 
-xtivreg2 d_totalcapitaloutlays_rpc (d_totalcapitaloutlays_rsbpc = B_iv_11 ///
+eststo: xtivreg2 d_totalcapitaloutlays_rpc (d_totalcapitaloutlays_rsbpc = B_iv_11 ///
 B_iv_21 B_iv_22 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 ///
 B_iv_53 B_iv_54 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) ///
 d_basic_level d_transfer_level d_other_level, fe r
 
+esttab using "$doc\tab_BartikInd.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IVs by industries)) keep(d_totalrevenue_rsbpc d_totaltaxes_rsbpc ///
+d_totalexpenditure_rsbpc d_totalcurrentoper_rsbpc d_totalcapitaloutlays_rsbpc) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
