@@ -114,3 +114,35 @@ star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Bartik IVs by industries)) keep(d_totalrevenue_rsbpc d_totaltaxes_rsbpc ///
 d_totalexpenditure_rsbpc d_totalcurrentoper_rsbpc d_totalcapitaloutlays_rsbpc) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+eststo clear
+eststo: xtivreg2 ltotalrevenue_rpc (ltotalrevenue_rsbpc = B_iv_11 B_iv_21 B_iv_22 ///
+B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 B_iv_54 ///
+B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) lbasic_level ///
+ltransfer_level lother_level, fe r
+
+eststo: xtivreg2 ltotaltaxes_rpc (ltotaltaxes_rsbpc = B_iv_11 B_iv_21 B_iv_22 ///
+B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 B_iv_54 ///
+B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) lbasic_level ///
+ltransfer_level lother_level, fe r
+
+eststo: xtivreg2 ltotalexpenditure_rpc (ltotalexpenditure_rsbpc = B_iv_11 B_iv_21 ///
+B_iv_22 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 ///
+B_iv_54 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) ///
+lbasic_level ltransfer_level lother_level, fe r
+
+eststo: xtivreg2 ltotalcurrentoper_rpc (ltotalcurrentoper_rsbpc = B_iv_11 B_iv_21 ///
+B_iv_22 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 ///
+B_iv_54 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) ///
+lbasic_level ltransfer_level lother_level, fe r
+
+eststo: xtivreg2 ltotalcapitaloutlays_rpc (ltotalcapitaloutlays_rsbpc = B_iv_11 ///
+B_iv_21 B_iv_22 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 ///
+B_iv_53 B_iv_54 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) ///
+lbasic_level ltransfer_level lother_level, fe r
+
+esttab using "$doc\tab_BartikInd.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IVs by industries)) keep(ltotalrevenue_rsbpc ltotaltaxes_rsbpc ///
+ltotalexpenditure_rsbpc ltotalcurrentoper_rsbpc ltotalcapitaloutlays_rsbpc) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
