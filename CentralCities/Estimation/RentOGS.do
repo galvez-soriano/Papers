@@ -2,18 +2,18 @@
 * Rent Capture by Central Cities
 *========================================================================*
 /* Steven G. Craig, Annie Hsu, Janet Kohlhase
-
 Modified by Oscar Gálvez-Soriano
+Note: Before running this do file, please install the packages xtivreg2 and 
+ivreg2 by typing the following:
 
-Note: Before running this do file, install the package xtivreg2
 ssc install ivreg2
 ssc install xtivreg2 */
 *========================================================================*
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/CentralCities/Data"
-gl base= "C:\Users\ogalvez\Documents\ProfessorCraig\Base"
-gl doc= "C:\Users\ogalvez\Documents\ProfessorCraig\Doc"
+gl base= "C:\Users\galve\Documents\UH\Summer\Summer2022\Base"
+gl doc= "C:\Users\galve\Documents\UH\Summer\Summer2022\Doc"
 *========================================================================*
 /* Merge dataset that include city, suburb fiscal variables and Bartik IV */
 *========================================================================*
@@ -21,6 +21,12 @@ use "$data/Master_Fin_70_17_city.dta", clear
 merge 1:1 year msa_sc using "$data/Master_Fin_70_17_sub.dta", nogen
 merge 1:1 year msa_sc using "$data/BartikData_version3_all.dta"
 keep if _merge==3
+drop _merge
+merge 1:1 year msa_sc using "$data/tradevars_final_msa_mc.dta"
+drop if _merge==2
+drop _merge
+merge 1:1 year msa_sc using "$data/tradevars_final_msa_nmc.dta"
+drop if _merge==2
 drop _merge
 *========================================================================*
 /* Generate intergovernmental transfer revenue into three categories: basic, 
@@ -58,24 +64,12 @@ xtset panelid timeid
 	#delimit cr		
 	
 	foreach i of local y_var {
-	 gen l`i' = log(`i')
+	 gen l`i' = log(`i')-log(L.`i')
 	}
 				
 	foreach i of local y_var {
 	 gen d_`i' = ((`i'-L.`i')/L.`i')
 	}
-	
-	label var d_totalrevenue_rpc "Revenue"
-	label var d_totaltaxes_rpc "Taxes"
-	label var d_totalexpenditure_rpc "Expenditure"
-	label var d_totalcurrentoper_rpc "Transfers"
-	label var d_totalcapitaloutlays_rpc "Other"
-	
-	label var d_totalrevenue_rsbpc "Revenue"
-	label var d_totaltaxes_rsbpc "Taxes"
-	label var d_totalexpenditure_rsbpc "Expenditure"
-	label var d_totalcurrentoper_rsbpc "Transfers"
-	label var d_totalcapitaloutlays_rsbpc "Other"
 }
 *========================================================================*
 * Running the regressions
@@ -141,7 +135,7 @@ B_iv_21 B_iv_22 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 ///
 B_iv_53 B_iv_54 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) ///
 lbasic_level ltransfer_level lother_level, fe r
 
-esttab using "$doc\tab_BartikInd.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+esttab using "$doc\tab_BartikInd_log.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Bartik IVs by industries)) keep(ltotalrevenue_rsbpc ltotaltaxes_rsbpc ///
 ltotalexpenditure_rsbpc ltotalcurrentoper_rsbpc ltotalcapitaloutlays_rsbpc) ///
