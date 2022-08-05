@@ -184,3 +184,65 @@ remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster age)
 boottest after_treat, seed(6) weight(webb) noci
 esttab using "$doc\tabWild.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
 (\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
+
+*=====================================================================*
+/* TABLE 2.
+Heterogenous effects: DiD estimations */
+*=====================================================================*
+/* Indigenous */
+eststo clear
+eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg poor after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+esttab using "$doc\table_ind.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+title(Indigenous) label replace keep(after_treat)
+*=====================================================================*
+/* Non-Indigenous */
+eststo clear
+eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg poor after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster age)
+boottest after_treat, seed(6) weight(webb) noci
+esttab using "$doc\table_non_ind.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+title(Non-Indigenous) label replace keep(after_treat)
