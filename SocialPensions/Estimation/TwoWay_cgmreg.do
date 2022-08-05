@@ -1,10 +1,10 @@
 *=====================================================================*
 /* Main do file
-Note: Before running this do file, please install the cgmreg and unique 
-commands by downloading the ado files for the former at the following
-site:
+Note: Before running this do file, please install the 'cgmreg' and 
+'unique' commands by downloading the ado files for the former at the 
+following site:
 
-https://sites.google.com/site/judsoncaskey/data
+https://github.com/galvez-soriano/Papers/edit/main/SocialPensions/Estimation/
 
 and typing the following for the latter:
 
