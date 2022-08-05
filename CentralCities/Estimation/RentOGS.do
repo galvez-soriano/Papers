@@ -1,10 +1,10 @@
 *========================================================================*
 * Rent Capture by Central Cities
 *========================================================================*
-/* Steven G. Craig, Annie Hsu, Janet Kohlhase
-Modified by Oscar Gálvez-Soriano
-Note: Before running this do file, please install the packages xtivreg2 and 
-ivreg2 by typing the following:
+/* Steven G. Craig, Annie Hsu, Janet Kohlhase and Oscar Gálvez-Soriano
+
+Note: Before running this do file, please install the packages 'xtivreg2' 
+and 'ivreg2' by typing the following:
 
 ssc install ivreg2
 ssc install xtivreg2 */
@@ -12,8 +12,8 @@ ssc install xtivreg2 */
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/CentralCities/Data"
-gl base= "C:\Users\galve\Documents\UH\Summer\Summer2022\Base"
-gl doc= "C:\Users\galve\Documents\UH\Summer\Summer2022\Doc"
+gl base= "C:\Users\ogalvez\Documents\ProfessorCraig\Base"
+gl doc= "C:\Users\ogalvez\Documents\ProfessorCraig\Doc"
 *========================================================================*
 /* Merge dataset that include city, suburb fiscal variables and Bartik IV */
 *========================================================================*
@@ -31,6 +31,14 @@ drop _merge
 merge 1:1 year msa_sc using "$data/tradevars_final_msa_nmc.dta"
 drop if _merge==2
 drop _merge
+merge 1:1 year msa_sc using "$data/BartikData_version12_mc.dta"
+drop if _merge==2
+drop _merge 
+merge 1:1 year msa_sc using "$data/BartikData_version12_nmc.dta"
+drop if _merge==2
+rename B_iv_nmc B_iv
+replace B_iv=B_iv_mc if B_iv==.
+drop _merge dX_it* loc_all_* B_iv_mc
 *========================================================================*
 /* Generate intergovernmental transfer revenue into three categories: basic, 
 transfer, other */
@@ -48,6 +56,7 @@ rename B_iv_`x'_nmc B_iv_`x'
 replace B_iv_`x'=B_iv_`x'_mc if B_iv_`x'==.
 drop B_iv_`x'_mc loc_ind_`x'_nmc loc_ind_`x'_mc B_iv_`x'_nmc_5 B_iv_`x'_mc_5
 }
+/* Trade variables */
 rename d_usch_pw_msanmc d_usch_pw
 rename d_otch_pw_lag_msanmc d_otch_pw
 replace d_usch_pw=d_usch_pw_msamc if d_usch_pw==.
@@ -88,17 +97,168 @@ xtset panelid timeid
 	}
 }
 *========================================================================*
-* Running the regressions
+/* Unit Root tests */
+*========================================================================*
+* Levin-Lin-Chu test
+xtunitroot llc d_totalrevenue_rpc
+* Harris-Tzavalis test
+xtunitroot ht d_totalrevenue_rpc
+* Breitung test
+xtunitroot breitung d_totalrevenue_rpc
+* Im-Pesaran-Shin test
+xtunitroot ips d_totalrevenue_rpc
+* Fisher-type tests (combining p-values)
+xtunitroot fisher d_totalrevenue_rpc, dfuller lags(2)
+* Hadri Lagrange multiplier stationarity test
+xtunitroot hadri d_totalrevenue_rpc
+
+xtunitroot llc d_totalrevenue_rsbpc
+xtunitroot ht d_totalrevenue_rsbpc
+xtunitroot breitung d_totalrevenue_rsbpc
+xtunitroot ips d_totalrevenue_rsbpc
+xtunitroot fisher d_totalrevenue_rsbpc, dfuller lags(2)
+xtunitroot hadri d_totalrevenue_rsbpc
+
+xtunitroot llc d_totaltaxes_rpc
+xtunitroot ht d_totaltaxes_rpc
+xtunitroot breitung d_totaltaxes_rpc
+xtunitroot ips d_totaltaxes_rpc
+xtunitroot fisher d_totaltaxes_rpc, dfuller lags(2)
+xtunitroot hadri d_totaltaxes_rpc
+
+xtunitroot llc d_totaltaxes_rsbpc
+xtunitroot ht d_totaltaxes_rsbpc
+xtunitroot breitung d_totaltaxes_rsbpc
+xtunitroot ips d_totaltaxes_rsbpc
+xtunitroot fisher d_totaltaxes_rsbpc, dfuller lags(2)
+xtunitroot hadri d_totaltaxes_rsbpc
+
+xtunitroot llc d_totalexpenditure_rpc
+xtunitroot ht d_totalexpenditure_rpc
+xtunitroot breitung d_totalexpenditure_rpc
+xtunitroot ips d_totalexpenditure_rpc
+xtunitroot fisher d_totalexpenditure_rpc, dfuller lags(2)
+xtunitroot hadri d_totalexpenditure_rpc
+
+xtunitroot llc d_totalexpenditure_rsbpc
+xtunitroot ht d_totalexpenditure_rsbpc
+xtunitroot breitung d_totalexpenditure_rsbpc
+xtunitroot ips d_totalexpenditure_rsbpc
+xtunitroot fisher d_totalexpenditure_rsbpc, dfuller lags(2)
+xtunitroot hadri d_totalexpenditure_rsbpc
+
+xtunitroot llc d_totalcurrentoper_rpc
+xtunitroot ht d_totalcurrentoper_rpc
+xtunitroot breitung d_totalcurrentoper_rpc
+xtunitroot ips d_totalcurrentoper_rpc
+xtunitroot fisher d_totalcurrentoper_rpc, dfuller lags(2)
+xtunitroot hadri d_totalcurrentoper_rpc
+
+xtunitroot llc d_totalcurrentoper_rsbpc
+xtunitroot ht d_totalcurrentoper_rsbpc
+xtunitroot breitung d_totalcurrentoper_rsbpc
+xtunitroot ips d_totalcurrentoper_rsbpc
+xtunitroot fisher d_totalcurrentoper_rsbpc, dfuller lags(2)
+xtunitroot hadri d_totalcurrentoper_rsbpc
+
+xtunitroot llc d_totalcapitaloutlays_rpc
+xtunitroot ht d_totalcapitaloutlays_rpc
+xtunitroot breitung d_totalcapitaloutlays_rpc
+xtunitroot ips d_totalcapitaloutlays_rpc
+xtunitroot fisher d_totalcapitaloutlays_rpc, dfuller lags(2)
+xtunitroot hadri d_totalcapitaloutlays_rpc
+
+xtunitroot llc d_totalcapitaloutlays_rsbpc
+xtunitroot ht d_totalcapitaloutlays_rsbpc
+xtunitroot breitung d_totalcapitaloutlays_rsbpc
+xtunitroot ips d_totalcapitaloutlays_rsbpc
+xtunitroot fisher d_totalcapitaloutlays_rsbpc, dfuller lags(2)
+xtunitroot hadri d_totalcapitaloutlays_rsbpc
+*========================================================================*
+* Running the regressions single Bartik instrument
 *========================================================================*
 * Outcome varibales: city variables
 * Right-hand-side varibales: suburban variables
 *========================================================================*
+/* Total Revenue */
+*========================================================================*
+/* Structural equation */
 eststo clear
-eststo: xtivreg2 d_totalrevenue_rpc (d_totalrevenue_rsbpc = B_iv_11 B_iv_21 B_iv_22 ///
-B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 B_iv_54 ///
-B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) d_basic_level ///
-d_transfer_level d_other_level, fe r
+eststo: xtreg d_totalrevenue_rpc d_totalrevenue_rsbpc d_basic_level ///
+d_transfer_level d_other_level, fe vce(robust)
+/* First stage equation */
+eststo: xtreg d_totalrevenue_rsbpc B_iv d_basic_level d_transfer_level ///
+d_other_level, fe vce(robust)
+/* Reduced form equation */
+eststo: xtreg d_totalrevenue_rpc B_iv d_basic_level d_transfer_level ///
+d_other_level, fe vce(robust)
+/* Second stage: IV model */
+eststo: xtivreg2 d_totalrevenue_rpc (d_totalrevenue_rsbpc = B_iv) ///
+d_basic_level d_transfer_level d_other_level, fe robust
+esttab using "$doc\tab_BartikTR.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(d_totalrevenue_rsbpc B_iv) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 
+*========================================================================*
+/* Total Taxes */
+*========================================================================*
+eststo clear
+eststo: xtreg d_totaltaxes_rpc d_totaltaxes_rsbpc d_basic_level ///
+d_transfer_level d_other_level, fe vce(robust)
+eststo: xtreg d_totaltaxes_rsbpc B_iv d_basic_level d_transfer_level ///
+d_other_level, fe vce(robust)
+eststo: xtreg d_totaltaxes_rpc B_iv d_basic_level d_transfer_level ///
+d_other_level, fe vce(robust)
+eststo: xtivreg2 d_totaltaxes_rpc (d_totaltaxes_rsbpc = B_iv) ///
+d_basic_level d_transfer_level d_other_level, fe robust
+esttab using "$doc\tab_BartikTT.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(d_totaltaxes_rsbpc B_iv) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+
+*========================================================================* <<<<<<<<<<<<<<<<<<<<<=============================== Continue HERE!
+/* Total Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg d_totalexpenditure_rpc d_totalexpenditure_rsbpc d_basic_level ///
+d_transfer_level d_other_level, fe vce(robust)
+eststo: xtreg d_totalexpenditure_rsbpc B_iv d_basic_level d_transfer_level ///
+d_other_level, fe vce(robust)
+eststo: xtreg d_totalexpenditure_rpc B_iv d_basic_level d_transfer_level ///
+d_other_level, fe vce(robust)
+eststo: xtivreg2 d_totalexpenditure_rpc (d_totalexpenditure_rsbpc = B_iv) ///
+d_basic_level d_transfer_level d_other_level, fe robust
+esttab using "$doc\tab_BartikTT.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(d_totalexpenditure_rsbpc B_iv) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+* Running the regressions multiple Bartik instrument
+*========================================================================*
+/* Total Revenue */
+*========================================================================*
+/* Structural equation */
+eststo clear
+eststo: xtreg d_totalrevenue_rpc d_totalrevenue_rsbpc d_basic_level ///
+d_transfer_level d_other_level, fe vce(robust)
+/* First stage equation */
+eststo: xtreg d_totalrevenue_rsbpc B_iv_11 B_iv_21 B_iv_22 B_iv_23 B_iv_33 ///
+B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 B_iv_54 B_iv_55 ///
+B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81 d_basic_level ///
+d_transfer_level d_other_level, fe vce(robust)
+/* Reduced form equation */
+eststo: xtreg d_totalrevenue_rpc B_iv_11 B_iv_21 B_iv_22 B_iv_23 B_iv_33 ///
+B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 B_iv_54 B_iv_55 ///
+B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81 d_basic_level ///
+d_transfer_level d_other_level, fe vce(robust)
+/* Second stage: IV model */
+eststo: xtivreg2 d_totalrevenue_rpc (d_totalrevenue_rsbpc = B_iv_11 B_iv_21 ///
+B_iv_22 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 ///
+B_iv_53 B_iv_54 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 ///
+B_iv_81) d_basic_level d_transfer_level d_other_level, fe robust
+
+*****************************
 eststo: xtivreg2 d_totaltaxes_rpc (d_totaltaxes_rsbpc = B_iv_11 B_iv_21 B_iv_22 ///
 B_iv_23 B_iv_33 B_iv_42 B_iv_45 B_iv_49 B_iv_51 B_iv_52 B_iv_53 B_iv_54 ///
 B_iv_55 B_iv_56 B_iv_61 B_iv_62 B_iv_71 B_iv_72 B_iv_81) d_basic_level ///
