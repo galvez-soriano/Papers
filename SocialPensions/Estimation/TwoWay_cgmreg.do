@@ -4,7 +4,7 @@ Note: Before running this do file, please install the 'cgmreg' and
 'unique' commands by downloading the ado files for the former at the 
 following site:
 
-https://github.com/galvez-soriano/Papers/edit/main/SocialPensions/Estimation/
+https://github.com/galvez-soriano/Papers/edit/main/SocialPensions/ado_files/
 
 and typing the following for the latter:
 
