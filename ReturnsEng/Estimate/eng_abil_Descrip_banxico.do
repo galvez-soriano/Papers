@@ -12,8 +12,8 @@ gl doc= "C:\Users\T43969\Documents\ReturnsEng\Doc"
 /* Adult English speaking ability in Mexico */
 *========================================================================*
 use "$base\eng_abil.dta", clear
-gen eng_states=1 if state=="01" | state=="10" | state=="19" | state=="25" ///
-| state=="26" | state=="28" | state=="05" | state=="31"
+gen eng_states=1 if state=="01" | state=="05" | state=="10" | state=="17" ///
+| state=="19" | state=="25" | state=="26" | state=="28" 
 replace eng_state=0 if eng_state==.
 replace eng=eng*100
 
