@@ -5,9 +5,9 @@
 *========================================================================*
 clear
 set more off
-gl data= "C:\Users\T43969\Documents\ReturnsEng\Data\GitHub"
-gl base= "C:\Users\T43969\Documents\ReturnsEng\Data"
-gl doc= "C:\Users\T43969\Documents\ReturnsEng\Doc"
+gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main"
+gl base= "C:\Users\ogalvez\Documents\EngAbil\Data"
+gl doc= "C:\Users\ogalvez\Documents\EngAbil\Doc"
 *========================================================================*
 /* TABLE 6: Returns to English skills */
 *========================================================================*
@@ -1445,7 +1445,7 @@ graph export "$doc\PTA_StaggDDs3.png", replace
 *========================================================================*
 /* TABLE X: Heterogenous effects */
 *========================================================================*
-/* Staggered DiD: All states */
+/* Staggered DiD: By gender */
 *========================================================================*
 use "$base\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" | state=="17" ///
@@ -1492,7 +1492,6 @@ star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
 gen fem_pol=female*had_policy
-
 eststo clear
 eststo: areg hrs_exp fem_pol had_policy i.state i.cohort i.edu female student work ///
 indigenous [aw=weight], absorb(geo) vce(cluster geo)
@@ -1505,7 +1504,175 @@ indigenous [aw=weight], absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDgender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(fem_pol) replace
 *========================================================================*
-/* TABLE X: Robustness check */
+/* Staggered DiD: By ethnicity */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+keep if state=="01" | state=="05" | state=="10" | state=="17" ///
+| state=="19" | state=="25" | state=="26" | state=="28" ///
+| state=="02" | state=="08" | state=="18" | state=="21" ///
+| state=="24" | state=="32"
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
+replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
+replace had_policy=1 if state=="17" & (cohort>=1982 & cohort<=1996)
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
+destring state, replace
+keep if cohort>=1975 & cohort<=1996
+
+eststo clear
+eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
+indigenous [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
+indigenous inc_hh edu_hh [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+inc_hh edu_hh [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.state i.cohort i.edu female student ///
+indigenous [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_SDDind.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
+indigenous [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
+indigenous inc_hh edu_hh [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+inc_hh edu_hh [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.state i.cohort i.edu female student ///
+indigenous [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_SDDnind.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+gen ind_pol=indigenous*had_policy
+eststo clear
+eststo: areg hrs_exp ind_pol had_policy i.state i.cohort i.edu female student work ///
+indigenous [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg eng ind_pol had_policy i.state i.cohort i.edu female student work ///
+indigenous inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg work ind_pol had_policy i.state i.cohort i.edu female indigenous ///
+inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lwage ind_pol had_policy i.state i.cohort i.edu female student ///
+indigenous [aw=weight], absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_SDDethnic.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Ethnicity differences) keep(ind_pol) replace
+*========================================================================*
+/* Staggered DiD: By geographical context */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+keep if state=="01" | state=="05" | state=="10" | state=="17" ///
+| state=="19" | state=="25" | state=="26" | state=="28" ///
+| state=="02" | state=="08" | state=="18" | state=="21" ///
+| state=="24" | state=="32"
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
+replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
+replace had_policy=1 if state=="17" & (cohort>=1982 & cohort<=1996)
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
+destring state, replace
+keep if cohort>=1975 & cohort<=1996
+
+eststo clear
+eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
+indigenous [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
+indigenous inc_hh edu_hh [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+inc_hh edu_hh [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.state i.cohort i.edu female student ///
+indigenous [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_SDDrural.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+gen rul_pol=rural*had_policy
+eststo clear
+eststo: areg hrs_exp rul_pol rural had_policy i.state i.cohort i.edu female student work ///
+indigenous [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg eng rul_pol rural had_policy i.state i.cohort i.edu female student work ///
+indigenous inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg work rul_pol rural had_policy i.state i.cohort i.edu female indigenous ///
+inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lwage rul_pol rural had_policy i.state i.cohort i.edu female student ///
+indigenous [aw=weight], absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_SDDgeo.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Geographical differences) keep(rul_pol) replace
+*========================================================================*
+/* Staggered DiD: By socioeconomic status */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+keep if state=="01" | state=="05" | state=="10" | state=="17" ///
+| state=="19" | state=="25" | state=="26" | state=="28" ///
+| state=="02" | state=="08" | state=="18" | state=="21" ///
+| state=="24" | state=="32"
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
+replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
+replace had_policy=1 if state=="17" & (cohort>=1982 & cohort<=1996)
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
+destring state, replace
+keep if cohort>=1975 & cohort<=1996
+sum income if age>=18 & age<=65
+scalar minc=r(mean)
+gen socioe=0
+replace socioe=1 if income>minc
+
+eststo clear
+eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
+indigenous [aw=weight] if socioe==0, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
+indigenous inc_hh edu_hh [aw=weight] if socioe==0, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+inc_hh edu_hh [aw=weight] if socioe==0, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.state i.cohort i.edu female student ///
+indigenous [aw=weight] if socioe==0, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_SDDlowi.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
+indigenous [aw=weight] if socioe==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
+indigenous inc_hh edu_hh [aw=weight] if socioe==1, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+inc_hh edu_hh [aw=weight] if socioe==1, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.state i.cohort i.edu female student ///
+indigenous [aw=weight] if socioe==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_SDDhighi.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+gen se_pol=socioe*had_policy
+eststo clear
+eststo: areg hrs_exp se_pol socioe had_policy i.state i.cohort i.edu female student work ///
+indigenous [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg eng se_pol socioe had_policy i.state i.cohort i.edu female student work ///
+indigenous inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg work se_pol socioe had_policy i.state i.cohort i.edu female indigenous ///
+inc_hh edu_hh [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lwage se_pol socioe had_policy i.state i.cohort i.edu female student ///
+indigenous [aw=weight], absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_SDDsocioe.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(se_pol) replace
+*========================================================================*
+/* TABLE X: Robustness checks */
 *========================================================================*
 /* English abilities in Aguascalientes */
 *========================================================================*
