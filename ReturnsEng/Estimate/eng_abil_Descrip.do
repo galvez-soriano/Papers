@@ -122,6 +122,22 @@ eststo no_eng: quietly estpost sum eng [fw=weight] if eng_state==0 & age>=18 & a
 esttab full_sample eng no_eng using "$doc\sum_stats.tex", ///
 cells("mean(fmt(%9.2fc))" "sd(par fmt(%15.2fc))") star(* 0.10 ** 0.05 *** 0.01) label replace
 
+sum income if age>=18 & age<=65
+scalar minc=r(mean)
+eststo clear
+eststo full_sample: quietly estpost sum eng [fw=weight] if age>=18 & age<=65 & income<minc
+eststo eng: quietly estpost sum eng [fw=weight] if eng_state==1 & age>=18 & age<=65 & income<minc
+eststo no_eng: quietly estpost sum eng [fw=weight] if eng_state==0 & age>=18 & age<=65 & income<minc
+esttab full_sample eng no_eng using "$doc\sum_stats.tex", ///
+cells("mean(fmt(%9.2fc))" "sd(par fmt(%15.2fc))") star(* 0.10 ** 0.05 *** 0.01) label replace
+
+eststo clear
+eststo full_sample: quietly estpost sum eng [fw=weight] if age>=18 & age<=65 & income>minc
+eststo eng: quietly estpost sum eng [fw=weight] if eng_state==1 & age>=18 & age<=65 & income>minc
+eststo no_eng: quietly estpost sum eng [fw=weight] if eng_state==0 & age>=18 & age<=65 & income>minc
+esttab full_sample eng no_eng using "$doc\sum_stats.tex", ///
+cells("mean(fmt(%9.2fc))" "sd(par fmt(%15.2fc))") star(* 0.10 ** 0.05 *** 0.01) label replace
+
 reg eng eng_state [aw=weight] if age>=18 & age<=65, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & female==0, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & female==1, vce(robust)
@@ -137,6 +153,8 @@ reg eng eng_state [aw=weight] if age>=18 & age<=65 & indigenous==1, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & indigenous==0, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & rural==0, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & rural==1, vce(robust)
+reg eng eng_state [aw=weight] if age>=18 & age<=65 & income<minc, vce(robust)
+reg eng eng_state [aw=weight] if age>=18 & age<=65 & income>minc, vce(robust)
 *========================================================================*
 /* Maps */
 *========================================================================*
