@@ -138,9 +138,9 @@ label var engedu4 "Middle S"
 label var engedu5 "High S"
 label var engedu6 "College"
 label var engedu7 "Graduate"
-areg lwage eng i.edu expe expe2 female rural female_hh age_hh edu_hh married ///
-engedu* [aw=weight] if age>=18 & age<=65, absorb(geo) vce(cluster geo)
 
+areg lwage eng i.edu_level edu_level expe expe2 female rural female_hh age_hh edu_hh married ///
+engedu* student indigenous [aw=weight] if age>=18 & age<=65, absorb(geo) vce(cluster geo)
 *graph set window fontface "Times New Roman"
 coefplot, vertical keep(engedu*) yline(0) omitted baselevels ///
 ytitle("Returns to English abilities by education levels", size(small) height(5)) ///
