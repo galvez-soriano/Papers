@@ -156,6 +156,71 @@ reg eng eng_state [aw=weight] if age>=18 & age<=65 & rural==1, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & income<minc, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & income>minc, vce(robust)
 *========================================================================*
+/* Graphs */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+
+gen age_cat=.
+replace age_cat=1 if age>=18 & age<=35
+replace age_cat=2 if age>=36 & age<=50
+replace age_cat=3 if age>=51 & age<=65
+label define age_cat 1 "18-35" 2 "36-50" 3 "51-65"
+label values age_cat age_cat
+
+gen edu_level=.
+replace edu_level=1 if edu<=5
+replace edu_level=2 if edu==6
+replace edu_level=3 if edu>=7 & edu<=9
+replace edu_level=4 if edu>=10 & edu<=12
+replace edu_level=5 if edu>=13
+label define edu_level 1 "0-5" 2 "6" 3 "7-9" 4 "10-12" 5 "13-24"
+label values edu_level edu_level
+
+label define rural 0 "Urban" 1 "Rural"
+label values rural rural
+label define female 0 "Men" 1 "Women"
+label values female female
+
+sum income if age>=18 & age<=65
+gen hinc=income>=r(mean)
+label define hinc 0 "Low" 1 "High"
+label values hinc hinc
+
+graph set window fontface "Times New Roman"
+graph bar eng [fw=weight] if age>=18 & age<=65, over(age_cat) ///
+ytitle("Percent of English speakers") ///
+graphregion(color(white)) 
+graph export "$doc\EngAge.png", replace 
+
+graph bar eng [fw=weight] if age>=18 & age<=65, over(edu_level) ///
+ytitle("Percent of English speakers") ///
+graphregion(color(white))
+graph export "$doc\EngEdu.png", replace 
+
+graph pie eng [fw=weight] if age>=18 & age<=65, over(female) ///
+plabel(_all name, size(*2.5) color(white)) scheme(s2mono) ///
+graphregion(color(white)) legend(off)
+graph export "$doc\WM.png", replace 
+sum eng [fw=weight] if age>=18 & age<=65
+scalar total=r(N)*(r(mean)/100)
+sum eng [fw=weight] if age>=18 & age<=65 & female==0
+scalar men=r(N)*(r(mean)/100)
+dis men/total
+graph pie eng [fw=weight] if age>=18 & age<=65, over(rural) ///
+plabel(_all name, size(*2) color(white)) scheme(s2mono) ///
+graphregion(color(white)) legend(off)
+graph export "$doc\RU.png", replace 
+sum eng [fw=weight] if age>=18 & age<=65 & rural==0
+scalar urban=r(N)*(r(mean)/100)
+dis urban/total
+graph pie eng [fw=weight] if age>=18 & age<=65, over(hinc) ///
+plabel(_all name, size(*2.5) color(white)) scheme(s2mono) ///
+graphregion(color(white)) legend(off)
+graph export "$doc\Income.png", replace 
+sum eng [fw=weight] if age>=18 & age<=65 & hinc==1
+scalar high=r(N)*(r(mean)/100)
+dis high/total
+*========================================================================*
 /* Maps */
 *========================================================================*
 use "$base\eng_abil.dta", clear
