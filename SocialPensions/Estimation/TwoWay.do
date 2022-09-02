@@ -157,3 +157,28 @@ remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state age) cluster(ubica_geo a
 esttab using "$doc\tab1SE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(DiD estimations ///
 (\autoref{eq:1})\label{tab1}) keep(after_treat) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+*=====================================================================* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=================================== RUN HERE!!!
+/* Without disability and remittances controls */
+*=====================================================================*
+use "$data\dbase65.dta", clear
+keep if year>=2012
+bysort folioviv foliohog: gen treat=1 if age>=66 & age<=69
+bysort folioviv foliohog: replace treat=0 if age>=61 & age<=64
+rename tcheck cohab
+label var treat "Treat"
+gen after=.
+replace after=1 if year==2014
+replace after=0 if year==2012
+label var after "After"
+gen after_treat=after*treat
+label var after_treat "After_Treat"
+*=====================================================================*
+/* wo disability */
+reghdfe epoor after_treat after treat educ gender hli cohab ///
+remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state age) cluster(ubica_geo age)
+/* wo remittances */
+reghdfe epoor after_treat after treat educ gender disabil hli cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state age) cluster(ubica_geo age)
+/* wo disability and remittances */
+reghdfe epoor after_treat after treat educ gender hli cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state age) cluster(ubica_geo age)
