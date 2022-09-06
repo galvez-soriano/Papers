@@ -138,6 +138,7 @@ keep id lengua_2 factor_per
 destring lengua_2, replace
 rename lengua_2 eng
 recode eng (2=0)
+gen biare=1
 merge 1:1 id using "$base\eng_abil.dta"
 drop _merge
 order geo id_hh id state5 female age edu student work
@@ -171,6 +172,7 @@ gen inc_hh= income_hh-income
 replace inc_hh=inc_hh+1
 replace inc_hh=log(inc_hh)
 replace work=0 if work==.
+replace biare=0 if biare==.
 
 label var eng "English (speaking ability)"
 label var edu "Education (years)"
@@ -211,3 +213,6 @@ drop _merge merge2 merge3 hrs_exp2 hrs_exp3
 replace hrs_exp=0 if cohort<=1980
 
 save "$base\eng_abil.dta", replace
+
+keep if biare==1
+save "$base\eng_abil2.dta", replace
