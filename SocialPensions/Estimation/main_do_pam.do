@@ -14,6 +14,40 @@ foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14{
 }
 save "$data\dbase65.dta", replace
 *=====================================================================*
+/* Descriptive statistics to answer Referee's question regarding other
+PAM beneficiaries */
+*=====================================================================*
+use "$data\dbase65.dta", clear
+keep if year>=2012
+bysort folioviv foliohog: gen treat=1 if age>=66 & age<=69
+bysort folioviv foliohog: replace treat=0 if age>=61 & age<=64
+rename tcheck cohab
+label var treat "Treat"
+gen after=.
+replace after=1 if year==2014
+replace after=0 if year==2012
+label var after "After"
+gen after_treat=after*treat
+label var after_treat "After_Treat"
+
+reg l_inc treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg poor treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg epoor treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg labor treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg hwork treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg poor_health treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg weight_h treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+
+reg disabil treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg gender treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg howner treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg hli treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg rural treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg educ treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg tamhogesc treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg lremitt treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg cohab treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+*=====================================================================*
 use "$data\dbase65.dta", clear
 keep if year>=2012
 bysort folioviv foliohog: gen treat=1 if age>=66 & age<=69
