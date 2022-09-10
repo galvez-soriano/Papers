@@ -1795,7 +1795,7 @@ replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
 replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
 replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
-keep if cohort>=1985 & cohort<=1996
+keep if cohort>=1984 & cohort<=1994
 
 eststo clear
 eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
@@ -1823,8 +1823,8 @@ gen treat14=cohort==1991 & state=="19"
 gen treat15=cohort==1992 & state=="19"
 gen treat16=cohort==1993 & state=="19"
 gen treat17=cohort==1994 & state=="19"
-gen treat18=cohort==1995 & state=="19"
-gen treat19=cohort==1996 & state=="19"
+*gen treat18=cohort==1995 & state=="19"
+*gen treat19=cohort==1996 & state=="19"
 
 replace treat8=1 if cohort==1988 & state=="01"
 replace treat9=1 if cohort==1989 & state=="01"
@@ -1833,8 +1833,8 @@ replace treat11=1 if cohort==1991 & state=="01"
 replace treat12=1 if cohort==1992 & state=="01"
 replace treat13=1 if cohort==1993 & state=="01"
 replace treat14=1 if cohort==1994 & state=="01"
-replace treat15=1 if cohort==1995 & state=="01"
-replace treat16=1 if cohort==1996 & state=="01"
+*replace treat15=1 if cohort==1995 & state=="01"
+*replace treat16=1 if cohort==1996 & state=="01"
 
 replace treat7=1 if cohort==1985 & state=="05"
 replace treat8=1 if cohort==1986 & state=="05"
@@ -1846,8 +1846,8 @@ replace treat13=1 if cohort==1991 & state=="05"
 replace treat14=1 if cohort==1992 & state=="05"
 replace treat15=1 if cohort==1993 & state=="05"
 replace treat16=1 if cohort==1994 & state=="05"
-replace treat17=1 if cohort==1995 & state=="05"
-replace treat18=1 if cohort==1996 & state=="05"
+*replace treat17=1 if cohort==1995 & state=="05"
+*replace treat18=1 if cohort==1996 & state=="05"
 
 replace treat6=1 if cohort==1987 & state=="10"
 replace treat7=1 if cohort==1988 & state=="10"
@@ -1857,8 +1857,8 @@ replace treat10=1 if cohort==1991 & state=="10"
 replace treat11=1 if cohort==1992 & state=="10"
 replace treat12=1 if cohort==1993 & state=="10"
 replace treat13=1 if cohort==1994 & state=="10"
-replace treat14=1 if cohort==1995 & state=="10"
-replace treat15=1 if cohort==1996 & state=="10"
+*replace treat14=1 if cohort==1995 & state=="10"
+*replace treat15=1 if cohort==1996 & state=="10"
 
 replace treat6=1 if cohort==1989 & state=="25"
 replace treat7=1 if cohort==1990 & state=="25"
@@ -1866,16 +1866,16 @@ replace treat8=1 if cohort==1991 & state=="25"
 replace treat9=1 if cohort==1992 & state=="25"
 replace treat10=1 if cohort==1993 & state=="25"
 replace treat11=1 if cohort==1994 & state=="25"
-replace treat12=1 if cohort==1995 & state=="25"
-replace treat13=1 if cohort==1996 & state=="25"
+*replace treat12=1 if cohort==1995 & state=="25"
+*replace treat13=1 if cohort==1996 & state=="25"
 
 *replace treat7=1 if cohort==1990 & state=="26"
 replace treat8=1 if cohort==1991 & state=="26"
 replace treat9=1 if cohort==1992 & state=="26"
 replace treat10=1 if cohort==1993 & state=="26"
 replace treat11=1 if cohort==1994 & state=="26"
-replace treat12=1 if cohort==1995 & state=="26"
-replace treat13=1 if cohort==1996 & state=="26"
+*replace treat12=1 if cohort==1995 & state=="26"
+*replace treat13=1 if cohort==1996 & state=="26"
 
 replace treat5=1 if cohort==1985 & state=="28"
 replace treat6=1 if cohort==1986 & state=="28"
@@ -1887,8 +1887,8 @@ replace treat11=1 if cohort==1991 & state=="28"
 replace treat12=1 if cohort==1992 & state=="28"
 replace treat13=1 if cohort==1993 & state=="28"
 replace treat14=1 if cohort==1994 & state=="28"
-replace treat15=1 if cohort==1995 & state=="28"
-replace treat16=1 if cohort==1996 & state=="28"
+*replace treat15=1 if cohort==1995 & state=="28"
+*replace treat16=1 if cohort==1996 & state=="28"
 
 replace treat9=0
 
@@ -1897,12 +1897,12 @@ label var treat6 "-4"
 label var treat7 "-3"
 label var treat8 "-2"
 label var treat9 "-1"
-foreach x in 0 1 2 3 4 5 6 7 8 9 {
+foreach x in 0 1 2 3 4 5 6 7 {
 	label var treat1`x' "`x'"
 }
 
-areg eng treat* i.cohort cohort i.edu female student work indigenous ///
-[aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+areg eng treat* i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1984 & cohort<=1994 & work==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
@@ -1913,8 +1913,8 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.3 0.3)) recast(connected)
 graph export "$doc\PTA_StaggDDa.png", replace
 
-areg hrs_exp treat* i.cohort cohort i.edu female student work indigenous ///
-[aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+areg hrs_exp treat* i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1984 & cohort<=1994 & work==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
@@ -1925,8 +1925,8 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.5 0.75)) recast(connected)
 graph export "$doc\PTA_StaggDDa1.png", replace
 
-areg work treat* i.cohort cohort i.edu female indigenous ///
-[aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+areg work treat* i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1984 & cohort<=1994, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
@@ -1937,8 +1937,8 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.5 0.5)) recast(connected)
 graph export "$doc\PTA_StaggDDa2.png", replace
 
-areg lwage treat* i.cohort i.edu female rural student ///
-indigenous married [aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+areg lwage treat* i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1984 & cohort<=1994 & work==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
@@ -1969,21 +1969,21 @@ replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
 destring state, replace
 destring geo, replace
-keep if cohort>=1985 & cohort<=1996
+keep if cohort>=1984 & cohort<=1994
 
 eststo clear
 * Structural equation
-eststo: areg lwage eng i.cohort i.edu female rural student indigenous ///
-married [aw=weight] if had_policy!=., absorb(geo) vce(cluster geo)
+eststo: areg lwage eng i.cohort i.edu female indigenous married ///
+[aw=weight] if had_policy!=. & work==1, absorb(geo) vce(cluster geo)
 * First stage equation
-eststo: areg eng had_policy i.cohort i.edu female rural student indigenous ///
-married [aw=weight] if had_policy!=., absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if had_policy!=. & work==1, absorb(geo) vce(cluster geo)
 * Reduced form equation
-eststo: areg lwage had_policy i.cohort i.edu female rural student indigenous ///
-married [aw=weight] if had_policy!=., absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if had_policy!=. & work==1, absorb(geo) vce(cluster geo)
 * Second stage (IV)
-eststo: quietly ivregress 2sls lwage (eng=had_policy) i.geo i.cohort i.edu female rural ///
-student indigenous married [aw=weight] if had_policy!=., vce(cluster geo)
+eststo: quietly ivregress 2sls lwage (eng=had_policy) i.geo i.cohort i.edu ///
+female indigenous married [aw=weight] if had_policy!=. & work==1, vce(cluster geo)
 /*ivreghdfe lwage (eng=had_policy) female rural student ///
 indigenous married [aw=weight] if had_policy!=., absorb(geo cohort edu) robust*/
 esttab using "$doc\tabIVa.tex", cells(b(star fmt(%9.3f)) se(par)) ///
@@ -2072,41 +2072,41 @@ destring state, replace
 keep if cohort>=1975 & cohort<=1996
 
 eststo clear
-eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
-eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
-eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if indigenous==1 & work==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if indigenous==1 & work==1, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.cohort i.edu female indigenous married ///
 [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy i.cohort i.edu female rural student ///
-indigenous married [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if indigenous==1 & work==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDind.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
 eststo clear
-eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
-eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
-eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if indigenous==0 & work==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if indigenous==0 & work==1, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.cohort i.edu female indigenous married ///
 [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy i.cohort i.edu female rural student ///
-indigenous married [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if indigenous==0 & work==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDnind.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
 gen ind_pol=indigenous*had_policy
 eststo clear
-eststo: areg hrs_exp ind_pol had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight], absorb(geo) vce(cluster geo)
-eststo: areg eng ind_pol had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight], absorb(geo) vce(cluster geo)
-eststo: areg work ind_pol had_policy i.state i.cohort i.edu female indigenous ///
-[aw=weight], absorb(geo) vce(cluster geo)
-eststo: areg lwage ind_pol had_policy i.cohort i.edu female rural student ///
-indigenous married [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg hrs_exp ind_pol had_policy i.cohort i.edu female indigenous ///
+married [aw=weight] if work==1, absorb(geo) vce(cluster geo)
+eststo: areg eng ind_pol had_policy i.cohort i.edu female indigenous ///
+married [aw=weight] if work==1, absorb(geo) vce(cluster geo)
+eststo: areg work ind_pol had_policy i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lwage ind_pol had_policy i.cohort i.edu female indigenous ///
+married [aw=weight] if work==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDethnic.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Ethnicity differences) keep(ind_pol) replace
 *========================================================================*
@@ -2130,40 +2130,40 @@ destring state, replace
 keep if cohort>=1975 & cohort<=1996
 
 eststo clear
-eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
-eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
-eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if rural==1 & work==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if rural==1 & work==1, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.cohort i.edu female indigenous married ///
 [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy i.cohort i.edu female rural student ///
-indigenous married [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if rural==1 & work==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDrural.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
 eststo clear
-eststo: areg hrs_exp had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight] if rural==0, absorb(geo) vce(cluster geo)
-eststo: areg eng had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight] if rural==0, absorb(geo) vce(cluster geo)
-eststo: areg work had_policy i.state i.cohort i.edu female indigenous ///
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if rural==0 & work==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if rural==0 & work==1, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy i.cohort i.edu female indigenous married ///
 [aw=weight] if rural==0, absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy i.cohort i.edu female rural student ///
-indigenous married [aw=weight] if rural==0, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if rural==0 & work==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDurban.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
 gen rul_pol=rural*had_policy
 eststo clear
-eststo: areg hrs_exp rul_pol rural had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight], absorb(geo) vce(cluster geo)
-eststo: areg eng rul_pol rural had_policy i.state i.cohort i.edu female student work ///
-indigenous [aw=weight], absorb(geo) vce(cluster geo)
-eststo: areg work rul_pol rural had_policy i.state i.cohort i.edu female indigenous ///
-[aw=weight], absorb(geo) vce(cluster geo)
-eststo: areg lwage rul_pol rural had_policy i.cohort i.edu female rural student ///
-indigenous married [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg hrs_exp rul_pol rural had_policy i.cohort i.edu female ///
+indigenous married [aw=weight] if work==1, absorb(geo) vce(cluster geo)
+eststo: areg eng rul_pol rural had_policy i.cohort i.edu female ///
+indigenous married [aw=weight] if work==1, absorb(geo) vce(cluster geo)
+eststo: areg work rul_pol rural had_policy i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lwage rul_pol rural had_policy i.cohort i.edu female indigenous ///
+married [aw=weight] if work==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDgeo.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Geographical differences) keep(rul_pol) replace
