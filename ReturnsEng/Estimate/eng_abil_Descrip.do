@@ -404,6 +404,17 @@ xtile eng_dist= p_eng, nq(4)
 xtile eng_dist_edu= p_eng_edu, nq(4)
 save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace */
 *========================================================================*
+/* Descriptive statistics: with and without students */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+eststo clear
+eststo csample: quietly estpost sum eng edu age female student work formal ///
+rural hrs_work income [fw=weight] if age>=18 & age<=65 & work==1
+eststo esample: quietly estpost sum eng edu age female student work formal ///
+rural hrs_work income [fw=weight] if age>=18 & age<=65 & work==0
+esttab csample esample using "$doc\stats.tex", ///
+cells("mean(pattern(1 1) fmt(%9.2fc))") label replace
+*========================================================================*
 /* Descriptive statistics */
 *========================================================================*
 use "$base\eng_abil.dta", clear
