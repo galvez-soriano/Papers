@@ -407,6 +407,21 @@ save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New
 /* Descriptive statistics: with and without students */
 *========================================================================*
 use "$base\eng_abil.dta", clear
+keep if state=="01" | state=="05" | state=="10" ///
+| state=="19" | state=="25" | state=="26" | state=="28" ///
+| state=="02" | state=="03" | state=="08" | state=="18" ///
+| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
+replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
+keep if cohort>=1975 & cohort<=1996
+
 eststo clear
 eststo csample: quietly estpost sum eng edu age female student work formal ///
 rural hrs_work income [fw=weight] if age>=18 & age<=65 & work==1
