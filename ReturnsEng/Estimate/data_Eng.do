@@ -87,6 +87,7 @@ replace earnings=earnings/12 if clave>="P008" & clave<="P009"
 replace earnings=earnings/12 if clave>="P015" & clave<="P016"
 replace earnings=0 if clave>="P023" & clave<="P040"
 replace earnings=0 if clave>="P042" & clave<="P067"
+replace earnings=0 if clave>="P068" & clave<="P081"
 replace earnings=0 if clave>="P101" & clave<="P108"
 collapse (sum) ing_tri earnings, by(id)
 rename ing_tri income
