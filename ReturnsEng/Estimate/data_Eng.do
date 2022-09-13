@@ -107,7 +107,7 @@ replace folioviv="0"+folioviv in 1/18057
 tostring numren, replace format(%02.0f) force
 gen str id=(folioviv + foliohog + numren)
 drop if id_trabajo==2
-keep id pago trapais pres_20 htrab sinco scian clas_emp tam_emp no_ing tiene_suel tipoact
+keep id pago trapais pres_20 htrab sinco scian clas_emp tam_emp tiene_suel no_ing tipoact
 destring pago trapais pres_20 clas_emp tam_emp tiene_suel tipoact, replace
 recode trapais (2=0)
 merge 1:1 id using "$base\eng_abil.dta"
@@ -159,8 +159,14 @@ gen formal=1 if work==1
 replace formal=0 if pres_20==20
 replace formal=0 if ss==0 & work==1
 replace formal=1 if med_affil==1 & work==1 & formal==0
+gen paidw=1 if work==1
+replace paidw=0 if pago>=2 & pago!=.
+replace earnings=0 if earnings==. & (no_ing=="01" | no_ing=="12" | no_ing=="13")
+replace earnings=min_wage if earnings==0 & paidw==1 & htrab>=40
+replace earnings=min_wage if earnings==. & paidw==1 & htrab>=40
+
 drop trapais pago pres_20 htrab tiene_suel min_wage clas_emp tam_emp ///
-tiene_suel tipoact med_affil ss ss_years segpop
+tiene_suel tipoact med_affil ss ss_years segpop no_ing
 rename factor_per weight
 save "$base\eng_abil.dta", replace
 *========================================================================*
