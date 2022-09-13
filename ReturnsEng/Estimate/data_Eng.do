@@ -30,6 +30,7 @@ rename hablaind indigenous
 recode indigenous (2=0)
 rename asis_esc student
 recode student (2=0)
+replace student=1 if act_pnea1==4 & trabajo_mp==2
 rename nivel level
 rename grado grade
 replace grade=1 if level==3 & grade==. & age==12
@@ -69,7 +70,9 @@ rename inscr_1 med_affil
 replace med_affil=0 if med_affil==.
 rename trabajo_mp work
 recode work (2=0)
-replace work=1 if act_pnea1==1
+gen lfp=work==1
+replace lfp=1 if act_pnea1==1
+replace work=0 if student==1
 drop nivelaprob gradoaprob antec_esc edo_conyug act_pnea1
 order id_hh id
 save "$base\eng_abil.dta", replace
@@ -104,7 +107,7 @@ replace folioviv="0"+folioviv in 1/18057
 tostring numren, replace format(%02.0f) force
 gen str id=(folioviv + foliohog + numren)
 drop if id_trabajo==2
-keep id pago trapais pres_20 htrab sinco scian clas_emp tam_emp tiene_suel tipoact
+keep id pago trapais pres_20 htrab sinco scian clas_emp tam_emp no_ing tiene_suel tipoact
 destring pago trapais pres_20 clas_emp tam_emp tiene_suel tipoact, replace
 recode trapais (2=0)
 merge 1:1 id using "$base\eng_abil.dta"
@@ -174,7 +177,9 @@ replace expe=0 if expe<0
 gen expe2=expe^2
 replace eng=0 if eng==.
 gen edu2=edu^2
-gen lwage=log(income)
+gen linc=log(income)
+replace linc=0 if linc==.
+gen lwage=log(earnings)
 replace lwage=0 if lwage==.
 drop if state!=state5 & state5<="32"
 gen inc_hh= income_hh-income
