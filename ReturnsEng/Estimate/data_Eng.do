@@ -161,6 +161,7 @@ replace formal=0 if ss==0 & work==1
 replace formal=1 if med_affil==1 & work==1 & formal==0
 gen paidw=1 if work==1
 replace paidw=0 if pago>=2 & pago!=.
+replace paidw=0 if paidw==.
 replace earnings=0 if earnings==. & (no_ing=="01" | no_ing=="12" | no_ing=="13")
 replace earnings=min_wage if earnings==0 & paidw==1 & htrab>=40
 replace earnings=min_wage if earnings==. & paidw==1 & htrab>=40
