@@ -5,9 +5,9 @@
 *========================================================================*
 clear
 set more off
-gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main"
-gl base= "C:\Users\ogalvezs\Documents\Returns to Eng\Data"
-gl doc= "C:\Users\ogalvezs\Documents\Returns to Eng\Doc"
+gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
+gl base= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
+gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
 *========================================================================*
 /* TABLE 6: Returns to English skills */
 *========================================================================*
@@ -150,7 +150,6 @@ graph export "$doc\eng_abil_edu.png", replace
 *========================================================================*
 /*use "$base\eng_abil.dta", clear
 destring geo, replace
-
 eststo clear
 /* Structural equation */
 eststo: areg lwage eng i.cohort i.edu female rural indigenous married ///
@@ -824,7 +823,6 @@ replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
 replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
 keep if cohort>=1975 & cohort<=1996
-replace paidw=0 if paidw==.
 
 eststo clear
 eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
@@ -1030,15 +1028,15 @@ ysc(r(-2 2)) recast(connected)
 graph export "$doc\PTA_StaggDD3.png", replace
 
 areg student treat* i.cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1980 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+[aw=weight] if cohort>=1980 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
 xline(9, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
-ylabel(-2(1)2, labs(medium) grid format(%5.2f)) ///
+ylabel(-.5(.25).5, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-2 2)) recast(connected)
+ysc(r(-.5 .5)) recast(connected)
 graph export "$doc\PTA_StaggDD4.png", replace
 *========================================================================*
 /* TABLE X: IV approach */
