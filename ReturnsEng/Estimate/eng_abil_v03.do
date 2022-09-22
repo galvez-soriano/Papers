@@ -238,7 +238,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1986 & cohort<=1995, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -329,7 +329,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1979 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -420,7 +420,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1985 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -511,7 +511,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -602,7 +602,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1966 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -693,7 +693,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -784,7 +784,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1027,7 +1027,7 @@ areg paidw treat* i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1980 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
 xline(9, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1330,7 +1330,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1986 & cohort<=1995, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
