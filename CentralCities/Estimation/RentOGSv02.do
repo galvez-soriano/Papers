@@ -181,12 +181,12 @@ xtset panelid timeid
 			totalcapitaloutlays_rsbpc basic_rsbpc basic_cur_rsbpc 
 			basic_cap_rsbpc transfer_rsbpc transfer_cur_rsbpc transfer_cap_rsbpc 
 			other_rsbpc other_cur_rsbpc other_cap_rsbpc	basic_level 
-			transfer_level other_level tr* tt* te* to* co*
+			transfer_level other_level 
 ;
 	#delimit cr		
 				
 	foreach i of local y_var {
-	 gen d_`i' = ((`i'-L.`i')/L.`i')
+	 gen l`i' = log(`i')-log(L.`i')
 	}
 }
 *========================================================================*
