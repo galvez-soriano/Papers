@@ -3,8 +3,8 @@
 *=====================================================================*
 set more off
 gl base="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
-gl data="C:\Users\ogalvez\Documents\SocialPensions\Data"
-gl doc="C:\Users\ogalvez\Documents\SocialPensions\Doc"
+gl data="C:\Users\ogalvezs\Documents\SocialPensions\Data"
+gl doc="C:\Users\ogalvezs\Documents\SocialPensions\Doc"
 *=====================================================================*
 * Downloading data from my GitHub website
 *=====================================================================*
@@ -14,9 +14,10 @@ foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14{
 }
 save "$data\dbase65.dta", replace
 *=====================================================================*
-/* Descriptive statistics to answer Referee's question regarding other
-PAM beneficiaries */
+* Descriptive statistics
 *=====================================================================*
+*reg dep_var treat if year==(Before or After) & ss_dir==0 [aw=factor], vce(cluster folioviv)
+/*
 use "$data\dbase65.dta", clear
 keep if year>=2012
 bysort folioviv foliohog: gen treat=1 if age>=66 & age<=69
@@ -46,7 +47,7 @@ reg rural treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ub
 reg educ treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg tamhogesc treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg lremitt treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
-reg cohab treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg cohab treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo) */
 *=====================================================================*
 use "$data\dbase65.dta", clear
 keep if year>=2012
@@ -65,30 +66,27 @@ label var after_treat "After_Treat"
 *=====================================================================*
 * Dependent variable: Take up tamhogesc
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg pam after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 * Dependent variable: Income per capita
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 * Dependent variable: Poverty. Welfare and minimum welfare lines
-eststo: areg poor after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 * Dependent variable: Labor
-eststo: areg labor after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-* Dependent variable: Health
+eststo: areg labor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/* Dependent variable: Health
 eststo: areg poor_health after_treat after treat educ gender disabil hli i.age ///
 remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age ///
 remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-*************************************************************************************** Dependent variable: Disability for reviewer 1
-eststo: areg disabil after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-
+*/
 esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
 (\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
 *=====================================================================*
@@ -110,23 +108,23 @@ gen after_treat=after*treat
 label var after_treat "After_Treat"
 *=====================================================================*
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat tamhogesc educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat tamhogesc educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-
+*/
 esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
 (\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
 *=====================================================================*
@@ -147,23 +145,23 @@ gen after_treat=after*treat
 label var after_treat "After_Treat"
 *=====================================================================*
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-
+*/
 esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
 (\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
 *=====================================================================*
@@ -183,105 +181,27 @@ gen after_treat=after*treat
 label var after_treat "After_Treat"
 *=====================================================================*
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age ///
+eststo: areg pam after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age ///
 remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age ///
 remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-
+*/
 esttab using "$doc\tab1.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(DiD estimations ///
 (\autoref{eq:1})\label{tab1}) keep(after_treat) stats(N ar2, fmt(%9.0fc %9.3f)) replace
-*=====================================================================* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=================================== RUN HERE!!!
-/* Without disability and remittances controls */
-*=====================================================================*
-use "$data\dbase65.dta", clear
-keep if year>=2012
-bysort folioviv foliohog: gen treat=1 if age>=66 & age<=69
-bysort folioviv foliohog: replace treat=0 if age>=61 & age<=64
-rename tcheck cohab
-label var treat "Treat"
-gen after=.
-replace after=1 if year==2014
-replace after=0 if year==2012
-label var after "After"
-gen after_treat=after*treat
-label var after_treat "After_Treat"
-*=====================================================================*
-eststo clear
-eststo: areg pam after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg weight_h after_treat after treat educ gender hli i.age ///
-remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-
-esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
-(\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
-*=====================================================================*
-eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender disabil hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg weight_h after_treat after treat educ gender disabil hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-
-esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
-(\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
-*=====================================================================*
-eststo clear
-eststo: areg pam after_treat after treat educ gender hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg weight_h after_treat after treat educ gender hli i.age ///
-cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-
-esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
-(\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
-*=====================================================================* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=================================== FINISH HERE!!!
+*=====================================================================* 
 * Parallel trend assumption 2008-2014
 *=====================================================================*
 * graph set window fontface "Times New Roman"
@@ -300,10 +220,10 @@ label var treat_20`x' "20`x'"
 }
 replace treat_2012=0
 * Dependent variable: Poverty
-areg poor treat_20* treat i.year rural educ gender hli remitt i.age cohab ///
+areg poor treat_20* treat i.year rural educ gender hli i.age cohab ///
 i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store poverty
-areg epoor treat_20* treat i.year rural educ gender hli remitt i.age cohab ///
+areg epoor treat_20* treat i.year rural educ gender hli i.age cohab ///
 i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store xpoverty 
 
@@ -320,7 +240,7 @@ ysc(r(-0.2 0.2)) text(-0.21 3.12 "Feb 2013", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\graph2.png", replace 
 * Dependent variable: Income per capita
-areg l_inc treat_20* treat i.year rural educ gender hli remitt i.age cohab ///
+areg l_inc treat_20* treat i.year rural educ gender hli i.age cohab ///
 i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -332,7 +252,7 @@ ysc(r(-0.5 0.5)) text(-0.525 3.12 "Feb 2013", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\graph3.png", replace 
 * Dependent variable: Labor mkt outcomes
-areg labor treat_20* treat i.year rural educ gender hli remitt i.age cohab ///
+areg labor treat_20* treat i.year rural educ gender hli i.age cohab ///
 i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -344,7 +264,7 @@ ysc(r(-0.3 0.3)) text(-0.315 3.12 "Feb 2013", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\graph4.png", replace
 
-areg hwork treat_20* treat i.year rural educ gender hli remitt i.age cohab ///
+areg hwork treat_20* treat i.year rural educ gender hli i.age cohab ///
 i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -357,11 +277,11 @@ size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\graph5.png", replace 
 * Dependent variable: Health   
 eststo clear
-areg poor_health treat_20* i.year treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+areg poor_health treat_20* i.year treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store phealth
-areg weight_h treat_20* i.year treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+areg weight_h treat_20* i.year treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store weight
 
 coefplot (phealth, label(Sickness) offset(-.03)) (weight, ciopt(lc(black) ///
@@ -397,18 +317,18 @@ replace ages=4 if age>=55
 * Dependent variable: Labor force participation
 /* Women */
 eststo clear
-eststo: areg labor treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==2 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==2 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw1
-eststo: areg labor treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==3 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==3 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw2
 /* Men */
-eststo: areg labor treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==2 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==2 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw3
-eststo: areg labor treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==3 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==3 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw4
 
 coefplot (labw1, label(Young women (11-17)) offset(-.09) msym(D) mcolor(gs13) ciopts(recast(rcap) color(gs13))) /// 
@@ -429,18 +349,18 @@ graph export "$doc\graph7.png", replace
 * Dependent variable: Labor supply
 /* Women */
 eststo clear
-eststo: areg hwork treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==2 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==2 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw1
-eststo: areg hwork treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==3 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==3 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw2
 /* Men */
-eststo: areg hwork treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==2 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==2 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw3
-eststo: areg hwork treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==3 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==3 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw4
 
 coefplot (labw1, label(Young women (11-17)) offset(-.09) msym(D) mcolor(gs13) ciopts(recast(rcap) color(gs13))) /// 
@@ -461,11 +381,11 @@ graph export "$doc\graph8.png", replace
 /* Indigenous */
 * Dependent variable: Labor force participation
 eststo clear
-eststo: areg labor treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==2 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==2 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw1
-eststo: areg labor treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==3 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==3 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw2
 
 coefplot (labw1, label(Young individuals (11-17)) offset(-.03)) ///
@@ -484,11 +404,11 @@ graph export "$doc\graph9.png", replace
 
 * Dependent variable: Labor supply
 eststo clear
-eststo: areg hwork treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==2 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==2 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw1
-eststo: areg hwork treat_20* i.year treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & ages==3 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork treat_20* i.year treat_hh rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & ages==3 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw2
 
 coefplot (labw1, label(Young individuals (11-17)) offset(-.03)) ///
@@ -524,106 +444,109 @@ label var after_treat "After_Treat"
 /* Women and men */
 *Women
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\table_women.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 title(Women) label replace keep(after_treat)
 *Men
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\table_men.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 title(Women) label replace keep(after_treat)
 *=====================================================================*
 /* Indigenous */
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\table_ind.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 title(Indigenous) label replace keep(after_treat)
 *=====================================================================*
 /* Non-Indigenous */
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\table_non_ind.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 title(Non-Indigenous) label replace keep(after_treat)
 *=====================================================================*
-/* Rural v Urban */
+/* Rural v Urban: 
+tam_loc=1: inhabitants>=100,000
+tam_loc=2: 15,000<=inhabitants<=99,999
+tam_loc=3: 2,500<=inhabitants<=14,999
+tam_loc=4: inhabitants<2,500 */
 eststo clear
-eststo: areg pam after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg l_inc after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg epoor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg labor after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg hwork after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-
+remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
 (\autoref{eq:1})\label{tab2}) label replace keep(after_treat)
 *=====================================================================*
@@ -646,45 +569,45 @@ label var after_treat "After_Treat"
 
 /* Structural Equation */
 eststo clear
-eststo: areg poor pam after treat rural educ gender disabil hli cohab ///
-remitt i.age i.tam_loc if ss_dir==0 & after_treat!=. [aw=factor], ///
+eststo: areg poor pam after treat rural educ gender hli cohab ///
+i.age i.tam_loc if ss_dir==0 & after_treat!=. [aw=factor], ///
 absorb(state) vce(cluster ubica_geo)
 /* First Stage Equation */
-eststo: areg pam after_treat after treat rural educ gender disabil hli cohab ///
-remitt i.age i.tam_loc if ss_dir==0 [aw=factor], ///
+eststo: areg pam after_treat after treat rural educ gender hli cohab ///
+i.age i.tam_loc if ss_dir==0 [aw=factor], ///
 absorb(state) vce(cluster ubica_geo)
 /* Reduced Form Equation */
-eststo: areg poor after_treat after treat rural educ gender disabil hli cohab ///
-remitt i.age i.tam_loc if ss_dir==0 & pam!=. [aw=factor], ///
+eststo: areg poor after_treat after treat rural educ gender hli cohab ///
+i.age i.tam_loc if ss_dir==0 & pam!=. [aw=factor], ///
 absorb(state) vce(cluster ubica_geo)
 /* IV estimation */
-eststo: ivregress 2sls poor (pam=after_treat) after treat rural educ gender disabil hli cohab ///
-i.state remitt i.age i.tam_loc if ss_dir==0 [aw=factor], vce(cluster ubica_geo)
+eststo: ivregress 2sls poor (pam=after_treat) after treat rural educ gender hli cohab ///
+i.state i.age i.tam_loc if ss_dir==0 [aw=factor], vce(cluster ubica_geo)
 esttab using "$doc\tab3.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(IV ///
-\label{tab5}) keep(pam after_treat) label replace
-/*ivreg2 poor (pam=after_treat) after treat rural educ gender disabil hli cohab ///
-i.state remitt i.age i.tam_loc if ss_dir==0 [aw=factor], robust*/
+\label{tab5}) keep(pam after_treat) stats(N ar2 F, fmt(%9.0fc %9.3f %9.2f)) label replace
+/*ivreg2 poor (pam=after_treat) after treat rural educ gender hli cohab ///
+i.state i.age i.tam_loc if ss_dir==0 [aw=factor], robust*/
 
 /* Structural Equation */
 eststo clear
-eststo: areg epoor pam after treat rural educ gender disabil hli cohab ///
-remitt i.age i.tam_loc if ss_dir==0 & after_treat!=. [aw=factor], ///
+eststo: areg epoor pam after treat rural educ gender hli cohab ///
+i.age i.tam_loc if ss_dir==0 & after_treat!=. [aw=factor], ///
 absorb(state) vce(cluster ubica_geo)
 /* First Stage Equation */
-eststo: areg pam after_treat after treat rural educ gender disabil hli cohab ///
-remitt i.age i.tam_loc if ss_dir==0 [aw=factor], ///
+eststo: areg pam after_treat after treat rural educ gender hli cohab ///
+i.age i.tam_loc if ss_dir==0 [aw=factor], ///
 absorb(state) vce(cluster ubica_geo)
 /* Reduced Form Equation */
-eststo: areg epoor after_treat after treat rural educ gender disabil hli cohab ///
-remitt i.age i.tam_loc if ss_dir==0 & pam!=. [aw=factor], ///
+eststo: areg epoor after_treat after treat rural educ gender hli cohab ///
+i.age i.tam_loc if ss_dir==0 & pam!=. [aw=factor], ///
 absorb(state) vce(cluster ubica_geo)
 /* IV estimation */
-eststo: ivregress 2sls epoor (pam=after_treat) after treat rural educ gender disabil hli cohab ///
-i.state remitt i.age i.tam_loc if ss_dir==0 [aw=factor], vce(cluster ubica_geo)
-esttab using "$doc\tab3.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(IV ///
-\label{tab5}) keep(pam after_treat) label replace
-/*ivreg2 epoor (pam=after_treat) after treat rural educ gender disabil hli cohab ///
-i.state remitt i.age i.tam_loc if ss_dir==0 [aw=factor], robust*/
+eststo: ivregress 2sls epoor (pam=after_treat) after treat rural educ gender hli cohab ///
+i.state i.age i.tam_loc if ss_dir==0 [aw=factor], vce(cluster ubica_geo)
+esttab using "$doc\tab3.tex", cells(b(star fmt(%9.3f)) se(par)) title(IV ///
+\label{tab5}) keep(pam after_treat) stats(N ar2 F, fmt(%9.0fc %9.3f %9.2f)) label replace
+/*ivreg2 epoor (pam=after_treat) after treat rural educ gender hli cohab ///
+i.state i.age i.tam_loc if ss_dir==0 [aw=factor], robust*/
 *=====================================================================*
 /* Cummulative income functions */
 *=====================================================================*
@@ -1030,26 +953,24 @@ replace unpaid=0 if unpaid==.
 /* Paid jobs */
 *Full sample
 eststo clear
-eststo: areg paid after_treat after treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 *Men
-eststo: areg paid after_treat after treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 *Women
-eststo: areg paid after_treat after treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 *Indigenous
-eststo: areg paid after_treat after treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 esttab using "$doc\tab_paid.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Paid full) label replace keep(after_treat)
 /*
 We could explore directly the effect on the likelihood of working as an 
 independent worker using variable #7 (indep) from the TRABAJOS section.
-
 Additionally, we could use variable #31 from the same section to explore the
 likelihood that an individual works now in the formal sector.
-
 Variables descriptor at this website: https://www.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/bvinegi/productos/nueva_estruc/702825199470.pdf
 */
 *=====================================================================* 
@@ -1069,136 +990,259 @@ label var after_treat "After_Treat"
 
 * Full sample
 eststo clear
-eststo: areg labor after_treat after treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 *Men
-eststo: areg labor after_treat after treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 * Women
-eststo: areg labor after_treat after treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 * Indigenous
-eststo: areg labor after_treat after treat rural educ gender disabil hli i.age cohab ///
-remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 esttab using "$doc\tab_anticip.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(DiD estimations\label{tab3}) label replace keep(after_treat)
 *=====================================================================*
-/* PAM effect on younger labor supply */
+/* End of do file */
 *=====================================================================*
 use "$data\dbase65.dta", clear
 keep if year>=2012
+bysort folioviv foliohog: gen treat=1 if age>=66 & age<=69
+bysort folioviv foliohog: replace treat=0 if age>=61 & age<=64
+rename tcheck cohab
+label var treat "Treat"
 gen after=.
 replace after=1 if year==2014
 replace after=0 if year==2012
 label var after "After"
-gen after_treat=after*treat_hh
+gen after_treat=after*treat
 label var after_treat "After_Treat"
-replace labor=0 if hwork==.
+*=====================================================================*
+/* Main Results (TABLE 1). DiD estimations */
+*=====================================================================*
+eststo clear
+eststo: areg pam after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 & cohab!=1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 & cohab!=1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 & cohab!=1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 & cohab!=1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 & cohab!=1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 & cohab!=1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
+(\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
+*=====================================================================*
+* Robustness checks: DiD estimations
+*=====================================================================*
+* Narrowed age groups
+*=====================================================================*
+use "$data\dbase65.dta", clear
+keep if year>=2012
+bysort folioviv foliohog: gen treat=1 if age>=66 & age<=67
+bysort folioviv foliohog: replace treat=0 if age>=63 & age<=64
 rename tcheck cohab
-* Dependent variable: Labor 
-*Women
+label var treat "Treat"
+gen after=.
+replace after=1 if year==2014
+replace after=0 if year==2012
+label var after "After"
+gen after_treat=after*treat
+label var after_treat "After_Treat"
+*=====================================================================*
 eststo clear
-eststo: areg labor after_treat after treat_hh rural educ gender disabil hli i.age cohab ///
-remitt if ss_dir==0 & tam_loc>1 & (age>=10 & age<=23) & gender==1 [aw=factor], absorb(state) vce(cluster folioviv)
-eststo: areg hwork after_treat after treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.naics if ss_dir==0 & tam_loc>1 & (age>=10 & age<=23) & gender==1 [aw=factor], absorb(state) vce(cluster folioviv)
-eststo: areg asis_esc after_treat after treat_hh rural educ gender disabil hli i.age cohab ///
-remitt if ss_dir==0 & tam_loc>1 & (age>=10 & age<=23) & gender==1 [aw=factor], absorb(state) vce(cluster folioviv)
-*Men
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat tamhogesc educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*/
+esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
+(\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
+*=====================================================================*
+* Different control group
+*=====================================================================*
+use "$data\dbase65.dta", clear
+keep if year>=2012
+bysort folioviv foliohog: gen treat=1 if age>=66 & age<=69
+bysort folioviv foliohog: replace treat=0 if age>=71 & age<=74
+*bysort folioviv foliohog: replace treat=. if tcheck==1 
+rename tcheck cohab
+label var treat "Treat"
+gen after=.
+replace after=1 if year==2014
+replace after=0 if year==2012
+label var after "After"
+gen after_treat=after*treat
+label var after_treat "After_Treat"
+*=====================================================================*
 eststo clear
-eststo: areg labor after_treat after treat_hh rural educ gender disabil hli i.age cohab ///
-remitt if ss_dir==0 & tam_loc>1 & (age>=10 & age<=23) & gender==0 [aw=factor], absorb(state) vce(cluster folioviv)
-eststo: areg hwork after_treat after treat_hh rural educ gender disabil hli i.age cohab ///
-remitt i.naics if ss_dir==0 & tam_loc>1 & (age>=10 & age<=23) & gender==0 [aw=factor], absorb(state) vce(cluster folioviv)
-eststo: areg asis_esc after_treat after treat_hh rural educ gender disabil hli i.age cohab ///
-remitt if ss_dir==0 & tam_loc>1 & (age>=10 & age<=23) & gender==1 [aw=factor], absorb(state) vce(cluster folioviv)
-
+eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
+remitt i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*/
+esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
+(\autoref{eq:1})\label{tab3}) label replace keep(after_treat)
 *=====================================================================*
-/* End of do file */
+/* Including individuals 65 years old */
 *=====================================================================*
-
-
-
+use "$data\dbase65.dta", clear
+keep if year>=2012
+bysort folioviv foliohog: gen treat=1 if age>=65 & age<=69
+bysort folioviv foliohog: replace treat=0 if age>=61 & age<=64
+rename tcheck cohab
+label var treat "Treat"
+gen after=.
+replace after=1 if year==2014
+replace after=0 if year==2012
+label var after "After"
+gen after_treat=after*treat
+label var after_treat "After_Treat"
 *=====================================================================*
-* Placebo test 2008-2014. Equation 1 with control>=71						
+eststo clear
+eststo: areg pam after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork after_treat after treat educ gender hli i.age ///
+cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+/*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age ///
+remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg weight_h after_treat after treat educ gender disabil hli i.age ///
+remitt cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*/
+esttab using "$doc\tab1.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(DiD estimations ///
+(\autoref{eq:1})\label{tab1}) keep(after_treat) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+*=====================================================================* 
+* Parallel trend assumption 2008-2014
 *=====================================================================*
 * graph set window fontface "Times New Roman"
 use "$data\dbase65.dta", clear
+replace ubica_geo=substr(ubica_geo,1,5)
 * Modify the treatment variable to affect only memeber of all hh.
 bysort folioviv foliohog: gen treat=1 if age>=66 & age<=69
-bysort folioviv foliohog: replace treat=0 if age>=71 & age<=74
+bysort folioviv foliohog: replace treat=0 if age>=61 & age<=64
+rename tcheck cohab
 label var treat "Treat"
-foreach x in 0 2 4{
-gen treat_201`x'=0
-replace treat_201`x'=1 if treat==1 & year==201`x'
 
-label var treat_201`x' "201`x'"
+foreach x in 08 10 12 14{
+gen treat_20`x'=0
+replace treat_20`x'=1 if treat==1 & year==20`x'
+label var treat_20`x' "20`x'"
 }
+replace treat_2012=0
+* Dependent variable: Poverty
+areg poor treat_20* treat i.year rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+estimates store poverty
+areg epoor treat_20* treat i.year rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+estimates store xpoverty 
 
-areg poor treat_201* treat i.year rural educ gender hli remitt d6* if ///
-ss_dir==0 & tam_loc>1 [aw=factor], absorb(state) vce(cluster folioviv)
-coefplot, vertical keep(treat_201*) ///
-yline(0) ///
-xline(2.58, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("DiD coefficient", size(medsmall) height(5)) ///
-ylabel(-0.2(0.05)0.10, labs(small) grid format(%5.2f)) ///
-xtitle("Year", size(medsmall) height(5)) xlabel(,labs(small)) ///
+coefplot (poverty, label(Poverty) offset(-.03)) (xpoverty, ciopt(lc(black) ///
+recast(rcap)) label(Extreme poverty) offset(.03) m(T) mcolor(white) mlcolor(black)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Probability of living in (extreme) poverty", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.20, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.1 0.1)) text(-0.21 2.33 "Feb 2013", linegap(.2cm) ///
-size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-*graph export "$doc\graph6.png", replace 
+ysc(r(-0.2 0.2)) text(-0.21 3.12 "Feb 2013", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\graph2.png", replace 
+* Dependent variable: Income per capita
+areg l_inc treat_20* treat i.year rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change of income (/100)", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) text(-0.525 3.12 "Feb 2013", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\graph3.png", replace 
+* Dependent variable: Labor mkt outcomes
+areg labor treat_20* treat i.year rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Probability of belonging to labor force", size(medium) height(5)) ///
+ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.3 0.3)) text(-0.315 3.12 "Feb 2013", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\graph4.png", replace
 
-areg epoor treat_201* treat i.year rural educ gender hli remitt d6* if ///
-ss_dir==0 & tam_loc>1 [aw=factor], absorb(state) vce(cluster folioviv)
-coefplot, vertical keep(treat_201*) ///
-yline(0) ///
-xline(2.58, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("DiD coefficient", size(medsmall) height(5)) ///
-ylabel(-0.2(0.05)0.10, labs(small) grid format(%5.2f)) ///
-xtitle("Year", size(medsmall) height(5)) xlabel(,labs(small)) ///
+areg hwork treat_20* treat i.year rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Number of hours worked", size(medium) height(5)) ///
+ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.15 0.1)) text(-0.21 2.33 "Feb 2013", linegap(.2cm) ///
-size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-*graph export "$doc\graph7.png", replace
+ysc(r(-10 10)) text(-10.55 3.12 "Feb 2013", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\graph5.png", replace 
+* Dependent variable: Health   
+eststo clear
+areg poor_health treat_20* i.year treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+estimates store phealth
+areg weight_h treat_20* i.year treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+estimates store weight
 
-areg l_inc treat_201* treat i.year rural educ gender hli remitt d6* if ///
-ss_dir==0 & tam_loc>1 [aw=factor], absorb(state) vce(cluster folioviv)
-coefplot, vertical keep(treat_201*) ///
-yline(0) ///
-xline(2.58, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("DiD coefficient", size(medsmall) height(5)) ///
-ylabel(-0.1(0.05)0.3, labs(small) grid format(%5.2f)) ///
-xtitle("Year", size(medsmall) height(5)) xlabel(,labs(small)) ///
+coefplot (phealth, label(Sickness) offset(-.03)) (weight, ciopt(lc(black) ///
+recast(rcap)) label(Visit to health center) offset(.03) m(T) mcolor(white) mlcolor(black)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Probability of the outcome", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.20, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.1 0.3)) text(-0.21 2.33 "Feb 2013", linegap(.2cm) ///
-size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-*graph export "$doc\graph8.png", replace 
-
-areg labor treat_201* treat i.year rural educ gender hli remitt d6* ///
-if ss_dir==0 & tam_loc>1 [aw=factor], absorb(state) vce(cluster folioviv)
-coefplot, vertical keep(treat_201*) ///
-yline(0) ///
-xline(2.58, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("DiD coefficient", size(medsmall) height(5)) ///
-ylabel(-0.15(0.05)0.05, labs(small) grid format(%5.2f)) ///
-xtitle("Year", size(medsmall) height(5)) xlabel(,labs(small)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.15 0.05)) text(-0.21 2.33 "Feb 2013", linegap(.2cm) ///
-size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-*graph export "$doc\graph9.png", replace 
-
-areg hwork treat_201* treat i.year rural educ gender hli remitt d6* i.naics ///
-if ss_dir==0 & tam_loc>1 [aw=factor], absorb(state) vce(cluster folioviv)
-coefplot, vertical keep(treat_201*) ///
-yline(0) ///
-xline(2.58, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("DiD coefficient", size(medsmall) height(5)) ///
-ylabel(-2(1)8, labs(small) grid format(%5.0f)) ///
-xtitle("Year", size(medsmall) height(5)) xlabel(,labs(small)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-2.5 8)) text(-2.95 2.33 "Feb 2013", linegap(.2cm) ///
-size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-*graph export "$doc\graph10.png", replace 
+ysc(r(-0.2 0.2)) text(-0.21 3.12 "Feb 2013", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\graph6.png", replace
 
 *=====================================================================*
 * Tabulates by locality size	
