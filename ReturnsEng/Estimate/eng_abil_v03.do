@@ -25,14 +25,12 @@ eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
 [aw=weight] if age>=18 & age<=65 & paidw==1, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9, vce(cluster geo)
-eststo: reg lwage eng i.cohort female indigenous [aw=weight] if age>=18 ///
-& age<=65 & paidw==1 & edu<=9, vce(cluster geo)
-eststo: reg lwage eng i.cohort female indigenous i.edu [aw=weight] if ///
-age>=18 & age<=65 & paidw==1 & edu<=9, vce(cluster geo)
-eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
-[aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9, absorb(state) vce(cluster geo)
 eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
 [aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+*========================================================================*
+eststo: reg lwage eng [aw=weight] if age>=18 & age<=65 & paidw==1 & edu>9, vce(cluster geo)
+eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
+[aw=weight] if age>=18 & age<=65 & paidw==1 & edu>9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_returns_eng.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Returns to English abilities) keep(eng) ///
 stats(N r2, fmt(%9.0fc %9.3f)) replace
@@ -49,14 +47,12 @@ eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
 [aw=weight] if age>=18 & age<=65 & paidw==1 & female==0, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9 & female==0, vce(cluster geo)
-eststo: reg lwage eng i.cohort female indigenous [aw=weight] if age>=18 ///
-& age<=65 & paidw==1 & edu<=9 & female==0, vce(cluster geo)
-eststo: reg lwage eng i.cohort female indigenous i.edu [aw=weight] if ///
-age>=18 & age<=65 & paidw==1 & edu<=9 & female==0, vce(cluster geo)
-eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
-[aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9 & female==0, absorb(state) vce(cluster geo)
 eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
 [aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9 & female==0, absorb(geo) vce(cluster geo)
+*========================================================================*
+eststo: reg lwage eng [aw=weight] if age>=18 & age<=65 & paidw==1 & edu>9 & female==0, vce(cluster geo)
+eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
+[aw=weight] if age>=18 & age<=65 & paidw==1 & edu>9 & female==0, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_returns_eng_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Returns to English abilities) keep(eng) ///
 stats(N r2, fmt(%9.0fc %9.3f)) replace
@@ -73,14 +69,12 @@ eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
 [aw=weight] if age>=18 & age<=65 & paidw==1 & female==1, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9 & female==1, vce(cluster geo)
-eststo: reg lwage eng i.cohort female indigenous [aw=weight] if age>=18 ///
-& age<=65 & paidw==1 & edu<=9 & female==1, vce(cluster geo)
-eststo: reg lwage eng i.cohort female indigenous i.edu [aw=weight] if ///
-age>=18 & age<=65 & paidw==1 & edu<=9 & female==1, vce(cluster geo)
-eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
-[aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9 & female==1, absorb(state) vce(cluster geo)
 eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
 [aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9 & female==1, absorb(geo) vce(cluster geo)
+*========================================================================*
+eststo: reg lwage eng [aw=weight] if age>=18 & age<=65 & paidw==1 & edu>9 & female==1, vce(cluster geo)
+eststo: areg lwage eng i.cohort female indigenous i.edu rural married ///
+[aw=weight] if age>=18 & age<=65 & paidw==1 & edu>9 & female==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_returns_eng_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Returns to English abilities) keep(eng) ///
 stats(N r2, fmt(%9.0fc %9.3f)) replace
@@ -98,14 +92,12 @@ eststo: areg lwage eng_female eng i.cohort female indigenous i.edu rural married
 [aw=weight] if age>=18 & age<=65 & paidw==1, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng_female eng female [aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9, vce(cluster geo)
-eststo: reg lwage eng_female eng i.cohort female indigenous [aw=weight] if age>=18 ///
-& age<=65 & paidw==1 & edu<=9, vce(cluster geo)
-eststo: reg lwage eng_female eng i.cohort female indigenous i.edu [aw=weight] if ///
-age>=18 & age<=65 & paidw==1 & edu<=9, vce(cluster geo)
-eststo: areg lwage eng_female eng i.cohort female indigenous i.edu rural married ///
-[aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9, absorb(state) vce(cluster geo)
 eststo: areg lwage eng_female eng i.cohort female indigenous i.edu rural married ///
 [aw=weight] if age>=18 & age<=65 & paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+*========================================================================*
+eststo: reg lwage eng_female eng female [aw=weight] if age>=18 & age<=65 & paidw==1 & edu>9, vce(cluster geo)
+eststo: areg lwage eng_female eng i.cohort female indigenous i.edu rural married ///
+[aw=weight] if age>=18 & age<=65 & paidw==1 & edu>9, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_returns_eng_gender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(eng_female) replace
 *========================================================================*
@@ -1412,7 +1404,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1979 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1494,7 +1486,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1985 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1576,7 +1568,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1659,7 +1651,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1966 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1742,7 +1734,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1825,7 +1817,7 @@ areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
@@ -1981,7 +1973,7 @@ areg paidw treat* i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of participating in labor market", size(medium) height(5)) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
 ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
