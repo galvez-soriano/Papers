@@ -1,1 +1,1 @@
-This folder contains do files to replicates my results.
+This folder contains do files to replicate my results.
