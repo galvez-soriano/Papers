@@ -521,48 +521,55 @@ star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng_female) repl
 *========================================================================*
 /* Regressions Student Achievement */
 *========================================================================*
-use "$base\dbase_18_21_final.dta", clear
+use "$base\dbase_18_21_final_alter.dta", clear
 destring state_s, replace
-gen cohort_state=cohort*state_s
+/************* Full ENLACE Sample *************/
+eststo clear
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year, absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year, absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year, absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_stud.tex", cells(b(star fmt(%9.4f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Full Sample *************/
 eststo clear
-eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural if wage!=., absorb(state_s) vce(cluster cct)
-eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=., absorb(cct) vce(cluster cct)
-eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural if wage!=., absorb(state_s) vce(cluster cct)
-eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=., absorb(cct) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=., absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=., absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=., absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=., absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud.tex", cells(b(star fmt(%9.4f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Low Enrollment Sample *************/
 eststo clear
-eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
-eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
-eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud_low.tex", cells(b(star fmt(%9.4f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Low Enrollment Sample (Men) *************/
 eststo clear
-eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural if wage!=. & ps38==1 & female==0, absorb(state_s) vce(cluster cct)
-eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
-eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural if wage!=. & ps38==1 & female==0, absorb(state_s) vce(cluster cct)
-eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1 & female==0, absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast i.cohort rural i.year if wage!=. & ps38==1 & female==0, absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1 & female==0, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud_low_men.tex", cells(b(star fmt(%9.4f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Low Enrollment Sample (Women) *************/
 eststo clear
-eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural if wage!=. & ps38==1 & female==1, absorb(state_s) vce(cluster cct)
-eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
-eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural if wage!=. & ps38==1 & female==1, absorb(state_s) vce(cluster cct)
-eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1 & female==1, absorb(state_s) vce(cluster cct)
+eststo: areg language6 h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1 & female==1, absorb(state_s) vce(cluster cct)
+eststo: areg math6 h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1 & female==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud_low_women.tex", cells(b(star fmt(%9.4f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) keep(h_eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /************* Low Enrollment Sample (Gender) *************/
 gen eng_female=h_eng*female
 eststo clear
-eststo: areg language6 eng_female h_eng language5 female n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
-eststo: areg language6 eng_female h_eng language5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
-eststo: areg math6 eng_female h_eng math5 female n_stud t_colle t_mast rural if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
-eststo: areg math6 eng_female h_eng math5 female n_stud t_colle t_mast rural i.cohort if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg language6 eng_female h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
+eststo: areg language6 eng_female h_eng language5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg math6 eng_female h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1, absorb(state_s) vce(cluster cct)
+eststo: areg math6 eng_female h_eng math5 female n_stud t_colle t_mast rural i.cohort i.year if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_stud_low_gender.tex", ar2 cells(b(star fmt(%9.4f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Student achievement) keep(eng_female) replace
 *========================================================================* =================================================>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
