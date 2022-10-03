@@ -75,6 +75,7 @@ rename totalcurrentoper_rsbpc to
 rename totalcapitaloutlays_rsbpc co
 
 bysort year govs_state: gen ncity=_N
+sort id_govs year
 bysort govs_state: gen nstate=_n
 replace nstate=nstate-year+1990
 replace nstate=2 if nstate==19
@@ -116,7 +117,7 @@ sort id_govs year
 foreach i in tr tt te to co {
 	gen `i'IV=.
 }
-order id_govs year idcity subIV
+order id_govs year idcity trIV ttIV teIV toIV coIV
 foreach i in tr tt te to co {
 foreach j in 03 04 05 06 07 {
 	gen `i'01`j'=.
@@ -151,6 +152,16 @@ foreach j in 01 03 05 06 10 26 33 34 36 37 39 43 44 48 {
 	egen `i'`j'=rowtotal(`i'`j'01 `i'`j'02 `i'`j'03 `i'`j'04 `i'`j'05 `i'`j'06 `i'`j'07)
 }
 }
+/* Modify this part:
+Sates with only one city have as instrument all other cities*/
+foreach i in tr tt te to co {
+	egen `i'_all=rowtotal(`i'01 `i'03 `i'05 `i'06 `i'10 `i'26 `i'33 `i'34 ///
+	`i'36 `i'37 `i'39 `i'43 `i'44 `i'48 `i'1101 `i'1401 `i'1501 `i'1701 ///
+	`i'1901 `i'2101 `i'2201 `i'2301 `i'2401 `i'2801 `i'2901 `i'3201 ///
+	`i'3801 `i'4701 `i'5001)
+}
+
+/* Substracting city i (itself) for those with more than one city */
 foreach i in tr tt te to co {
 foreach j in 01 03 05 06 10 26 33 34 36 37 39 43 44 48 {
 foreach k in 01 02 03 04 05 06 07 {
@@ -158,8 +169,20 @@ foreach k in 01 02 03 04 05 06 07 {
 }
 }
 }
-
+/* Substracting city i (itself) for those with only one city */
+foreach i in tr tt te to co {
+foreach j in 0503 0504 0505 0506 0507 1003 1004 3303 3403 3603 3604 3605 3606 4303 4403 4404 4405 4406{
+    replace `i'IV=`i'_all - `i'`j' if idcity=="`j'" & `i'IV==.
+}
+}
 *1101 1401 1501 1701 1901 2101 2201 2301 2401 2801 2901 3201 3801 4701 5001
+
+/* To take the mean
+destring nstate, replace
+foreach i in tr tt te to co {
+replace `i'IV=`i'IV/(nstate-1) if nstate>=2
+}
+*/
 save "$base/SubIV.dta", replace
 *========================================================================*
 use "$base/dbaseCCities.dta", clear
