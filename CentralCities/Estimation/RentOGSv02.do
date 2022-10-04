@@ -160,7 +160,12 @@ foreach i in tr tt te to co {
 	`i'1901 `i'2101 `i'2201 `i'2301 `i'2401 `i'2801 `i'2901 `i'3201 ///
 	`i'3801 `i'4701 `i'5001)
 }
-
+/* Substracting city i (itself) for those with more than one city 
+foreach i in tr tt te to co {
+foreach k in 01 02 03 04 05 06 07 {
+    replace `i'IV=`i'05 - `i'05`k' if nstate=="`k'"
+}
+}*/
 /* Substracting city i (itself) for those with more than one city */
 foreach i in tr tt te to co {
 foreach j in 01 03 05 06 10 26 33 34 36 37 39 43 44 48 {
