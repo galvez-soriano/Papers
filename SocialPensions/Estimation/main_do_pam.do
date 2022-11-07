@@ -2,17 +2,16 @@
 * Main do file
 *=====================================================================*
 set more off
-gl base="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
-gl data="C:\Users\ogalvezs\Documents\SocialPensions\Data"
-gl doc="C:\Users\ogalvezs\Documents\SocialPensions\Doc"
+gl data="C:\Users\galve\Documents\Papers\Working papers\Social pension program\Data"
+gl doc="C:\Users\galve\Documents\Papers\Working papers\Social pension program\Doc"
 *=====================================================================*
 * Downloading data from my GitHub website
 *=====================================================================*
-use "$base/dbase1.dta", clear
+/*use "$base/dbase1.dta", clear
 foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14{
     append using "$base/dbase`x'.dta"
 }
-save "$data\dbase65.dta", replace
+save "$data\dbase65.dta", replace*/
 *=====================================================================*
 * Descriptive statistics
 *=====================================================================*
@@ -484,7 +483,7 @@ remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\table_men.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Women) label replace keep(after_treat)
+star(* 0.10 ** 0.05 *** 0.01) title(Men) label replace keep(after_treat)
 *=====================================================================*
 /* Indigenous */
 eststo clear
@@ -535,24 +534,29 @@ tam_loc=3: 2,500<=inhabitants<=14,999
 tam_loc=4: inhabitants<2,500 */
 eststo clear
 eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg l_inc after_treat after treat educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg poor after_treat after treat educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg epoor after_treat after treat educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg labor after_treat after treat educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg hwork after_treat after treat educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & tam_loc==4 [aw=factor], absorb(state) vce(cluster ubica_geo)
+i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 /*eststo: areg poor_health after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 eststo: areg weight_h after_treat after treat educ gender disabil hli i.age cohab ///
 remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
-esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(DiD estimations ///
-(\autoref{eq:1})\label{tab2}) label replace keep(after_treat)
+esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
+(\autoref{eq:1})\label{tab2}) star(* 0.10 ** 0.05 *** 0.01) label replace keep(after_treat)
+
+/* Balanaced groups? */
+tab treat if tam_loc==4
+tab treat if tam_loc==3
+tab treat if tam_loc==2
+tab treat if tam_loc==1
 *=====================================================================*
 /* TABLE 3.
 IV Estimation. LATE*/
@@ -951,10 +955,11 @@ label var after "After"
 gen after_treat=after*treat
 label var after_treat "After_Treat"
 
-gen paid=1 if pago==1
-replace paid=0 if paid==.
-gen unpaid=1 if pago>1
-replace unpaid=0 if unpaid==.
+gen paid=pago==1
+gen unpaid=pago>1
+
+gen fam_business=indep==1
+replace fam_business=1 if pago==2
 *=====================================================================* 
 /* Paid jobs */
 *Full sample
@@ -971,6 +976,23 @@ i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_
 eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
 i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 esttab using "$doc\tab_paid.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Paid full) label replace keep(after_treat)
+*=====================================================================* 
+/* Family business */
+*Full sample
+eststo clear
+eststo: areg fam_business after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*Men
+eststo: areg fam_business after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*Women
+eststo: areg fam_business after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*Indigenous
+eststo: areg fam_business after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+esttab using "$doc\tab_fam_busi.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Paid full) label replace keep(after_treat)
 /*
 We could explore directly the effect on the likelihood of working as an 
