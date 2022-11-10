@@ -13,7 +13,7 @@ foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14{
 }
 save "$data\dbase65.dta", replace*/
 *=====================================================================*
-* Descriptive statistics
+* Descriptive statistics /// dis _b[_cons]+_b[treat]
 *=====================================================================*
 *reg dep_var treat if year==(Before or After) & ss_dir==0 [aw=factor], vce(cluster folioviv)
 /*
@@ -29,24 +29,24 @@ replace after=0 if year==2012
 label var after "After"
 gen after_treat=after*treat
 label var after_treat "After_Treat"
+quietly tab tam_loc, gen(dummtam)
 
 reg l_inc treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg poor treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg epoor treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg labor treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg hwork treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
-reg poor_health treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
-reg weight_h treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 
-reg disabil treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg gender treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
-reg howner treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg hli treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg rural treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg educ treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
-reg tamhogesc treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
-reg lremitt treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
-reg cohab treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo) */
+reg cohab treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg dummtam4 treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg dummtam3 treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg dummtam2 treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+reg dummtam1 treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
+ */
 *=====================================================================*
 use "$data\dbase65.dta", clear
 keep if year>=2012
@@ -955,11 +955,29 @@ label var after "After"
 gen after_treat=after*treat
 label var after_treat "After_Treat"
 
+gen selfemp=indep==1
 gen paid=pago==1
 gen unpaid=pago>1
 
 gen fam_business=indep==1
 replace fam_business=1 if pago==2
+*=====================================================================* 
+/* Self-employed */
+*Full sample
+eststo clear
+eststo: areg selfemp after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*Men
+eststo: areg selfemp after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*Women
+eststo: areg selfemp after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+*Indigenous
+eststo: areg selfemp after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+esttab using "$doc\tab_self.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Paid full) label replace keep(after_treat)
 *=====================================================================* 
 /* Paid jobs */
 *Full sample
