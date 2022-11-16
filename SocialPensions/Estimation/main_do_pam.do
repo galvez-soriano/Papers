@@ -2,6 +2,7 @@
 * Main do file
 *=====================================================================*
 set more off
+gl base="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
 gl data="C:\Users\galve\Documents\Papers\Working papers\Social pension program\Data"
 gl doc="C:\Users\galve\Documents\Papers\Working papers\Social pension program\Doc"
 *=====================================================================*
@@ -979,22 +980,56 @@ i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo
 esttab using "$doc\tab_self.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Paid full) label replace keep(after_treat)
 *=====================================================================* 
-/* Paid jobs */
-*Full sample
+/* Economic industries within self-employed */
+drop econ_act
+gen econ_act=.
+replace econ_act=1 if scian>="1110" & scian<="1199"
+replace econ_act=2 if scian>="2121" & scian<="3399"
+replace econ_act=3 if scian>="4310" & scian<="9314"
+
+gen ag_ea=econ_act==1
+replace ag_ea=. if scian=="0980" | scian=="999"
+gen cons_ea=econ_act==2
+replace cons_ea=. if scian=="0980" | scian=="999"
+gen serv_ea=econ_act==3
+replace serv_ea=. if scian=="0980" | scian=="999"
+
+*Agriculture
 eststo clear
-eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-*Men
-eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
-*Women
-eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-*Indigenous
-eststo: areg paid after_treat after treat rural educ gender hli i.age cohab ///
-i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
-esttab using "$doc\tab_paid.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Paid full) label replace keep(after_treat)
+eststo: areg ag_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg ag_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg ag_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg ag_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+esttab using "$doc\tab_ea1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Agriculture) label replace keep(after_treat)
+*Construction/Manufacturing
+eststo clear
+eststo: areg cons_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg cons_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg cons_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg cons_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+esttab using "$doc\tab_ea2.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Construction) label replace keep(after_treat)
+*Services
+eststo clear
+eststo: areg serv_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg serv_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg serv_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & gender==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg serv_ea after_treat after treat rural educ gender hli i.age cohab ///
+i.tam_loc if ss_dir==0 & selfemp==1 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
+esttab using "$doc\tab_ea3.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Services) label replace keep(after_treat)
 *=====================================================================* 
 /* Family business */
 *Full sample
