@@ -195,16 +195,19 @@ replace inc_hh=log(inc_hh)
 replace work=0 if work==.
 replace biare=0 if biare==.
 
+label var hrs_exp "Hrs English"
 label var eng "English (speaking ability)"
 label var edu "Education (years)"
 label var expe "Experience (years)"
 label var age "Age (years)"
 label var female "Female (\%)"
 label var married "Married (\%)"
+label var indigenous "Indigenous (\%)"
 label var income "Wage (monthly pesos)"
 label var student "Student (\%)"
 label var work "Worker (\%)"
 label var rural "Rural (\%)"
+label var formal "Formal job (\%)"
 label var female_hh "Female household head (\%)"
 label var age_hh "Age household head (years)"
 label var edu_hh "Education household head (\%)"
