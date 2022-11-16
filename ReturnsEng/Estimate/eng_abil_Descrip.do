@@ -434,26 +434,22 @@ cells("mean(pattern(1 1) fmt(%9.2fc))") label replace
 *========================================================================*
 use "$base\eng_abil.dta", clear
 eststo clear
-eststo full_sample: quietly estpost sum eng edu expe age female married ///
-income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
-if eng!=. & age>=18 & age<=65 
-eststo eng: quietly estpost sum eng edu expe age female married ///
-income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
-if eng==1 & age>=18 & age<=65
-eststo no_eng: quietly estpost sum eng edu expe age female married ///
-income student work rural female_hh age_hh edu_hh hh_size [aw=weight] ///
-if eng==0 & age>=18 & age<=65
-eststo diff: quietly estpost ttest eng edu expe age female married ///
-income student work rural female_hh age_hh edu_hh hh_size if age>=18 ///
-& age<=65, by(eng) unequal
+eststo full_sample: quietly estpost sum eng hrs_exp income age edu female ///
+indigenous married rural [aw=weight] if eng!=. & age>=18 & age<=65 & paidw==1
+eststo eng: quietly estpost sum eng hrs_exp income age edu female ///
+indigenous married rural [aw=weight] if eng==1 & age>=18 & age<=65 & paidw==1
+eststo no_eng: quietly estpost sum eng hrs_exp income age edu female ///
+indigenous married rural [aw=weight] if eng==0 & age>=18 & age<=65 & paidw==1
+eststo diff: quietly estpost ttest eng hrs_exp income age edu female ///
+indigenous married rural if eng!=. & age>=18 & age<=65 & paidw==1, by(eng) unequal
 esttab full_sample eng no_eng diff using "$doc\sum_stats.tex", ///
 cells("mean(pattern(1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 1) fmt(%9.2fc))") ///
 star(* 0.10 ** 0.05 *** 0.01) label replace
 
 eststo clear
-foreach x in edu expe age female married income student work rural ///
-female_hh age_hh edu_hh hh_size{
-eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65, vce(robust)
+foreach x in eng hrs_exp income age edu female indigenous married rural{
+eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65 & paidw==1, ///
+vce(robust)
 }
 esttab using "$doc\sum_stats_diff.tex", ar2 cells(b(star fmt(%9.2fc)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng) replace
