@@ -35,3 +35,16 @@ gen after_treat=after*treat
 areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store hrs_coah
+
+coefplot (hrs_ags, label(Aguascalientes) offset(-.03)) (hrs_coah, ciopt(lc(black) ///
+recast(rcap)) label(Coahuila) offset(.03) m(T) mcolor(white) mlcolor(black)), ///
+vertical keep(after_treat) yline(0) omitted baselevels ///
+xline(3.48, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.20, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) text(-0.21 3.12 "Feb 2013", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\graph2.png", replace 
