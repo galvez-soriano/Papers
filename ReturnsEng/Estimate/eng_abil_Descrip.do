@@ -379,6 +379,17 @@ cells("mean(fmt(%9.2fc))") nonumber noobs label replace
 tab econ_act [fw=weight] if age>=18 & age<=65
 
 /* Low education */
+
+graph hbar (mean) eng female [fw=weight] if age>=18 & age<=65 & edu<=9, ///
+over(econ_act, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
+ylabel(, grid format(%5.2f)) legend( label(1 "Speak English") label(2 "Female"))
+graph export "$doc\ind_EngFemLow.png", replace
+
+graph hbar (mean) lwage edu [fw=weight] if age>=18 & age<=65 & edu<=9, ///
+over(econ_act, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
+ylabel(, grid format(%5.0f)) legend( label(1 "ln(wage)") label(2 "Education"))
+graph export "$doc\ind_WageEduLow.png", replace
+
 eststo clear
 eststo english: quietly estpost tabstat eng [fw=weight] if age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
 eststo income: quietly estpost tabstat income [fw=weight] if age>=18 & age<=65 & edu<=9, by(econ_act) nototal c(stat) stat(mean)
