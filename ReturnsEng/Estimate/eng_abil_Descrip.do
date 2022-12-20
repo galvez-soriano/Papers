@@ -246,7 +246,7 @@ clmethod(eqint) clnumber(5) eirange(0 0.1) legend(off)
 graph export "$doc\map_eng_r.png", replace
 
 spmap eng_u using "$base\mxcoord.dta", id(id) ///
-clmethod(eqint) clnumber(5) eirange(0 0.1) legend(off) 
+clmethod(eqint) clnumber(5) eirange(0 0.1) legend(size(*3)) 
 graph export "$doc\map_eng_u.png", replace
 *========================================================================*
 /* Statistics by occupations */
@@ -274,10 +274,20 @@ replace occup=9 if (sinco>=1111 & sinco<=1999) | sinco==2630 ///
 | sinco==7501 | sinco==7601 | sinco==8101 | sinco==8201 | sinco==8301
 replace occup=10 if sinco==980
 
-label define occup 1 "Farming" 2 "Elementary occupations" 3 "Machine operators" ///
+label define occup 1 "Farming" 2 "Elem occupations" 3 "Machine operators" ///
 4 "Crafts" 5 "Customer service" 6 "Sales" 7 "Clerical support" ///
-8 "Professionals/Technicians" 9 "Managerial" 10 "Abroad" 
+8 "Pro/Tech" 9 "Managerial" 10 "Abroad" 
 label values occup occup
+
+graph hbar (mean) eng female [fw=weight] if age>=18 & age<=65, ///
+over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
+ylabel(, grid format(%5.2f)) legend( label(1 "Speak English") label(2 "Female"))
+graph export "$doc\occup_EngFem.png", replace
+
+graph hbar (mean) lwage edu [fw=weight] if age>=18 & age<=65, ///
+over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
+ylabel(, grid format(%5.0f)) legend( label(1 "ln(wage)") label(2 "Education"))
+graph export "$doc\occup_WageEdu.png", replace
 
 eststo clear
 eststo english: quietly estpost tabstat eng [fw=weight] if age>=18 & age<=65, by(occup) nototal c(stat) stat(mean)
@@ -333,10 +343,20 @@ replace econ_act=11 if (scian>=5110 & scian<=5399) //Includes telecommunications
 replace econ_act=12 if scian==980
 
 label define econ_act 1 "Agriculture" 2 "Other Services" 3 "Construction" ///
-4 "Commerce" 5 "Manufactures" 6 "Hospitality and Entertainment" ///
-7 "Transportation" 8 "Administrative and Support" 9 "Government" ///
-10 "Professional/Technical" 11 "Telecom/Finance" 12 "Abroad"
+4 "Commerce" 5 "Manufactures" 6 "Hospitality" ///
+7 "Transportation" 8 "Admin and Support" 9 "Government" ///
+10 "Pro/Tech" 11 "Telecom/Finance" 12 "Abroad"
 label values econ_act econ_act
+
+graph hbar (mean) eng female [fw=weight] if age>=18 & age<=65, ///
+over(econ_act, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
+ylabel(, grid format(%5.2f)) legend( label(1 "Speak English") label(2 "Female"))
+graph export "$doc\ind_EngFem.png", replace
+
+graph hbar (mean) lwage edu [fw=weight] if age>=18 & age<=65, ///
+over(econ_act, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
+ylabel(, grid format(%5.0f)) legend( label(1 "ln(wage)") label(2 "Education"))
+graph export "$doc\ind_WageEdu.png", replace
 
 eststo clear
 eststo english: quietly estpost tabstat eng [fw=weight] if age>=18 & age<=65, by(econ_act) nototal c(stat) stat(mean)
@@ -380,18 +400,15 @@ rename scian naics
 replace naics=2211 if naics==2210
 replace naics=2212 if naics==2221
 replace naics=2213 if naics==2222
-
 gen p_eng=eng
 replace p_eng=0 if eng==.
 collapse (mean) p_eng [fw=weight], by(naics)
 save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace
-
 use "$base\eng_abil.dta", clear
 rename scian naics
 replace naics=2211 if naics==2210
 replace naics=2212 if naics==2221
 replace naics=2213 if naics==2222
-
 keep if edu<=12
 gen p_eng_edu=eng
 replace p_eng_edu=0 if eng==.
@@ -399,7 +416,6 @@ collapse (mean) p_eng_edu [fw=weight], by(naics)
 merge 1:1 naics using "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta"
 replace p_eng_edu=0 if p_eng_edu==.
 drop _merge
-
 xtile eng_dist= p_eng, nq(4)
 xtile eng_dist_edu= p_eng_edu, nq(4)
 save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace */
