@@ -211,6 +211,212 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
 graph export "$doc\graphDDwage.png", replace 
 
 *========================================================================*
+/* Figure XX: Intention to Treat Effect */
+*========================================================================*
+eststo clear
+
+use "$base\eng_abil.dta", clear
+keep if state=="01" | state=="06" | state=="11" | state=="18" | state=="24" ///
+| state=="32"
+gen treat=state=="01"
+gen after=cohort>=1990
+replace after=. if cohort<1986 | cohort>1995
+gen after_treat=after*treat
+
+areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store hrs_ags
+areg eng after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store eng_ags
+areg paidw after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_ags
+areg lwage after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store wage_ags
+
+use "$base\eng_abil.dta", clear
+keep if state=="05" | state=="08" | state=="24" | state=="32"
+gen treat=state=="05"
+gen after=cohort>=1988
+replace after=. if cohort<1979 | cohort>1996
+gen after_treat=after*treat
+
+areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store hrs_coah
+areg eng after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store eng_coah
+areg paidw after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_coah
+areg lwage after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store wage_coah
+
+use "$base\eng_abil.dta", clear
+keep if state=="10" | state=="08" | state=="24" | state=="32" | state=="14" 
+gen treat=state=="10"
+gen after=cohort>=1991
+replace after=. if cohort<1985 | cohort>1996
+gen after_treat=after*treat
+
+areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store hrs_dgo
+areg eng after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store eng_dgo
+areg paidw after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_dgo
+areg lwage after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store wage_dgo
+
+use "$base\eng_abil.dta", clear
+keep if state=="19" | state=="08" | state=="24" | state=="32"  
+gen treat=state=="19"
+gen after=cohort>=1987
+replace after=. if cohort<1981 | cohort>1996
+gen after_treat=after*treat
+
+areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store hrs_nl
+areg eng after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store eng_nl
+areg paidw after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_nl
+areg lwage after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store wage_nl
+
+use "$base\eng_abil.dta", clear
+keep if state=="25" | state=="08" | state=="32" | state=="18" | state=="02" ///
+| state=="03"
+gen treat=state=="25"
+gen after=cohort>=1993
+replace after=. if cohort<1989 | cohort>1996
+gen after_treat=after*treat
+
+areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store hrs_sin
+areg eng after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store eng_sin
+areg paidw after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_sin
+areg lwage after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store wage_sin
+
+use "$base\eng_abil.dta", clear
+keep if state=="26" | state=="08" | state=="02" | state=="03" | state=="14" ///
+| state=="32" 
+gen treat=state=="26"
+gen after=cohort>=1993
+replace after=. if cohort<1991 | cohort>1996
+gen after_treat=after*treat
+
+areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store hrs_son
+areg eng after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store eng_son
+areg paidw after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_son
+areg lwage after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store wage_son
+
+use "$base\eng_abil.dta", clear
+keep if state=="28" | state=="08" | state=="32" | state=="18" | state=="02" ///
+| state=="03"
+gen treat=state=="28"
+gen after=cohort>=1990
+replace after=. if cohort<1983 | cohort>1996
+gen after_treat=after*treat
+
+areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store hrs_tam
+areg eng after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store eng_tam
+areg paidw after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_tam
+areg lwage after_treat treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+estimates store wage_tam
+
+label var after_treat "Mexican states with English programs"
+coefplot (hrs_ags, label(AGS)) ///
+(hrs_coah, label(COAH)) ///
+(hrs_dgo, label(DGO)) ///
+(hrs_nl, label(NL)) ///
+(hrs_sin, label(SIN)) ///
+(hrs_son, label(SON)) ///
+(hrs_tam, label(TAM)), ///
+vertical keep(after_treat) yline(0) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
+ylabel(-0.5(0.5)1, labs(medium) grid format(%5.2f)) ///
+legend( pos(8) ring(0) col(3) region(lcolor(white)) size(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\graphDDhrsR.png", replace 
+
+coefplot (eng_ags, label(AGS)) ///
+(eng_coah, label(COAH)) ///
+(eng_dgo, label(DGO)) ///
+(eng_nl, label(NL)) ///
+(eng_sin, label(SIN)) ///
+(eng_son, label(SON)) ///
+(eng_tam, label(TAM)), ///
+vertical keep(after_treat) yline(0) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+legend(off) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\graphDDengR.png", replace 
+
+coefplot (paid_ags, label(AGS)) ///
+(paid_coah, label(COAH)) ///
+(paid_dgo, label(DGO)) ///
+(paid_nl, label(NL)) ///
+(paid_sin, label(SIN)) ///
+(paid_son, label(SON)) ///
+(paid_tam, label(TAM)), ///
+vertical keep(after_treat) yline(0) ///
+ytitle("Likelihood working for pay", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+legend(off) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\graphDDpaidR.png", replace 
+
+coefplot (wage_ags, label(AGS)) ///
+(wage_coah, label(COAH)) ///
+(wage_dgo, label(DGO)) ///
+(wage_nl, label(NL)) ///
+(wage_sin, label(SIN)) ///
+(wage_son, label(SON)) ///
+(wage_tam, label(TAM)), ///
+vertical keep(after_treat) yline(0) ///
+ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+legend( off) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\graphDDwageR.png", replace 
+
+*========================================================================*
 /* Figure A: Intention to Treat Effect */
 *========================================================================*
 eststo clear
