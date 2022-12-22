@@ -5,9 +5,9 @@
 *========================================================================*
 clear
 set more off
-gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main"
-gl base= "C:\Users\ogalvezs\Documents\Returns to Eng\Data"
-gl doc= "C:\Users\ogalvezs\Documents\Returns to Eng\Doc"
+gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
+gl base= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
+gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
 *========================================================================*
 /* TABLE 6: Returns to English skills */
 *========================================================================*
@@ -1256,6 +1256,77 @@ esttab using "$doc\tabSDDoccupGender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ 
 star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(fem_pol) replace
 *========================================================================*
 /* TABLE X: Robustness check */
+*========================================================================*
+/* Staggered DiD: All states */
+*========================================================================*
+use "$base\eng_abil.dta", clear
+keep if state=="01" | state=="05" | state=="10" ///
+| state=="19" | state=="25" | state=="26" | state=="28" ///
+| state=="02" | state=="03" | state=="08" | state=="18" ///
+| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
+replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
+keep if cohort>=1975 & cohort<=1996
+
+/* Callaway and SantAnna (2021) */
+
+*keep if paidw==1
+destring geo, replace
+gen fist_cohort=0
+replace fist_cohort=1990 if state=="01" & (cohort>=1990 & cohort<=1995)
+replace fist_cohort=1988 if state=="05" & (cohort>=1988 & cohort<=1996)
+replace fist_cohort=1991 if state=="10" & (cohort>=1991 & cohort<=1996)
+replace fist_cohort=1987 if state=="19" & (cohort>=1987 & cohort<=1996)
+replace fist_cohort=1993 if state=="25" & (cohort>=1993 & cohort<=1996)
+replace fist_cohort=1993 if state=="26" & (cohort>=1993 & cohort<=1996)
+replace fist_cohort=1990 if state=="28" & (cohort>=1990 & cohort<=1996)
+
+*csdid eng had_policy i.cohort i.edu i.geo female indigenous married [iw=weight], time(cohort) gvar(fist_cohort) vce(cluster geo)
+
+/* Sun and Abraham (2021) */
+
+gen tgroup=fist_cohort
+replace tgroup=. if state=="02" | state=="03" | state=="08" | state=="18" ///
+| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
+gen cgroup=tgroup==.
+
+eventstudyinteract hrs_exp had_policy if paidw==1 [aw=weight], absorb(geo cohort) ///
+cohort(tgroup) control_cohort(cgroup) covariates(i.edu female indigenous married) ///
+vce(cluster geo)
+eventstudyinteract eng had_policy if paidw==1 [aw=weight], absorb(geo cohort) ///
+cohort(tgroup) control_cohort(cgroup) covariates(i.edu female indigenous married) ///
+vce(cluster geo)
+eventstudyinteract lwage had_policy if paidw==1 [aw=weight], absorb(geo cohort) ///
+cohort(tgroup) control_cohort(cgroup) covariates(i.edu female indigenous married) ///
+vce(cluster geo)
+eventstudyinteract paidw had_policy [aw=weight], absorb(geo cohort) ///
+cohort(tgroup) control_cohort(cgroup) covariates(i.edu female indigenous married) ///
+vce(cluster geo)
+eventstudyinteract student had_policy [aw=weight], absorb(geo cohort) ///
+cohort(tgroup) control_cohort(cgroup) covariates(i.edu female indigenous married) ///
+vce(cluster geo)
+
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
+[aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg student had_policy i.cohort i.edu female indigenous married ///
+[aw=weight], absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_StaggDD.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* English abilities in Aguascalientes */
 *========================================================================*
