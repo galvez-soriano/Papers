@@ -63,3 +63,41 @@ eststo: areg move_state eng language6 math6 female n_stud rural age age2 perma n
 n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
 esttab using "$doc\tab_labor_binary.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+/* TWFE weights */
+encode cct, generate(cct_n)
+twowayfeweights lwage cct_n cohort h_eng, type(feTR)
+twowayfeweights lwage cct_n cohort h_eng, type(feTR) controls(h_eng ///
+language6 math6 female n_stud rural perma n_jobs n_perma t_colle t_mast)
+gen eng=h_eng>0.1
+twowayfeweights lwage cct_n cohort eng, type(feTR) controls(h_eng ///
+language6 math6 female n_stud rural perma n_jobs n_perma t_colle t_mast)
+
+eststo clear
+eststo: areg imss eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural i.cohort i.year if ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg lwage eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg ldist eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+eststo: areg move_state eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_labor_low.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+twowayfeweights lwage cct_n cohort h_eng if had_e!=1, type(feTR) controls(h_eng ///
+language6 math6 female n_stud rural perma n_jobs n_perma t_colle t_mast)
+twowayfeweights lwage cct_n cohort eng if had_e!=1, type(feTR) controls(h_eng ///
+language6 math6 female n_stud rural perma n_jobs n_perma t_colle t_mast)
+
+eststo clear
+eststo: areg imss eng language6 math6 female n_stud age age2 t_colle ///
+t_mast rural i.cohort i.year if ps38==1 & had_e!=1, absorb(cct) vce(cluster cct)
+eststo: areg lwage eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if ps38==1 & had_e!=1, absorb(cct) vce(cluster cct)
+eststo: areg ldist eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & had_e!=1, absorb(cct) vce(cluster cct)
+eststo: areg move_state eng language6 math6 female n_stud rural age age2 perma n_jobs ///
+n_perma t_colle t_mast i.cohort i.year i.state if wage!=. & ps38==1 & had_e!=1, absorb(cct) vce(cluster cct)
+esttab using "$doc\tab_labor_low_drop.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Labor Market Outcomes) keep(eng) stats(N ar2, fmt(%9.0fc %9.3f)) replace
