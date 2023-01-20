@@ -2021,11 +2021,11 @@ areg eng treat* i.cohort cohort i.edu female indigenous married ///
 coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
+ylabel(-0.14(0.07)0.14, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.3 0.3)) recast(connected)
+ysc(r(-0.14 0.14)) recast(connected)
 graph export "$doc\PTA_StaggDDa.png", replace
 
 areg hrs_exp treat* i.cohort cohort i.edu female indigenous married ///
