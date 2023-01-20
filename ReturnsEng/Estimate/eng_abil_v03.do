@@ -11,7 +11,7 @@ gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
 *========================================================================*
 /* TABLE 6: Returns to English skills */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 /* Full sample */
 eststo clear
 eststo: reg lwage eng [aw=weight] if age>=18 & age<=65 & paidw==1, vce(cluster geo)
@@ -140,7 +140,7 @@ graph export "$doc\eng_abil_edu.png", replace
 *========================================================================*
 /* TABLE X: Returns to English skills (IV strategy) */
 *========================================================================*
-/*use "$base\eng_abil.dta", clear
+/*use "$data\eng_abil.dta", clear
 destring geo, replace
 eststo clear
 /* Structural equation */
@@ -163,7 +163,7 @@ stats(N ar2 F, fmt(%9.0fc %9.3f)) replace */
 *========================================================================*
 /* English abilities in Aguascalientes */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="32"
 gen treat=state=="01"
 gen after=cohort>=1990
@@ -254,7 +254,7 @@ graph export "$doc\PTA_AGS3.png", replace
 *========================================================================*
 /* English abilities in Coahuila */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="05" | state=="08"
 gen treat=state=="05"
 gen after=cohort>=1988
@@ -345,7 +345,7 @@ graph export "$doc\PTA_COAH3.png", replace
 *========================================================================*
 /* English abilities in Durango */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="10" | state=="24"
 gen treat=state=="10"
 gen after=cohort>=1991
@@ -436,7 +436,7 @@ graph export "$doc\PTA_DGO3.png", replace
 *========================================================================*
 /* English abilities in Nuevo Leon */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="19" | state=="24"
 gen treat=state=="19"
 gen after=cohort>=1987
@@ -527,7 +527,7 @@ graph export "$doc\PTA_NL3.png", replace
 *========================================================================*
 /* English abilities in Sinaloa */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="25" | state=="18"
 gen treat=state=="25"
 gen after=cohort>=1993
@@ -618,7 +618,7 @@ graph export "$doc\PTA_SIN3.png", replace
 *========================================================================*
 /* English abilities in Sonora */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="26" | state=="02" | state=="08"
 gen treat=state=="26"
 gen after=cohort>=1993
@@ -709,7 +709,7 @@ graph export "$doc\PTA_SON3.png", replace
 *========================================================================*
 /* English abilities in Tamaulipas */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="28" | state=="02"
 gen treat=state=="28"
 gen after=cohort>=1990
@@ -800,7 +800,7 @@ graph export "$doc\PTA_TAM3.png", replace
 *========================================================================*
 /* Staggered DiD: All states */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -1055,7 +1055,7 @@ graph export "$doc\PTA_StaggDD4.png", replace
 *========================================================================*
 /* Staggered DiD: All states */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -1096,7 +1096,7 @@ stats(N ar2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* TABLE X: Occupations */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -1259,7 +1259,7 @@ star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(fem_pol) replace
 *========================================================================*
 /* Staggered DiD: All states */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -1330,7 +1330,7 @@ stats(N ar2, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* English abilities in Aguascalientes */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="06" | state=="11" | state=="18" | state=="24" ///
 | state=="32"
 gen treat=state=="01"
@@ -1417,7 +1417,7 @@ graph export "$doc\PTA_AGSr3.png", replace
 *========================================================================*
 /* English abilities in Coahuila */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="05" | state=="08" | state=="24" | state=="32"
 gen treat=state=="05"
 gen after=cohort>=1988
@@ -1499,7 +1499,7 @@ graph export "$doc\PTA_COAHr3.png", replace
 *========================================================================*
 /* English abilities in Durango */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="10" | state=="08" | state=="24" | state=="32" | state=="14" 
 gen treat=state=="10"
 gen after=cohort>=1991
@@ -1581,7 +1581,7 @@ graph export "$doc\PTA_DGOr3.png", replace
 *========================================================================*
 /* English abilities in Nuevo Leon */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="19" | state=="08" | state=="24" | state=="32"  
 gen treat=state=="19"
 gen after=cohort>=1987
@@ -1663,7 +1663,7 @@ graph export "$doc\PTA_NLr3.png", replace
 *========================================================================*
 /* English abilities in Sinaloa */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="25" | state=="08" | state=="32" | state=="18" | state=="02" ///
 | state=="03"
 gen treat=state=="25"
@@ -1746,7 +1746,7 @@ graph export "$doc\PTA_SINr3.png", replace
 *========================================================================*
 /* English abilities in Sonora */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="26" | state=="08" | state=="02" | state=="03" | state=="14" ///
 | state=="32" 
 gen treat=state=="26"
@@ -1829,7 +1829,7 @@ graph export "$doc\PTA_SONr3.png", replace
 *========================================================================*
 /* English abilities in Tamaulipas */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="28" | state=="08" | state=="32" | state=="18" | state=="02" ///
 | state=="03"
 gen treat=state=="28"
@@ -1912,7 +1912,7 @@ graph export "$doc\PTA_TAMr3.png", replace
 *========================================================================*
 /* Staggered DiD: All states */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -2068,7 +2068,7 @@ graph export "$doc\PTA_StaggDDa3.png", replace
 *========================================================================*
 /* Staggered DiD: All states */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -2111,7 +2111,7 @@ stats(N ar2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* Staggered DiD: By gender */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -2178,7 +2178,7 @@ star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(fem_pol) replace
 *========================================================================*
 /* Staggered DiD: By ethnicity */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -2245,7 +2245,7 @@ star(* 0.10 ** 0.05 *** 0.01) title(Ethnicity differences) keep(ind_pol) replace
 *========================================================================*
 /* Staggered DiD: By geographical context */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$data\eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
