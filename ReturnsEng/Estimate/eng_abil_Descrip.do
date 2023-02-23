@@ -6,12 +6,12 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
-gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
+gl base= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
+gl doc= "C:\Users\ogalvezs\Documents\Returns to Eng\Doc"
 *========================================================================*
 /* Adult English speaking ability in Mexico */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$base/eng_abil.dta", clear
 gen eng_states=1 if state=="01" | state=="10" | state=="19" | state=="25" ///
 | state=="26" | state=="28" | state=="05" | state=="31"
 replace eng_state=0 if eng_state==.
@@ -158,7 +158,7 @@ reg eng eng_state [aw=weight] if age>=18 & age<=65 & income>minc, vce(robust)
 *========================================================================*
 /* Graphs */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$base/eng_abil.dta", clear
 
 gen age_cat=.
 replace age_cat=1 if age>=18 & age<=35
@@ -223,7 +223,7 @@ dis high/total
 *========================================================================*
 /* Maps */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$base/eng_abil.dta", clear
 
 destring state, replace
 gen eng_r=eng if rural==1
@@ -251,7 +251,7 @@ graph export "$doc\map_eng_u.png", replace
 *========================================================================*
 /* Statistics by occupations */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$base/eng_abil.dta", clear
 gen occup=.
 replace occup=1 if (sinco>6101 & sinco<=6131) | (sinco>6201 & sinco<=6231) ///
 | sinco==6999
@@ -337,7 +337,7 @@ dataout, save(Occupation) tex replace dec(2) */
 *========================================================================*
 /* Statistics by economic industries */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$base/eng_abil.dta", clear
 gen econ_act=.
 replace econ_act=1 if (scian>=1110 & scian<=1199)
 replace econ_act=2 if (scian>=8111 & scian<=8140)
@@ -444,7 +444,7 @@ save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New
 *========================================================================*
 /* Descriptive statistics: with and without students */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$base/eng_abil.dta", clear
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -470,7 +470,7 @@ cells("mean(pattern(1 1) fmt(%9.2fc))") label replace
 *========================================================================*
 /* Descriptive statistics */
 *========================================================================*
-use "$base\eng_abil.dta", clear
+use "$base/eng_abil.dta", clear
 eststo clear
 eststo full_sample: quietly estpost sum eng hrs_exp income age edu female ///
 indigenous married rural [aw=weight] if eng!=. & age>=18 & age<=65 & paidw==1
