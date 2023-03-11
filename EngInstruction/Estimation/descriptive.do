@@ -20,9 +20,8 @@ replace econ_act=2 if (activity>=9 & activity<=17) | (activity>=147 ///
 replace econ_act=3 if activity>=18 & activity<=146 & econ_act==.
 replace econ_act=4 if activity>=155 & activity<=276 & econ_act==.
 
-/* Construction includes mining and utilities. */
-label define econ_act 1 "Agriculture" 2 "Construction" 3 "Manufactures" 4 ///
-"Services"
+label define econ_act 1 "Agriculture" 2 "Construction" 3 ///
+"Manufacturing" 4 "Services"
 label values econ_act econ_act
 
 gen ag_ea=econ_act==1
