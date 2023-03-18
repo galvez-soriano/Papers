@@ -1,7 +1,7 @@
 *========================================================================*
-* The effect of the English program on labor market outcomes
+* English skills and labor market outcomes in Mexico
 *========================================================================*
-* Oscar Galvez-Soriano
+* Author: Oscar Galvez-Soriano
 *========================================================================*
 clear
 set more off
@@ -9,7 +9,7 @@ gl data= "https://raw.githubusercontent.com/galvez-soriano"
 gl base= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
 gl doc= "C:\Users\ogalvezs\Documents\Returns to Eng\Doc"
 *========================================================================*
-/* Adult English speaking ability in Mexico */
+/* TABLE 1. Adult English speaking ability in Mexico */
 *========================================================================*
 use "$base/eng_abil.dta", clear
 gen eng_states=1 if state=="01" | state=="10" | state=="19" | state=="25" ///
@@ -156,7 +156,36 @@ reg eng eng_state [aw=weight] if age>=18 & age<=65 & rural==1, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & income<minc, vce(robust)
 reg eng eng_state [aw=weight] if age>=18 & age<=65 & income>minc, vce(robust)
 *========================================================================*
-/* Graphs */
+/* FIGURE 1. Exposure to English instruction and English abilities in 
+Mexican states */
+*========================================================================*
+use "$base/eng_abil.dta", clear
+
+destring state, replace
+gen eng_r=eng if rural==1
+gen eng_u=eng if rural==0
+keep if age>=18 & age<=65
+collapse (mean) eng* hrs_exp [fw=weight], by(state)
+
+merge m:m state using "$data/data/main/Maps/MexStates/mex_map_state.dta"
+drop if _merge!=3
+drop _merge
+
+format eng* %12.2f
+/* English ability self reported */
+spmap eng using "$base\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 0.1) legend(size(*3))
+graph export "$doc\map_eng.png", replace
+/* Panel (a) */
+spmap eng_r using "$base\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 0.1) legend(off) 
+graph export "$doc\map_eng_r.png", replace
+/* Panel (b) */
+spmap eng_u using "$base\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 0.1) legend(size(*3)) 
+graph export "$doc\map_eng_u.png", replace
+*========================================================================*
+/* Graphs for presentation */
 *========================================================================*
 use "$base/eng_abil.dta", clear
 
@@ -220,34 +249,6 @@ graph export "$doc\Income.png", replace
 sum eng [fw=weight] if age>=18 & age<=65 & hinc==1
 scalar high=r(N)*(r(mean)/100)
 dis high/total
-*========================================================================*
-/* Maps */
-*========================================================================*
-use "$base/eng_abil.dta", clear
-
-destring state, replace
-gen eng_r=eng if rural==1
-gen eng_u=eng if rural==0
-keep if age>=18 & age<=65
-collapse (mean) eng* hrs_exp [fw=weight], by(state)
-
-merge m:m state using "$data/data/main/Maps/MexStates/mex_map_state.dta"
-drop if _merge!=3
-drop _merge
-
-format eng* %12.2f
-/* English ability self reported */
-spmap eng using "$base\mxcoord.dta", id(id) ///
-clmethod(eqint) clnumber(5) eirange(0 0.1) legend(size(*3))
-graph export "$doc\map_eng.png", replace
-
-spmap eng_r using "$base\mxcoord.dta", id(id) ///
-clmethod(eqint) clnumber(5) eirange(0 0.1) legend(off) 
-graph export "$doc\map_eng_r.png", replace
-
-spmap eng_u using "$base\mxcoord.dta", id(id) ///
-clmethod(eqint) clnumber(5) eirange(0 0.1) legend(size(*3)) 
-graph export "$doc\map_eng_u.png", replace
 *========================================================================*
 /* Statistics by occupations */
 *========================================================================*
