@@ -185,6 +185,56 @@ spmap eng_u using "$base\mxcoord.dta", id(id) ///
 clmethod(eqint) clnumber(5) eirange(0 0.1) legend(size(*3)) 
 graph export "$doc\map_eng_u.png", replace
 *========================================================================*
+/* Descriptive statistics: with and without students */
+*========================================================================*
+use "$base/eng_abil.dta", clear
+keep if state=="01" | state=="05" | state=="10" ///
+| state=="19" | state=="25" | state=="26" | state=="28" ///
+| state=="02" | state=="03" | state=="08" | state=="18" ///
+| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
+replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
+keep if cohort>=1975 & cohort<=1996
+
+eststo clear
+eststo csample: quietly estpost sum eng edu age female student work formal ///
+rural hrs_work income [fw=weight] if age>=18 & age<=65 & work==1
+eststo esample: quietly estpost sum eng edu age female student work formal ///
+rural hrs_work income [fw=weight] if age>=18 & age<=65 & work==0
+esttab csample esample using "$doc\stats.tex", ///
+cells("mean(pattern(1 1) fmt(%9.2fc))") label replace
+*========================================================================*
+/* Descriptive statistics */
+*========================================================================*
+use "$base/eng_abil.dta", clear
+eststo clear
+eststo full_sample: quietly estpost sum eng hrs_exp income age edu female ///
+indigenous married rural [aw=weight] if eng!=. & age>=18 & age<=65 & paidw==1
+eststo eng: quietly estpost sum eng hrs_exp income age edu female ///
+indigenous married rural [aw=weight] if eng==1 & age>=18 & age<=65 & paidw==1
+eststo no_eng: quietly estpost sum eng hrs_exp income age edu female ///
+indigenous married rural [aw=weight] if eng==0 & age>=18 & age<=65 & paidw==1
+eststo diff: quietly estpost ttest eng hrs_exp income age edu female ///
+indigenous married rural if eng!=. & age>=18 & age<=65 & paidw==1, by(eng) unequal
+esttab full_sample eng no_eng diff using "$doc\sum_stats.tex", ///
+cells("mean(pattern(1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 1) fmt(%9.2fc))") ///
+star(* 0.10 ** 0.05 *** 0.01) label replace
+
+eststo clear
+foreach x in eng hrs_exp income age edu female indigenous married rural{
+eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65 & paidw==1, ///
+vce(robust)
+}
+esttab using "$doc\sum_stats_diff.tex", ar2 cells(b(star fmt(%9.2fc)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng) replace
+*========================================================================*
 /* Graphs for presentation */
 *========================================================================*
 use "$base/eng_abil.dta", clear
@@ -442,56 +492,6 @@ drop _merge
 xtile eng_dist= p_eng, nq(4)
 xtile eng_dist_edu= p_eng_edu, nq(4)
 save "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\New\eng_naics.dta", replace */
-*========================================================================*
-/* Descriptive statistics: with and without students */
-*========================================================================*
-use "$base/eng_abil.dta", clear
-keep if state=="01" | state=="05" | state=="10" ///
-| state=="19" | state=="25" | state=="26" | state=="28" ///
-| state=="02" | state=="03" | state=="08" | state=="18" ///
-| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
-
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
-replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
-keep if cohort>=1975 & cohort<=1996
-
-eststo clear
-eststo csample: quietly estpost sum eng edu age female student work formal ///
-rural hrs_work income [fw=weight] if age>=18 & age<=65 & work==1
-eststo esample: quietly estpost sum eng edu age female student work formal ///
-rural hrs_work income [fw=weight] if age>=18 & age<=65 & work==0
-esttab csample esample using "$doc\stats.tex", ///
-cells("mean(pattern(1 1) fmt(%9.2fc))") label replace
-*========================================================================*
-/* Descriptive statistics */
-*========================================================================*
-use "$base/eng_abil.dta", clear
-eststo clear
-eststo full_sample: quietly estpost sum eng hrs_exp income age edu female ///
-indigenous married rural [aw=weight] if eng!=. & age>=18 & age<=65 & paidw==1
-eststo eng: quietly estpost sum eng hrs_exp income age edu female ///
-indigenous married rural [aw=weight] if eng==1 & age>=18 & age<=65 & paidw==1
-eststo no_eng: quietly estpost sum eng hrs_exp income age edu female ///
-indigenous married rural [aw=weight] if eng==0 & age>=18 & age<=65 & paidw==1
-eststo diff: quietly estpost ttest eng hrs_exp income age edu female ///
-indigenous married rural if eng!=. & age>=18 & age<=65 & paidw==1, by(eng) unequal
-esttab full_sample eng no_eng diff using "$doc\sum_stats.tex", ///
-cells("mean(pattern(1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 1) fmt(%9.2fc))") ///
-star(* 0.10 ** 0.05 *** 0.01) label replace
-
-eststo clear
-foreach x in eng hrs_exp income age edu female indigenous married rural{
-eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65 & paidw==1, ///
-vce(robust)
-}
-esttab using "$doc\sum_stats_diff.tex", ar2 cells(b(star fmt(%9.2fc)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng) replace
 *========================================================================*
 /* Maps for presentation */
 *========================================================================*
