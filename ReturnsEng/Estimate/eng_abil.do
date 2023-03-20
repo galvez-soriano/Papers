@@ -1248,6 +1248,7 @@ married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store wage_tam
 
 label var after_treat "Mexican states with English programs"
+/* Panel (a) Hours of English */
 coefplot (hrs_ags, label(AGS)) ///
 (hrs_coah, label(COAH)) ///
 (hrs_dgo, label(DGO)) ///
@@ -1261,7 +1262,7 @@ ylabel(-0.5(0.5)1, labs(medium) grid format(%5.2f)) ///
 legend( pos(8) ring(0) col(3) region(lcolor(white)) size(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
 graph export "$doc\graphDDhrsR.png", replace 
-
+/* Panel (b) English skills */
 coefplot (eng_ags, label(AGS)) ///
 (eng_coah, label(COAH)) ///
 (eng_dgo, label(DGO)) ///
@@ -1275,7 +1276,7 @@ ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
 legend(off) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
 graph export "$doc\graphDDengR.png", replace 
-
+/* Panel (c) Paid work */
 coefplot (paid_ags, label(AGS)) ///
 (paid_coah, label(COAH)) ///
 (paid_dgo, label(DGO)) ///
@@ -1289,7 +1290,7 @@ ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
 legend(off) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
 graph export "$doc\graphDDpaidR.png", replace 
-
+/* Panel (d) Wages */
 coefplot (wage_ags, label(AGS)) ///
 (wage_coah, label(COAH)) ///
 (wage_dgo, label(DGO)) ///
