@@ -1366,18 +1366,29 @@ keep if cohort>=1975 & cohort<=1996
 
 /* Callaway and SantAnna (2021) */
 
-*keep if paidw==1
 destring geo, replace
+destring id, replace
 gen fist_cohort=0
-replace fist_cohort=1990 if state=="01" & (cohort>=1990 & cohort<=1995)
-replace fist_cohort=1988 if state=="05" & (cohort>=1988 & cohort<=1996)
-replace fist_cohort=1991 if state=="10" & (cohort>=1991 & cohort<=1996)
-replace fist_cohort=1987 if state=="19" & (cohort>=1987 & cohort<=1996)
-replace fist_cohort=1993 if state=="25" & (cohort>=1993 & cohort<=1996)
-replace fist_cohort=1993 if state=="26" & (cohort>=1993 & cohort<=1996)
-replace fist_cohort=1990 if state=="28" & (cohort>=1990 & cohort<=1996)
+replace fist_cohort=1990 if state=="01"
+replace fist_cohort=1988 if state=="05"
+replace fist_cohort=1991 if state=="10"
+replace fist_cohort=1987 if state=="19"
+replace fist_cohort=1993 if state=="25"
+replace fist_cohort=1993 if state=="26"
+replace fist_cohort=1990 if state=="28"
 
-*csdid eng had_policy i.cohort i.edu i.geo female indigenous married [iw=weight], time(cohort) gvar(fist_cohort) vce(cluster geo)
+csdid paidw edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+estat all
+csdid student edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+estat all
+
+keep if paidw==1
+csdid hrs_exp edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+estat all
+csdid eng edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+estat all
+csdid lwage edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+estat all
 
 /* Sun and Abraham (2021) */
 gen tgroup=fist_cohort
