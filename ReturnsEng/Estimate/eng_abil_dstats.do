@@ -224,10 +224,10 @@ graph hbar (mean) lwage edu [fw=weight] if age>=18 & age<=65, ///
 over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
 ylabel(, grid format(%5.0f)) legend( label(1 "ln(wage)") label(2 "Education"))
 graph export "$doc\occup_WageEdu.png", replace
-
+*========================================================================*
 /* FIGURE A.1. English abilities, wages and education by occupations 
 (Low education) */
-
+*========================================================================*
 /* Panel (a) */
 graph hbar (mean) eng female [fw=weight] if age>=18 & age<=65 & edu<=9, ///
 over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
@@ -258,7 +258,7 @@ replace econ_act=11 if (scian>=5110 & scian<=5399) //Includes telecommunications
 replace econ_act=12 if scian==980
 
 label define econ_act 1 "Agriculture" 2 "Other Services" 3 "Construction" ///
-4 "Commerce" 5 "Manufactures" 6 "Hospitality" ///
+4 "Commerce" 5 "Manufacturing" 6 "Hospitality" ///
 7 "Transportation" 8 "Admin and Support" 9 "Government" ///
 10 "Pro/Tech" 11 "Telecom/Finance" 12 "Abroad"
 label values econ_act econ_act
@@ -272,10 +272,10 @@ graph hbar (mean) lwage edu [fw=weight] if age>=18 & age<=65, ///
 over(econ_act, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
 ylabel(, grid format(%5.0f)) legend( label(1 "ln(wage)") label(2 "Education"))
 graph export "$doc\ind_WageEdu.png", replace
-
+*========================================================================*
 /* FIGURE A.2. English abilities, wages and education by industries 
 (Low education) */
-
+*========================================================================*
 /* Panel (a) */
 graph hbar (mean) eng female [fw=weight] if age>=18 & age<=65 & edu<=9, ///
 over(econ_act, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
