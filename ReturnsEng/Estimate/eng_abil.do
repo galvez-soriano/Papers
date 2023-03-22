@@ -1377,17 +1377,21 @@ replace fist_cohort=1993 if state=="25"
 replace fist_cohort=1993 if state=="26"
 replace fist_cohort=1990 if state=="28"
 
-csdid paidw edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23{
+gen educ`x'=edu==`x'
+}
+
+csdid paidw female indigenous married educ* [iw=weight], time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
 estat all
-csdid student edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+csdid student female indigenous married educ* [iw=weight], time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
 estat all
 
 keep if paidw==1
-csdid hrs_exp edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+csdid hrs_exp female indigenous married educ* [iw=weight], time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
 estat all
-csdid eng edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+csdid eng female indigenous married educ* [iw=weight], time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo) 
 estat all
-csdid lwage edu female indigenous married [iw=weight] if paidw==1, time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
+csdid lwage edu female indigenous married educ* [iw=weight], time(cohort) gvar(fist_cohort) method(dripw) vce(cluster geo)
 estat all
 
 /* Sun and Abraham (2021) */
