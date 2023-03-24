@@ -3,8 +3,8 @@
 *=====================================================================*
 set more off
 gl base="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
-gl data="C:\Users\ogalvezs\Documents\SocialPensions\Data"
-gl doc="C:\Users\ogalvezs\Documents\SocialPensions\Doc"
+gl data="C:\Users\iscot\Documents\GalvezSoriano\Papers\Pensions\Data"
+gl doc="C:\Users\iscot\Documents\GalvezSoriano\Papers\Pensions\Doc"
 *=====================================================================*
 * Downloading data from my GitHub website
 *=====================================================================*
@@ -523,7 +523,6 @@ eststo: areg weight_h after_treat after treat educ gender disabil hli i.age coha
 remitt i.tam_loc if ss_dir==0 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\table_ind.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 title(Indigenous) label replace keep(after_treat)
-*=====================================================================*
 /* Non-Indigenous */
 eststo clear
 eststo: areg pam after_treat after treat educ gender hli i.age cohab ///
@@ -544,6 +543,26 @@ eststo: areg weight_h after_treat after treat educ gender disabil hli i.age coha
 remitt i.tam_loc if ss_dir==0 & hli==0 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\table_non_ind.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
 title(Non-Indigenous) label replace keep(after_treat)
+*Ethnicity differential effect
+gen inter_hli=after_treat*hli
+gen after_hli=after*hli
+gen treat_hli=treat*hli
+
+eststo clear
+eststo: areg pam inter_hli after_hli treat_hli after_treat after treat educ ///
+gender hli i.age cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg l_inc inter_hli after_hli treat_hli after_treat after treat educ ///
+gender hli i.age cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg poor inter_hli after_hli treat_hli after_treat after treat educ ///
+gender hli i.age cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg epoor inter_hli after_hli treat_hli after_treat after treat educ ///
+gender hli i.age cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg labor inter_hli after_hli treat_hli after_treat after treat educ ///
+gender hli i.age cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+eststo: areg hwork inter_hli after_hli treat_hli after_treat after treat educ ///
+gender hli i.age cohab i.tam_loc if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+esttab using "$doc\table_ethnic.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) ///
+title(Women) label replace keep(inter_hli)
 *=====================================================================*
 /* Rural v Urban: 
 tam_loc=1: inhabitants>=100,000
@@ -569,6 +588,20 @@ eststo: areg weight_h after_treat after treat educ gender disabil hli i.age coha
 remitt i.tam_loc if ss_dir==0 & tam_loc==1 [aw=factor], absorb(state) vce(cluster ubica_geo)*/
 esttab using "$doc\tab1.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations ///
 (\autoref{eq:1})\label{tab2}) label replace keep(after_treat)
+*Differential effects by locality size
+gen rur_surb=tam_loc==3
+replace rur_surb=. if tam_loc<=2
+gen rur_murb=tam_loc==2
+replace rur_murb=. if tam_loc==1 | tam_loc==3
+gen rur_burb=tam_loc==1
+replace rur_burb=. if tam_loc==2 | tam_loc==3
+gen inter_rur=after_treat*rur_surb
+gen after_rur=after*rur_surb
+gen treat_rur=treat*rur_surb
+
+eststo: areg pam inter_rur after_rur treat_rur after_treat after treat educ ///
+gender hli i.age cohab if ss_dir==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
+
 *=====================================================================*
 /* TABLE 3.
 IV Estimation. LATE*/
