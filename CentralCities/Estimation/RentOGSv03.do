@@ -258,6 +258,9 @@ save "$base/SubIV.dta", replace
 *========================================================================*
 use "$base/dbaseCCities.dta", clear
 drop if year==1980 
+merge m:1 id_govs year using "$base/SubIV.dta"
+drop _merge
+
 sort msa_sc year
 egen panelid =group(msa_sc)
 egen timeid =group(year)
@@ -275,7 +278,7 @@ xtset panelid timeid
 			totalcapitaloutlays_rsbpc basic_rsbpc basic_cur_rsbpc 
 			basic_cap_rsbpc transfer_rsbpc transfer_cur_rsbpc transfer_cap_rsbpc 
 			other_rsbpc other_cur_rsbpc other_cap_rsbpc	basic_level 
-			transfer_level other_level 
+			transfer_level other_level trIV ttIV teIV toIV coIV
 ;
 	#delimit cr		
 				
@@ -369,6 +372,94 @@ esttab using "$doc\tab_BartikCO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Bartik IV)) keep(ltotalcapitaloutlays_rsbpc B_iv_*) ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+
+*========================================================================*
+* Running the regressions with spending from other cities as instrument
+*========================================================================*
+/* Total Revenue */
+*========================================================================*
+/* Structural equation */
+eststo clear
+eststo: xtreg ltotalrevenue_rpc ltotalrevenue_rsbpc lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+/* First stage equation */
+eststo: xtreg ltotalrevenue_rsbpc ltrIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+/* Reduced form equation */
+eststo: xtreg ltotalrevenue_rpc ltrIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+/* Second stage: IV model */
+eststo: xtivreg2 ltotalrevenue_rpc (ltotalrevenue_rsbpc = ltrIV) ///
+lbasic_level ltransfer_level lother_level, fe robust
+esttab using "$doc\tab_IVotherTR.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(ltotalrevenue_rsbpc ltrIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Taxes */ 
+*========================================================================*
+eststo clear
+eststo: xtreg ltotaltaxes_rpc ltotaltaxes_rsbpc lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtreg ltotaltaxes_rsbpc lttIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtreg ltotaltaxes_rpc lttIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtivreg2 ltotaltaxes_rpc (ltotaltaxes_rsbpc = lttIV) lbasic_level ///
+ltransfer_level lother_level, fe robust
+esttab using "$doc\tab_IVotherTT.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(ltotaltaxes_rsbpc lttIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg ltotalexpenditure_rpc ltotalexpenditure_rsbpc lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtreg ltotalexpenditure_rsbpc lteIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtreg ltotalexpenditure_rpc lteIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtivreg2 ltotalexpenditure_rpc (ltotalexpenditure_rsbpc = lteIV) ///
+lbasic_level ltransfer_level lother_level, fe robust
+esttab using "$doc\tab_IVotherTE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(ltotalexpenditure_rsbpc lteIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Operations */
+*========================================================================*
+eststo clear
+eststo: xtreg ltotalcurrentoper_rpc ltotalcurrentoper_rsbpc lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtreg ltotalcurrentoper_rsbpc ltoIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtreg ltotalcurrentoper_rpc ltoIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtivreg2 ltotalcurrentoper_rpc (ltotalcurrentoper_rsbpc = ltoIV) ///
+lbasic_level ltransfer_level lother_level, fe robust
+esttab using "$doc\tab_IVotherTO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(ltotalcurrentoper_rsbpc ltoIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Current Outlays */
+*========================================================================*
+eststo clear
+eststo: xtreg ltotalcapitaloutlays_rpc ltotalcapitaloutlays_rsbpc lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtreg ltotalcapitaloutlays_rsbpc lcoIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtreg ltotalcapitaloutlays_rpc lcoIV lbasic_level ///
+ltransfer_level lother_level, fe vce(robust)
+eststo: xtivreg2 ltotalcapitaloutlays_rpc (ltotalcapitaloutlays_rsbpc = lcoIV) ///
+lbasic_level ltransfer_level lother_level, fe robust
+esttab using "$doc\tab_IVotherCO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(ltotalcapitaloutlays_rsbpc lcoIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+
 
 
 *========================================================================*
