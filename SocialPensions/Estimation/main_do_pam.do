@@ -8,13 +8,13 @@ gl doc="C:\Users\ogalvezs\Documents\SocialPensions\Doc"
 *=====================================================================*
 * Downloading data from my GitHub website
 *=====================================================================*
-use "$base/dbase1.dta", clear
+/*use "$base/dbase1.dta", clear
 foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14{
     append using "$base/dbase`x'.dta"
 }
-save "$data\dbase65.dta", replace
+save "$data\dbase65.dta", replace*/
 *=====================================================================*
-* Descriptive statistics
+/* Table 1: Summary statistics */
 *=====================================================================*
 *reg dep_var treat if year==(Before or After) & ss_dir==0 [aw=factor], vce(cluster folioviv)
 /*
@@ -205,7 +205,7 @@ esttab using "$doc\tab2.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(DiD estimations ///
 (\autoref{eq:1})\label{tab2}) keep(after_treat) stats(N ar2, fmt(%9.0fc %9.3f)) replace
 *=====================================================================* 
-* Parallel trend assumption 2008-2014
+* Figure 2. Parallel trend assumption 2008-2014
 *=====================================================================*
 * graph set window fontface "Times New Roman"
 use "$data\dbase65.dta", clear
@@ -300,7 +300,7 @@ ysc(r(-0.2 0.2)) text(-0.21 3.12 "Feb 2013", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\graph6.png", replace 
 *=====================================================================*
-/* PAM effect on younger labor supply */
+/* Figure A.4. PAM effect on younger labor supply */
 *=====================================================================*
 use "$data\dbase65.dta", clear
 * Modify the treatment variable to affect only memeber of all hh.
