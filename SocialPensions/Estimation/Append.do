@@ -134,6 +134,10 @@ drop _merge
 
 merge m:m folioviv foliohog using "$data\fem_hh.dta"
 drop _merge
+
+merge m:m folioviv foliohog numren using "$data\fbusiness.dta"
+drop _merge
+
 save "$data\dbase65.dta", replace
 *=====================================================================*
 use "$data\dbase65.dta", clear

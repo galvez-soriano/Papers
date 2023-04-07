@@ -47,7 +47,10 @@ reg rural treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ub
 reg educ treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg tamhogesc treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
 reg lremitt treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo)
-reg cohab treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo) */
+reg cohab treat if year==2014 & ss_dir==0 & cohab==0 [aw=factor], vce(cluster ubica_geo) 
+
+tab fbusiness if year==2014 & age>=11 & age<=17
+*/
 *=====================================================================*
 use "$data\dbase65.dta", clear
 keep if year>=2012
@@ -317,6 +320,11 @@ replace ages=1 if age>=6 & age<=10
 replace ages=2 if age>=11 & age<=17
 replace ages=3 if age>=18 & age<=54
 replace ages=4 if age>=55
+
+/*merge m:m folioviv foliohog numren using "$data\fbusiness.dta"
+keep if _merge==3
+drop _merge
+tab fbusiness if treat_2014==1 & age>=11 & age<=17 & labor==1 */
 * Dependent variable: Labor force participation
 /* Women */
 eststo clear
