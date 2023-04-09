@@ -342,8 +342,8 @@ eststo: areg labor treat_20* i.year treat_hh rural educ gender hli i.age cohab /
 i.tam_loc if ss_dir==0 & ages==3 & gender==0 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw4
 
-coefplot (labw1, label(Young women (11-17)) offset(-.09) msym(D) mcolor(gs13) ciopts(recast(rcap) color(gs13))) /// 
-(labw3, label(Young men (11-17)) offset(-.03) msym(S) mcolor(gs11) ciopts(recast(rcap) color(gs11))) ///
+coefplot (labw1, label(Girls (11-17)) offset(-.09) msym(D) mcolor(gs13) ciopts(recast(rcap) color(gs13))) /// 
+(labw3, label(Boys (11-17)) offset(-.03) msym(S) mcolor(gs11) ciopts(recast(rcap) color(gs11))) ///
 (labw2, label(Prime-age adult (women, 18-54)) offset(0.03) msym(Dh) mcolor(gs8) ciopts(recast(rcap) color(gs8))) ///
 (labw4, label(Prime-age adult (men, 18-54)) offset(0.09) msym(Sh) mcolor(gs3) ciopts(recast(rcap) color(gs3))), ///
 vertical keep(treat_20*) yline(0, lcolor(black)) omitted baselevels ///
@@ -399,7 +399,7 @@ eststo: areg labor treat_20* i.year treat_hh rural educ gender hli i.age cohab /
 i.tam_loc if ss_dir==0 & ages==3 & hli==1 [aw=factor], absorb(state) vce(cluster ubica_geo)
 estimates store labw2
 
-coefplot (labw1, label(Young individuals (11-17)) offset(-.03)) ///
+coefplot (labw1, label(Adolescents (11-17)) offset(-.03)) ///
 (labw2, label(Prime-age adults (18-54)) offset(0.03) ciopt(lc(black) recast(rcap)) ///
 m(T) mcolor(white) mlcolor(black)), ///
 vertical keep(treat_20*) yline(0) omitted baselevels ///
@@ -411,7 +411,7 @@ legend( pos(8) ring(0) col(1) region(lcolor(white))) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(-1.05 3.12 "Feb 2013", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\graph9.png", replace 
+graph export "$doc\graph9.png", replace  
 
 * Dependent variable: Labor supply
 eststo clear
