@@ -428,7 +428,7 @@ scheme(s2mono) ///
 "Fourth grade") label(3 "Fifth grade") label(4 "Sixth grade"))
 graph export "$doc\graph10.png", replace
 
-twoway line s_spa year if grade=="3", msymbol(diamond) xlabel(2006(1)2013, ///
+twoway line s_math year if grade=="3", msymbol(diamond) xlabel(2006(1)2013, ///
 angle(vertical)) ytitle(Math test scores) ylabel(,nogrid) ///
 graphregion(fcolor(white)) bgcolor(white) ///
 legend(pos(10) ring(0) col(1)) ///
