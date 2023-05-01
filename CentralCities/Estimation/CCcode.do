@@ -19,7 +19,7 @@ use "$data/Fin_67_17_city_linear.dta", clear
 merge 1:1 year msa_sc using "$data/Fin_67_17_sub_linear.dta"
 keep if _merge==3 //drop msa=26,41,43 in 1967-1971
 drop _merge
-merge 1:1 year msa_sc using "$data/Fin_67_17_sub_linear_mc2.dta", nogen
+*merge 1:1 year msa_sc using "$data/Fin_67_17_sub_linear_mc2.dta", nogen
 merge 1:1 year msa_sc using "$data/BartikData_CBP_version3_annual_mc.dta", nogen
 *rename _merge merge1 //check msa_sc 12,18,63
 merge 1:1 year msa_sc using "$data/BartikData_CBP_version3_annual_nmc.dta", nogen
@@ -48,6 +48,53 @@ eststo: xtreg dln_lpc_totalrevenue B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_totalrevenue (dln_sb_totalrevenue = B_iv_nmc*), fe robust
 esttab using "$doc\tab_BartikTR.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(ltotalrevenue_rsbpc B_iv_*) ///
+(Bartik IV)) keep(dln_sb_totalrevenue B_iv_nmc*) ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
-
+*========================================================================*
+/* Total Taxes */ 
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totaltaxes dln_sb_totaltaxes, fe vce(robust)
+eststo: xtreg dln_sb_totaltaxes B_iv_nmc*, fe vce(robust)
+eststo: xtreg dln_lpc_totaltaxes B_iv_nmc*, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totaltaxes (dln_sb_totaltaxes = B_iv_nmc*), fe robust
+esttab using "$doc\tab_BartikTT.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_totaltaxes B_iv_nmc*) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalexpenditure dln_sb_totalexpenditure, fe vce(robust)
+eststo: xtreg dln_sb_totalexpenditure B_iv_nmc*, fe vce(robust)
+eststo: xtreg dln_lpc_totalexpenditure B_iv_nmc*, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalexpenditure (dln_sb_totalexpenditure = B_iv_nmc*), fe robust
+esttab using "$doc\tab_BartikTE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_totalexpenditure B_iv_nmc*) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Operations */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalcurrentoper dln_sb_totalcurrentoper, fe vce(robust)
+eststo: xtreg dln_sb_totalcurrentoper B_iv_nmc*, fe vce(robust)
+eststo: xtreg dln_lpc_totalcurrentoper B_iv_nmc*, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalcurrentoper (dln_sb_totalcurrentoper = B_iv_nmc*), fe robust
+esttab using "$doc\tab_BartikTO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_totalcurrentoper B_iv_nmc*) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Current Outlays */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalcapitaloutlays dln_sb_totalcapitaloutlays, fe vce(robust)
+eststo: xtreg dln_sb_totalcapitaloutlays B_iv_nmc*, fe vce(robust)
+eststo: xtreg dln_lpc_totalcapitaloutlays B_iv_nmc*, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalcapitaloutlays (dln_sb_totalcapitaloutlays = B_iv_nmc*), fe robust
+esttab using "$doc\tab_BartikCO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_totalcapitaloutlays B_iv_nmc*) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
