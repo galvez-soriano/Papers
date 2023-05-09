@@ -10,8 +10,8 @@ ssc install xtivreg2 */
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/annievm3m4vup/Paper-Big-Cities/main"
-gl base= "C:\Users\ogalvezs\Documents\CentralCities\Base"
-gl doc= "C:\Users\ogalvezs\Documents\CentralCities\Doc"
+gl base= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Base"
+gl doc= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Doc"
 *========================================================================*
 /* Merge dataset that include city, suburb fiscal variables and Bartik IV */
 *========================================================================*
@@ -23,8 +23,8 @@ drop _merge
 merge 1:1 year msa_sc using "$data/BartikData_CBP_version3_annual_mc.dta", nogen
 *rename _merge merge1 //check msa_sc 12,18,63
 merge 1:1 year msa_sc using "$data/BartikData_CBP_version3_annual_nmc.dta", nogen
-merge 1:1 year msa_sc using "$data/BartikData_CBP_version1_annual_mc.dta", nogen
-merge 1:1 year msa_sc using "$data/BartikData_CBP_version1_annual_nmc.dta", nogen
+*merge 1:1 year msa_sc using "$data/BartikData_CBP_version1_annual_mc.dta", nogen
+*merge 1:1 year msa_sc using "$data/BartikData_CBP_version1_annual_nmc.dta", nogen
 keep if year>=1990
 *========================================================================*
 /* Set up panel data set */
@@ -102,7 +102,7 @@ star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 
 *========================================================================*
-/* Merge dataset that include city and suburb fiscal variables */
+/* Merge dataset that includes city and suburb fiscal variables */
 *========================================================================*
 use "$data/Fin_67_17_city_linear.dta", clear
 merge 1:1 year msa_sc using "$data/Fin_67_17_sub_linear.dta"
@@ -115,6 +115,8 @@ save "$base/dbaseCCities.dta", replace
 *========================================================================*
 use "$base/dbaseCCities.dta", clear
 sort id_govs year
+gen govs_state=substr(id_govs,1,2)
+order id_govs govs_state year
 keep id_govs year govs_state sb_totalrevenue sb_totaltaxes sb_totalexpenditure sb_totalcurrentoper sb_totalcapitaloutlays
 rename sb_totalrevenue tr
 rename sb_totaltaxes tt
@@ -122,16 +124,16 @@ rename sb_totalexpenditure te
 rename sb_totalcurrentoper to
 rename sb_totalcapitaloutlays co
 
-bysort year govs_state: gen ncity=_N
+bysort year govs_state: gen ncity=_N 
 sort id_govs year
 bysort govs_state: gen nstate=_n
-replace nstate=nstate-year+1990
-replace nstate=2 if nstate==19
-replace nstate=3 if nstate==37
-replace nstate=4 if nstate==55
-replace nstate=5 if nstate==73
-replace nstate=6 if nstate==91
-replace nstate=7 if nstate==109
+replace nstate=nstate-year+1972
+replace nstate=2 if nstate==47
+replace nstate=3 if nstate==93
+replace nstate=4 if nstate==139
+replace nstate=5 if nstate==185
+replace nstate=6 if nstate==231
+replace nstate=7 if nstate==277
 tostring nstate, replace format(%02.0f) force
 gen str idcity=govs_state+nstate
 
@@ -141,27 +143,27 @@ collapse tr* tt* te* to* co*, by(year)
 save "$base/SubIV.dta", replace
 
 use "$base/dbaseCCities.dta", clear
-drop if year==1980
 sort id_govs year
-keep id_govs year govs_state namecity 
+gen govs_state=substr(id_govs,1,2)
+keep id_govs year govs_state
 
-bysort year govs_state: gen ncity=_N
+bysort year govs_state: gen ncity=_N 
 sort id_govs year
 bysort govs_state: gen nstate=_n
-replace nstate=nstate-year+1990
-replace nstate=2 if nstate==19
-replace nstate=3 if nstate==37
-replace nstate=4 if nstate==55
-replace nstate=5 if nstate==73
-replace nstate=6 if nstate==91
-replace nstate=7 if nstate==109
+replace nstate=nstate-year+1972
+replace nstate=2 if nstate==47
+replace nstate=3 if nstate==93
+replace nstate=4 if nstate==139
+replace nstate=5 if nstate==185
+replace nstate=6 if nstate==231
+replace nstate=7 if nstate==277
 tostring nstate, replace format(%02.0f) force
 gen str idcity=govs_state+nstate
 
 merge m:1 year using "$base/SubIV.dta"
 drop _merge
 sort id_govs year
-
+/* Stopped here */
 foreach i in tr tt te to co {
 	gen `i'IV=.
 }
