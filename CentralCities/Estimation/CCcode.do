@@ -125,7 +125,8 @@ rename sb_totalcurrentoper to
 rename sb_totalcapitaloutlays co
 
 bysort year govs_state: gen ncity=_N 
-sort id_govs year
+sort id_govs year ncity
+
 bysort govs_state: gen nstate=_n
 replace nstate=nstate-year+1972
 replace nstate=2 if nstate==47
@@ -136,6 +137,9 @@ replace nstate=6 if nstate==231
 replace nstate=7 if nstate==277
 tostring nstate, replace format(%02.0f) force
 gen str idcity=govs_state+nstate
+
+/* To see number of cities per state */
+*collapse ncity, by(idcity)
 
 reshape wide tr tt te to co, i(id_govs year) j(idcity) string
 collapse tr* tt* te* to* co*, by(year)
@@ -163,11 +167,13 @@ gen str idcity=govs_state+nstate
 merge m:1 year using "$base/SubIV.dta"
 drop _merge
 sort id_govs year
-/* Stopped here */
+
 foreach i in tr tt te to co {
 	gen `i'IV=.
 }
 order id_govs year idcity trIV ttIV teIV toIV coIV
+/* Filling missing variables */
+*States with only two cities
 foreach i in tr tt te to co {
 foreach j in 03 04 05 06 07 {
 	gen `i'01`j'=.
