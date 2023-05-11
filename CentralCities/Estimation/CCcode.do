@@ -176,46 +176,58 @@ order id_govs year idcity trIV ttIV teIV toIV coIV
 *States with only two cities
 foreach i in tr tt te to co {
 foreach j in 03 04 05 06 07 {
-	gen `i'01`j'=.
 	gen `i'03`j'=.
 	gen `i'06`j'=.
+	gen `i'19`j'=.
 	gen `i'26`j'=.
 	gen `i'37`j'=.
 	gen `i'39`j'=.
+	gen `i'47`j'=.
 	gen `i'48`j'=.
 }
 }
+*States with only three cities
 foreach i in tr tt te to co {
 foreach j in 04 05 06 07 {
+	gen `i'01`j'=.
 	gen `i'33`j'=.
 	gen `i'34`j'=.
 	gen `i'43`j'=.
 }
 }
+*States with only four cities
 foreach i in tr tt te to co {
 foreach j in 05 06 07 {
 	gen `i'10`j'=.
 }
 }
+/*States with five cities
 foreach i in tr tt te to co {
 foreach j in 07 {
 	gen `i'36`j'=.
 	gen `i'44`j'=.
 }
+}*/
+*States with six cities
+foreach i in tr tt te to co {
+foreach j in 07 {
+	gen `i'36`j'=.
+}
 }
 foreach i in tr tt te to co {
-foreach j in 01 03 05 06 10 26 33 34 36 37 39 43 44 48 {
+foreach j in 01 03 05 06 10 19 26 33 34 36 37 39 43 44 47 48 {
 	egen `i'`j'=rowtotal(`i'`j'01 `i'`j'02 `i'`j'03 `i'`j'04 `i'`j'05 `i'`j'06 `i'`j'07)
 }
 }
-/* Modify this part:
+/* Potentially modify this part:
 Sates with only one city have as instrument all other cities*/
 foreach i in tr tt te to co {
-	egen `i'_all=rowtotal(`i'01 `i'03 `i'05 `i'06 `i'10 `i'26 `i'33 `i'34 ///
-	`i'36 `i'37 `i'39 `i'43 `i'44 `i'48 `i'1101 `i'1401 `i'1501 `i'1701 ///
-	`i'1901 `i'2101 `i'2201 `i'2301 `i'2401 `i'2801 `i'2901 `i'3201 ///
-	`i'3801 `i'4701 `i'5001)
+	egen `i'_all=rowtotal(`i'01 `i'03 `i'05 `i'06 `i'10 `i'19 `i'26 `i'33 ///
+	`i'34 `i'36 `i'37 `i'39 `i'43 `i'44 `i'47 `i'48 `i'1101 `i'1401 ///
+	`i'1501 `i'1601 `i'1701 `i'1801 `i'2101 `i'2201 `i'2301 `i'2401 ///
+	`i'2501 `i'2801 `i'2901 `i'3201 `i'3801 `i'5001)
 }
+*<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<==================================== I stopped HERE!!!
 /* Substracting city i (itself) for those with more than one city */
 foreach i in tr tt te to co {
 foreach k in 01 02 03 04 05 06 07 {
