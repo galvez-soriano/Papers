@@ -220,7 +220,9 @@ foreach j in 01 03 05 06 10 19 26 33 34 36 37 39 43 44 47 48 {
 }
 }
 /* Potentially modify this part:
-Sates with only one city have as instrument all other cities*/
+Sates with only one city have as instrument all other cities. So, I create
+the sum of all suburbs in my sample. I start with states having more than one 
+city and I finish with states having only one city*/
 foreach i in tr tt te to co {
 	egen `i'_all=rowtotal(`i'01 `i'03 `i'05 `i'06 `i'10 `i'19 `i'26 `i'33 ///
 	`i'34 `i'36 `i'37 `i'39 `i'43 `i'44 `i'47 `i'48 `i'1101 `i'1401 ///
@@ -252,6 +254,11 @@ foreach k in 01 02 03 04 05 06 07 {
 foreach i in tr tt te to co {
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'10 - `i'10`k' if nstate=="`k'" & govs_state=="10"
+}
+}
+foreach i in tr tt te to co {
+foreach k in 01 02 03 04 05 06 07 {
+    replace `i'IV=`i'10 - `i'10`k' if nstate=="`k'" & govs_state=="19"
 }
 }
 foreach i in tr tt te to co {
@@ -296,20 +303,17 @@ foreach k in 01 02 03 04 05 06 07 {
 }
 foreach i in tr tt te to co {
 foreach k in 01 02 03 04 05 06 07 {
+    replace `i'IV=`i'48 - `i'48`k' if nstate=="`k'" & govs_state=="47"
+}
+}
+foreach i in tr tt te to co {
+foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'48 - `i'48`k' if nstate=="`k'" & govs_state=="48"
 }
 }
-/* Substracting city i (itself) for those with more than one city 
-foreach i in tr tt te to co {
-foreach j in 01 03 05 06 10 26 33 34 36 37 39 43 44 48 {
-foreach k in 01 02 03 04 05 06 07 {
-    replace `i'IV=`i'`j' - `i'`j'`k' if nstate=="`k'"
-}
-}
-}*/
 /* Substracting city i (itself) for those with only one city */
 foreach i in tr tt te to co {
-foreach j in 1101 1401 1501 1701 1901 2101 2201 2301 2401 2801 2901 3201 3801 4701 5001{
+foreach j in 1101 1401 1501 1601 1701 1801 2101 2201 2301 2401 2501 2801 2901 3201 3801 5001{
     replace `i'IV=`i'_all - `i'`j' if idcity=="`j'" & `i'IV==.
 }
 }
@@ -318,34 +322,95 @@ destring nstate, replace
 foreach i in tr tt te to co {
 replace `i'IV=`i'IV/(nstate-1) if nstate>=2
 }
+/*
+collapse trIV, by(idcity)
+*There are 68 cities, so n=67 because I am excluding suburb i
+*/
 foreach i in tr tt te to co {
-replace `i'IV=`i'IV/60 if nstate==1
+replace `i'IV=`i'IV/67 if nstate==1
 }
-
+destring idcity, replace
+xtset idcity year
+foreach i in trIV ttIV teIV toIV coIV {
+	 gen l`i' = log(`i')-log(L.`i')
+	}
+keep id_govs year trIV ttIV teIV toIV coIV l*
 save "$base/SubIV.dta", replace
 *========================================================================*
 /* Set up panel data set */
 *========================================================================*
+use "$base/dbaseCCities.dta", clear
+sort id_govs year
+merge 1:1 id_govs year using "$base/SubIV.dta"
+drop _merge
 sort msa_sc year
+order id_govs year
 egen panelid =group(msa_sc)
 egen timeid =group(year)
 xtset panelid timeid
-
 *========================================================================*
 * Running the regressions with spending from other suburbs as instrument
 *========================================================================*
-/* Total Revenue */
+/* Total Revenue */  
 *========================================================================*
 /* Structural equation */
 eststo clear
-eststo: xtreg ltotalrevenue_rpc ltotalrevenue_rsbpc, fe vce(robust)
+eststo: xtreg dln_lpc_totalrevenue dln_sb_totalrevenue if ltrIV!=., fe vce(robust)
 /* First stage equation */
-eststo: xtreg ltotalrevenue_rsbpc ltrIV, fe vce(robust)
+eststo: xtreg dln_lpc_totalrevenue ltrIV, fe vce(robust)
 /* Reduced form equation */
-eststo: xtreg ltotalrevenue_rpc ltrIV, fe vce(robust)
+eststo: xtreg dln_lpc_totalrevenue ltrIV, fe vce(robust)
 /* Second stage: IV model */
-eststo: xtivreg2 ltotalrevenue_rpc (ltotalrevenue_rsbpc = ltrIV), fe robust
-esttab using "$doc\tab_IVotherTR.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+eststo: xtivreg2 dln_lpc_totalrevenue (dln_sb_totalrevenue = ltrIV), fe robust
+esttab using "$doc\tab_IV_TR.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(ltotalrevenue_rsbpc ltrIV) ///
+(Bartik IV)) keep(dln_sb_totalrevenue ltrIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Taxes */ 
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totaltaxes dln_sb_totaltaxes if lttIV!=., fe vce(robust)
+eststo: xtreg dln_sb_totaltaxes lttIV, fe vce(robust)
+eststo: xtreg dln_lpc_totaltaxes lttIV, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totaltaxes (dln_sb_totaltaxes = lttIV), fe robust
+esttab using "$doc\tab_IV_TT.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_totaltaxes lttIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalexpenditure dln_sb_totalexpenditure if lteIV!=., fe vce(robust)
+eststo: xtreg dln_sb_totalexpenditure lteIV, fe vce(robust)
+eststo: xtreg dln_lpc_totalexpenditure lteIV, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalexpenditure (dln_sb_totalexpenditure = lteIV), fe robust
+esttab using "$doc\tab_IV_TE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_totalexpenditure lteIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Operations */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalcurrentoper dln_sb_totalcurrentoper if ltoIV!=., fe vce(robust)
+eststo: xtreg dln_sb_totalcurrentoper ltoIV, fe vce(robust)
+eststo: xtreg dln_lpc_totalcurrentoper ltoIV, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalcurrentoper (dln_sb_totalcurrentoper = ltoIV), fe robust
+esttab using "$doc\tab_IV_TO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_totalcurrentoper ltoIV) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Capital Outlays */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalcapitaloutlays dln_sb_totalcapitaloutlays if lcoIV!=., fe vce(robust)
+eststo: xtreg dln_sb_totalcapitaloutlays lcoIV, fe vce(robust)
+eststo: xtreg dln_lpc_totalcapitaloutlays lcoIV, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalcapitaloutlays (dln_sb_totalcapitaloutlays = lcoIV), fe robust
+esttab using "$doc\tab_IV_CO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_totalcapitaloutlays lcoIV) ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
