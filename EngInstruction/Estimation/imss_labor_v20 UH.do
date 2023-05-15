@@ -38,6 +38,8 @@ n_perma t_colle t_mast i.cohort i.year i.state if ps38==1, absorb(cct) vce(clust
 
 areg lwage h_eng i.cohort if ps38==1, absorb(cct) vce(cluster cct)
 
+encode cct, generate(cct_id) // Generates new id variable from string
+
 set rmsg on
 
 did_multiplegt lwage cct_id cohort h_eng if ps38==1, controls(language6 ///
