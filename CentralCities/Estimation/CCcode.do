@@ -1,7 +1,7 @@
 *========================================================================*
 * Rent Capture by Central Cities
 *========================================================================*
-/* Steven G. Craig, Annie Hsu, Janet Kohlhase and Oscar Gálvez-Soriano
+/* Steven G. Craig, Oscar Gálvez-Soriano, Annie Hsu and Janet Kohlhase
 Note: Before running this do file, please install the packages 'xtivreg2' 
 and 'ivreg2' by typing the following:
 ssc install ivreg2
