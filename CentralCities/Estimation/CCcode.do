@@ -100,6 +100,42 @@ esttab using "$doc\tab_BartikCO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Bartik IV)) keep(dln_sb_totalcapitaloutlays B_iv_nmc*) ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Basic Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_basic dln_sb_basic if B_iv_nmc1!=., fe vce(robust)
+eststo: xtreg dln_sb_basic B_iv_nmc*, fe vce(robust)
+eststo: xtreg dln_lpc_basic B_iv_nmc*, fe vce(robust)
+eststo: xtivreg2 dln_lpc_basic (dln_sb_basic = B_iv_nmc*), fe robust
+esttab using "$doc\tab_BartikBE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_basic B_iv_nmc*) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Transfer Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_transfer dln_sb_transfer if B_iv_nmc1!=., fe vce(robust)
+eststo: xtreg dln_sb_transfer B_iv_nmc*, fe vce(robust)
+eststo: xtreg dln_lpc_transfer B_iv_nmc*, fe vce(robust)
+eststo: xtivreg2 dln_lpc_transfer (dln_sb_transfer = B_iv_nmc*), fe robust
+esttab using "$doc\tab_BartikTranE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_transfer B_iv_nmc*) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Other Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_other dln_sb_other if B_iv_nmc1!=., fe vce(robust)
+eststo: xtreg dln_sb_other B_iv_nmc*, fe vce(robust)
+eststo: xtreg dln_lpc_other B_iv_nmc*, fe vce(robust)
+eststo: xtivreg2 dln_lpc_other (dln_sb_other = B_iv_nmc*), fe robust
+esttab using "$doc\tab_BartikBE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Bartik IV)) keep(dln_sb_other B_iv_nmc*) ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 
 *========================================================================*
 /* Merge dataset that includes city and suburb fiscal variables */
