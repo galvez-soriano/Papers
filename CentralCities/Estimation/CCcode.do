@@ -10,8 +10,8 @@ ssc install xtivreg2 */
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/annievm3m4vup/Paper-Big-Cities/main"
-gl base= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Base"
-gl doc= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Doc"
+gl base= "C:\Users\ogalvezs\Documents\CentralCities\Base"
+gl doc= "C:\Users\ogalvezs\Documents\CentralCities\Doc"
 *========================================================================*
 /* Merge dataset that include city, suburb fiscal variables and Bartik IV */
 *========================================================================*
@@ -33,6 +33,23 @@ sort msa_sc year
 egen panelid =group(msa_sc)
 egen timeid =group(year)
 xtset panelid timeid
+label var B_iv_nmc1 "Agriculture"
+label var B_iv_nmc2 "Mining"
+label var B_iv_nmc3 "Construction"
+label var B_iv_nmc4 "Manufacturing"
+label var B_iv_nmc5 "Transportation"
+label var B_iv_nmc6 "Wholesale"
+label var B_iv_nmc7 "Retail"
+label var B_iv_nmc8 "Financial"
+label var B_iv_nmc9 "Other Services"
+label var dln_sb_totalrevenue "Suburb TR"
+label var dln_sb_totaltaxes "Suburb TT"
+label var dln_sb_totalexpenditure "Suburb TE"
+label var dln_sb_totalcurrentoper "Suburb TO"
+label var dln_sb_totalcapitaloutlays "Suburb CO"
+label var dln_sb_basic "Suburb BE"
+label var dln_sb_transfer "Suburb TranE"
+label var dln_sb_other "Suburb OE"
 
 *========================================================================*
 * Running the regressions multiple Bartik instrument
@@ -50,7 +67,7 @@ eststo: xtreg dln_lpc_totalrevenue B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_totalrevenue (dln_sb_totalrevenue = B_iv_nmc*), fe robust
 esttab using "$doc\tab_BartikTR.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(dln_sb_totalrevenue B_iv_nmc*) ///
+(Bartik IV)) keep(dln_sb_totalrevenue B_iv_nmc*) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* Total Taxes */ 
@@ -62,7 +79,7 @@ eststo: xtreg dln_lpc_totaltaxes B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_totaltaxes (dln_sb_totaltaxes = B_iv_nmc*), fe robust
 esttab using "$doc\tab_BartikTT.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(dln_sb_totaltaxes B_iv_nmc*) ///
+(Bartik IV)) keep(dln_sb_totaltaxes B_iv_nmc*) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* Total Expenditure */
@@ -74,7 +91,7 @@ eststo: xtreg dln_lpc_totalexpenditure B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_totalexpenditure (dln_sb_totalexpenditure = B_iv_nmc*), fe robust
 esttab using "$doc\tab_BartikTE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(dln_sb_totalexpenditure B_iv_nmc*) ///
+(Bartik IV)) keep(dln_sb_totalexpenditure B_iv_nmc*) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* Total Operations */
@@ -86,7 +103,7 @@ eststo: xtreg dln_lpc_totalcurrentoper B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_totalcurrentoper (dln_sb_totalcurrentoper = B_iv_nmc*), fe robust
 esttab using "$doc\tab_BartikTO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(dln_sb_totalcurrentoper B_iv_nmc*) ///
+(Bartik IV)) keep(dln_sb_totalcurrentoper B_iv_nmc*) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* Capital Outlays */
@@ -98,7 +115,7 @@ eststo: xtreg dln_lpc_totalcapitaloutlays B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_totalcapitaloutlays (dln_sb_totalcapitaloutlays = B_iv_nmc*), fe robust
 esttab using "$doc\tab_BartikCO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(dln_sb_totalcapitaloutlays B_iv_nmc*) ///
+(Bartik IV)) keep(dln_sb_totalcapitaloutlays B_iv_nmc*) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* Basic Expenditure */
@@ -110,7 +127,7 @@ eststo: xtreg dln_lpc_basic B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_basic (dln_sb_basic = B_iv_nmc*), fe robust
 esttab using "$doc\tab_BartikBE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(dln_sb_basic B_iv_nmc*) ///
+(Bartik IV)) keep(dln_sb_basic B_iv_nmc*) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* Transfer Expenditure */
@@ -122,7 +139,7 @@ eststo: xtreg dln_lpc_transfer B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_transfer (dln_sb_transfer = B_iv_nmc*), fe robust
 esttab using "$doc\tab_BartikTranE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(dln_sb_transfer B_iv_nmc*) ///
+(Bartik IV)) keep(dln_sb_transfer B_iv_nmc*) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
 /* Other Expenditure */
@@ -132,9 +149,9 @@ eststo: xtreg dln_lpc_other dln_sb_other if B_iv_nmc1!=., fe vce(robust)
 eststo: xtreg dln_sb_other B_iv_nmc*, fe vce(robust)
 eststo: xtreg dln_lpc_other B_iv_nmc*, fe vce(robust)
 eststo: xtivreg2 dln_lpc_other (dln_sb_other = B_iv_nmc*), fe robust
-esttab using "$doc\tab_BartikBE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+esttab using "$doc\tab_BartikOE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Bartik IV)) keep(dln_sb_other B_iv_nmc*) ///
+(Bartik IV)) keep(dln_sb_other B_iv_nmc*) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 
 *========================================================================*
