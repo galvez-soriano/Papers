@@ -247,7 +247,8 @@ replace `i'IV=`i'IV/67 if nstate==1
 destring idcity, replace
 xtset idcity year
 foreach i in trIV ttIV teIV toIV coIV beIV taIV oeIV {
-	 gen l`i' = log(`i')-log(L.`i')
+	 gen dl`i' = log(`i')-log(L.`i')
+	 gen l`i' = log(`i')
 	}
 gen one_city=0
 replace one_city=1 if idcity==1101 | idcity==1401 | idcity==1501 ///
@@ -255,5 +256,5 @@ replace one_city=1 if idcity==1101 | idcity==1401 | idcity==1501 ///
  | idcity==2201 | idcity==2301 | idcity==2401 | idcity==2501 ///
  | idcity==2801 | idcity==2901 | idcity==3201 | idcity==3801 | idcity==5001
 
-keep id_govs year trIV ttIV teIV toIV coIV beIV taIV oeIV l* one_city
+keep id_govs year trIV ttIV teIV toIV coIV beIV taIV oeIV d* l* one_city
 save "$base/SubIV.dta", replace
