@@ -8,8 +8,9 @@
 
    Before running this program, make sure to run the program 0_setup.do
    We also require that you create two folders in your computer. First, 
-   a folder with the name "Data", which will store the new data in your
-   computer. Second, a folder with the name "Doc", which will store the 
+   a folder with the name "Data", which will store the master data set
+   named "dbase65.dta", which can be downloaded along with this program. 
+   Second, a folder with the name "Doc", which will store the 
    figures and tables created with this program. 
    
    Once you created these folders, you must define their paths in the 
@@ -23,17 +24,21 @@
 *=====================================================================*
 clear
 set more off
-gl base="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
 gl data="C:\Users\iscot\Documents\GalvezSoriano\Papers\Pensions\Data"
 gl doc="C:\Users\iscot\Documents\GalvezSoriano\Papers\Pensions\Doc"
 *=====================================================================*
-* Downloading data from my GitHub website
+/* You could also pull directly the master database from Oscar Galvez-
+Soriano's GitHub website by uncommenting and running lines 35-42 of 
+this program. This avoids downloading all data sets to your computer */
 *=====================================================================*
-/*use "$base/dbase1.dta", clear
-foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14{
+/*
+gl base="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
+use "$base/dbase1.dta", clear
+foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15{
     append using "$base/dbase`x'.dta"
 }
-save "$data\dbase65.dta", replace*/
+save "$data\dbase65.dta", replace
+*/
 *=====================================================================*
 * Figure 1. Pensions coverage by income decile, Mexico (2008-2014)
 *=====================================================================*

@@ -13,26 +13,28 @@
    4_2014.do
    
    These programs stored data sets (pam_20XX.dta) in four different folders:
-   "C:\Users\Documents\Pensions\2008\Bases"
-   "C:\Users\Documents\Pensions\2010\Bases"
-   "C:\Users\Documents\Pensions\2012\Bases"
-   "C:\Users\Documents\Pensions\2014\Bases"
+   "C:\Users\Documents\Pensions\Data\2008\Bases"
+   "C:\Users\Documents\Pensions\Data\2010\Bases"
+   "C:\Users\Documents\Pensions\Data\2012\Bases"
+   "C:\Users\Documents\Pensions\Data\2014\Bases"
    
-   This program, will pull those data set in one single database "dbase65.dta"
-   To this purpose, we must define the global "data" in line 29 of this 
-   program with the path that corresponds to the user's computer, right before 
-   the folders named with the years of the data sets as follows:
+   This program, will pull those data sets in one single database named
+   "dbase65.dta". To this purpose, we must define the global "data" in 
+   line 30 of this program with the path that corresponds to the user's 
+   computer, right before the folders named with the years of the data 
+   sets as follows:
    
-   "C:\Users\Documents\Pensions"
+   gl data="C:\Users\Documents\Pensions\Data"
    */
 *=====================================================================*
-gl data="C:\Users\Documents\Pensions"
+gl data="C:\Users\Documents\Pensions\Data"
 *=====================================================================*
 use "$data\2008\Bases\pam_2008.dta", clear
 append using "$data\2010\Bases\pam_2010.dta", force
 append using "$data\2012\Bases\pam_2012.dta", force
 append using "$data\2014\Bases\pam_2014.dta", force
 
+gl github="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
 order proyecto folioviv foliohog numren year factor tam_loc rururb ent ///
 ubica_geo tenencia edad sexo tamhogesc parentesco ic_rezedu anac_e inas_esc niv_ed ///
 a_educ alfabe asis_esc nivel grado nivelaprob gradoaprob ic_asalud serv_sal ///
@@ -116,7 +118,7 @@ rename a_educ educ
 label var educ "Education (years)"
 label var ss_dir "Health system"
 
-merge m:m year folioviv foliohog numren using "$data\scian.dta"
+merge m:m year folioviv foliohog numren using "$github/scian.dta"
 drop _merge
 
 gen naics=substr(scian,1,1)
@@ -150,7 +152,7 @@ save "$data\tcheck.dta", replace
 merge m:m folioviv foliohog using "$data\dbase65.dta"
 drop _merge
 
-merge m:m folioviv foliohog numren using "$data\health.dta"
+merge m:m folioviv foliohog numren using "$github/health.dta"
 drop _merge
 label var poor_health "Poor Health"
 label var weight_h "Weight measure"
@@ -158,13 +160,13 @@ label var diab_h "Diabetes measure"
 label var ap_h "Arterial pressure"
 recode weight_h (2=0)
 
-merge m:m folioviv foliohog numren using "$data\labor_act.dta"
+merge m:m folioviv foliohog numren using "$github/labor_act.dta"
 drop _merge
 
-merge m:m folioviv foliohog using "$data\fem_hh.dta"
+merge m:m folioviv foliohog using "$github/fem_hh.dta"
 drop _merge
 
-merge m:m folioviv foliohog numren using "$data\fbusiness.dta"
+merge m:m folioviv foliohog numren using "$github/fbusiness.dta"
 drop _merge
 
 save "$data\dbase65.dta", replace
@@ -198,5 +200,6 @@ isb_agua isb_dren isb_luz isb_combus ic_ali id_men tot_iaad tot_iamen ///
 ins_ali plb_m plb est_dis upm i_privacion pobreza_m vul_car vul_ing ///
 no_pobv carencias carencias3 cuadrantes prof_b1 prof_bm1 prof_b2 prof_bm2 ///
 profun int_pob int_pobe int_vulcar int_caren
-label drop tam_loc
+label values tam_loc
+
 save "$data\dbase65.dta", replace

@@ -75,15 +75,13 @@ If, additionally, you want to reconstruct the final database, run the following 
 5_Append.do: appends all rounds of ENIGH database
 
 Each program has detailed instructions on how to run them. In summary, each program requires 
-that the user defines three different paths using globals, as follows:
+that the user defines two different paths using globals, as follows:
 
-gl base="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
-gl data="C:\Users\iscot\Documents\GalvezSoriano\Papers\Pensions\Data"
-gl doc="C:\Users\iscot\Documents\GalvezSoriano\Papers\Pensions\Doc"
+gl data="C:\Users\Documents\Papers\Pensions\Data"
+gl doc="C:\Users\Documents\Papers\Pensions\Doc"
 
-=> The global "base" pulls the data from the Internet.
 => The global "data" defines the path (in user's computer) were new data will be stored.
-=> The global "data" defines the path (in user's computer) were the figures and tables will be
+=> The global "doc" defines the path (in user's computer) were the figures and tables will be
    stored.
 
 Inquiries regarding the code and data can be sent to Oscar Galvez-Soriano's email:

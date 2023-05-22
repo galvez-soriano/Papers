@@ -6,17 +6,21 @@
 *=====================================================================*
 /* INSTRUCTIONS:
 
-   Before running this program, make sure to create one folder named "2014"
-   with two sub-folders in your computer these sub-folders are the following. 
-   First, a sub-folder with the name "Bases", which will store the new data 
-   in your computer. Second, a sub-folder with the name "log", which will 
-   store the log file of this program. 
+   Before running this program, make sure to create in your computer one 
+   folder named "Data", which will contain all ENIGH data sets by year. 
+   Later we will use this "Data" folder to store the final databse. 
+   Inside this folder create another folder named "2014" with two sub-
+   folders. These sub-folders are the following. First, a sub-folder with 
+   the name "Bases", which will store the new data in your computer. 
+   This folder should have already the downloaded data from the online
+   repository. Second, a sub-folder with the name "log", which will store 
+   the log file of this program.
    
    Once you created these folders, you must define their paths in the 
-   following globals (in lines 45 and 46 of this program), respectively: 
+   following globals (in lines 48 and 49 of this program), respectively: 
    
-   gl bases="C:\Users\Documents\Pensions\2014\Bases"
-   gl log="C:\Users\Documents\Pensions\2014\log"   
+   gl data="C:\Users\Documents\Pensions\Data\2014\Bases"
+   gl log="C:\Users\Documents\Pensions\Data\2014\log"   
    */
 *=====================================================================*
 #delimit;
@@ -27,7 +31,7 @@ scalar drop _all;
 set mem 400m;
 set more off;
 
-The global "data" will pull the raw data sets from the Internet. In 
+/* The global "data" will pull the raw data sets from the Internet. In 
 particular, we work with the following:
 
 Population data: Pobla12.dta
@@ -39,11 +43,10 @@ HH summary: Concen.dta
 Income no-monetary E: G_hogar.dta
 Income no-monetary E: G_person.dta
 
-Just modify globals "bases" and "log":
+Modify globals "data" and "log" */
 
-gl data="C:\Users\galve\Documents\Papers\Current\Social pension program\Data\2014\MCS";
-gl bases="C:\Users\Documents\Pensions\2014\Bases";
-gl log="C:\Users\Documents\Pensions\2014\log";
+gl data="C:\Users\Documents\Pensions\Data\2014\Bases";
+gl log="C:\Users\Documents\Pensions\Data\2014\log";
 
 log using "$log\Pobreza_14.txt", text replace;
 
@@ -161,7 +164,7 @@ label value hli hli;
 keep proyecto folioviv foliohog numren edad anac_e inas_esc niv_ed ic_rezedu 
 a_educ alfabe asis_esc nivel grado nivelaprob gradoaprob hli hablaind parentesco;
 sort proyecto folioviv foliohog numren;
-save "$bases\ic_rezedu14.dta", replace;
+save "$data\ic_rezedu14.dta", replace;
 
 ************************************************************************
 *Parte II Indicadores de Privación Social:
@@ -207,7 +210,7 @@ label var trab "Población con al menos un empleo";
 
 keep proyecto folioviv foliohog numren trab tipo_trab* ocupa*;
 sort proyecto folioviv foliohog numren;
-save "$bases\ocupados14.dta", replace;
+save "$data\ocupados14.dta", replace;
 
 use "$data\Pobla14.dta", clear;
 
@@ -217,7 +220,7 @@ drop if parentesco>="700" & parentesco <"800";
 
 sort proyecto folioviv foliohog numren;
  
-merge proyecto folioviv foliohog numren using "$bases\ocupados14.dta";
+merge proyecto folioviv foliohog numren using "$data\ocupados14.dta";
 tab _merge;
 drop _merge;
 
@@ -436,7 +439,7 @@ label value ic_asalud caren;
 
 keep proyecto folioviv foliohog numren sexo serv_sal ic_asalud sa_* *_sa segpop atemed inst_* inscr_* segvol_* discap;
 sort proyecto folioviv foliohog numren;
-save "$bases\ic_asalud14.dta", replace;
+save "$data\ic_asalud14.dta", replace;
 
 *********************************************************
 *Parte III Indicadores de Privación social:
@@ -499,7 +502,7 @@ label var trab "Población con al menos un empleo";
 
 keep proyecto folioviv foliohog numren trab tipo_trab* inclab* aforlab* ocupa*;
 sort proyecto folioviv foliohog numren;
-save "$bases\prestaciones14.dta", replace;
+save "$data\prestaciones14.dta", replace;
 *=====================================================================*
 *Ingresos por jubilaciones o pensiones;
 *=====================================================================*;
@@ -531,7 +534,7 @@ label var ing_procampo "Ingreso promedio mensual por procampo";
 label var ing_otros_psoc "Ingreso promedio mensual por otros programas sociales";
 
 sort proyecto folioviv foliohog numren;
-save "$bases\pensiones14.dta", replace;
+save "$data\pensiones14.dta", replace;
 *=====================================================================*
 *Construcción del indicador;
 use "$data\Pobla14.dta", clear;
@@ -542,12 +545,12 @@ drop if parentesco>="700" & parentesco <"800";
 
 *Integración de bases;
 sort proyecto folioviv foliohog numren;
-merge proyecto folioviv foliohog numren using "$bases\prestaciones14.dta";
+merge proyecto folioviv foliohog numren using "$data\prestaciones14.dta";
 tab _merge;
 drop _merge;
 
 sort proyecto folioviv foliohog numren;
-merge proyecto folioviv foliohog numren using "$bases\pensiones14.dta";
+merge proyecto folioviv foliohog numren using "$data\pensiones14.dta";
 tab _merge;
 drop _merge;
 
@@ -821,7 +824,7 @@ hor_8 min_8 usotiempo8 edo_conyug segsoc ss_aa ss_mm;
 
 sort proyecto folioviv foliohog numren;
 
-save "$bases\ic_segsoc14.dta", replace;
+save "$data\ic_segsoc14.dta", replace;
 
 ***********************************************************
 *Parte IV Indicadores de Privación social:
@@ -832,10 +835,10 @@ save "$bases\ic_segsoc14.dta", replace;
 
 use "$data\Vivienda.dta", clear;
 sort proyecto folioviv;
-save "$bases\Vivienda.dta", replace;
+save "$data\Vivienda.dta", replace;
 use "$data\Concen.dta", clear;
 sort proyecto folioviv ;
-merge proyecto folioviv  using "$bases\Vivienda.dta";
+merge proyecto folioviv  using "$data\Vivienda.dta";
 tab _merge;
 drop _merge;
 
@@ -912,7 +915,7 @@ sort proyecto folioviv foliohog;
 *=====================================================================*;
 keep proyecto folioviv foliohog icv_pisos icv_techos icv_muros icv_hac ic_cv 
 clase_hog p65mas ocupados percep_ing perc_ocupa transfer remesas transf_hog;
-save "$bases\ic_cev14.dta", replace;
+save "$data\ic_cev14.dta", replace;
  
 ************************************************************************
 *Parte V Indicadores de Privación Social:
@@ -921,7 +924,7 @@ save "$bases\ic_cev14.dta", replace;
 use "$data\Concen.dta", clear;
 keep proyecto folioviv foliohog;
 sort proyecto folioviv ;
-merge proyecto folioviv  using "$bases\Vivienda.dta";
+merge proyecto folioviv  using "$data\Vivienda.dta";
 tab _merge;
 drop _merge;
 
@@ -984,7 +987,7 @@ label value ic_sbv caren;
 
 sort proyecto folioviv foliohog;
 keep proyecto folioviv foliohog isb_agua isb_dren isb_luz isb_combus ic_sbv;
-save "$bases\ic_sbv14.dta", replace;
+save "$data\ic_sbv14.dta", replace;
 
 **********************************************************************
 *Parte VI Indicadores de Privación Social:
@@ -1011,7 +1014,7 @@ label value id_men id_men;
 
 sort proyecto folioviv foliohog;
 keep proyecto folioviv foliohog id_men;
-save "$bases\menores14.dta", replace;
+save "$data\menores14.dta", replace;
 
 use "$data\hogares.dta", clear;
 destring acc_alim*, replace;
@@ -1059,7 +1062,7 @@ label value ia_`i'men si_no;
 
 *Construcción de la escala de inseguridad alimentaria;
 sort proyecto folioviv foliohog;
-merge proyecto folioviv foliohog using "$bases\menores14.dta";
+merge proyecto folioviv foliohog using "$data\menores14.dta";
 tab _merge;
 drop _merge;
 
@@ -1110,7 +1113,7 @@ label value ic_ali caren;
 
 sort proyecto folioviv foliohog;
 keep proyecto folioviv foliohog id_men ia_* tot_iaad tot_iamen ins_ali ic_ali;
-save "$bases\ic_ali14.dta", replace;
+save "$data\ic_ali14.dta", replace;
 
 *********************************************************
 *Parte VII 
@@ -1119,7 +1122,7 @@ save "$bases\ic_ali14.dta", replace;
 
 *Para la construcción del ingreso corriente del hogar es necesario utilizar
 información sobre la condición de ocupación y los ingresos de los individuos.
-Se utiliza la información contenida en la base "$bases\trabajo.dta" para 
+Se utiliza la información contenida en la base "$data\trabajo.dta" para 
 identificar a la población ocupada que declara tener como prestación laboral aguinaldo, 
 ya sea por su trabajo principal o secundario, a fin de incorporar los ingresos por este 
 concepto en la medición;
@@ -1157,7 +1160,7 @@ keep proyecto folioviv foliohog numren aguinaldo1 aguinaldo2 trab;
 
 sort proyecto folioviv foliohog numren ;
 
-save "$bases\aguinaldo.dta", replace;
+save "$data\aguinaldo.dta", replace;
 
 *Ahora se incorpora a la base de ingresos;
 
@@ -1165,7 +1168,7 @@ use "$data\ingresos.dta", clear;
 
 sort proyecto folioviv foliohog numren;
 
-merge proyecto folioviv foliohog numren using "$bases\aguinaldo.dta";
+merge proyecto folioviv foliohog numren using "$data\aguinaldo.dta";
 
 tab _merge;
 drop _merge;
@@ -1276,7 +1279,7 @@ label var ing_tra "Ingreso corriente monetario por transferencias";
 							 
 sort proyecto folioviv foliohog;
 
-save "$bases\ingreso_deflactado14.dta", replace;
+save "$data\ingreso_deflactado14.dta", replace;
 
 *********************************************************
 Creación del ingreso no monetario deflactado a pesos de 
@@ -1686,9 +1689,9 @@ replace reda_nm=reda_nm/dINPCs04 if decena==7;
 replace reda_nm=reda_nm/dINPCs05 if decena==8;
 replace reda_nm=reda_nm/dINPCs05 if decena==9;
 
-save "$bases\ingresonomonetario_def14.dta", replace;
+save "$data\ingresonomonetario_def14.dta", replace;
 
-use "$bases\ingresonomonetario_def14.dta", clear;
+use "$data\ingresonomonetario_def14.dta", clear;
 
 *Construcción de la base de pagos en especie a partir de la base 
 de gasto no monetario;
@@ -1717,9 +1720,9 @@ rename  reda_nm reda_nme;
 
 sort proyecto folioviv foliohog;
 
-save "$bases\esp_def14.dta", replace;
+save "$data\esp_def14.dta", replace;
 
-use "$bases\ingresonomonetario_def14.dta", clear;
+use "$data\ingresonomonetario_def14.dta", clear;
 
 *Construcción de base de regalos a partir de la base no 
 monetaria ;
@@ -1748,7 +1751,7 @@ rename  reda_nm reda_nmr;
 
 sort proyecto folioviv foliohog;
 
-save "$bases\reg_def14.dta", replace;
+save "$data\reg_def14.dta", replace;
 
 *********************************************************
 Construcción del ingreso corriente total
@@ -1762,7 +1765,7 @@ keep proyecto folioviv foliohog tam_loc factor tot_integ est_dis upm ubica_geo;
 
 sort proyecto folioviv foliohog;
 
-merge proyecto folioviv foliohog using "$bases\ingreso_deflactado14.dta";
+merge proyecto folioviv foliohog using "$data\ingreso_deflactado14.dta";
 tab _merge;
 drop _merge;
 
@@ -1770,7 +1773,7 @@ drop _merge;
 
 sort proyecto folioviv foliohog;
 
-merge proyecto folioviv foliohog using "$bases\esp_def14.dta";
+merge proyecto folioviv foliohog using "$data\esp_def14.dta";
 tab _merge;
 drop _merge;
 
@@ -1778,7 +1781,7 @@ drop _merge;
 
 sort proyecto folioviv foliohog;
 
-merge proyecto folioviv foliohog using "$bases\reg_def14.dta";
+merge proyecto folioviv foliohog using "$data\reg_def14.dta";
 tab _merge;
 drop _merge;
 
@@ -1809,7 +1812,7 @@ label var reg_esp "Ingreso corriente no monetario regalos especie";
 
 sort proyecto folioviv foliohog;
 
-save "$bases\ingresotot14.dta", replace;
+save "$data\ingresotot14.dta", replace;
 
 ***********************************************************
 Construcción del tamaño de hogar con economías de escala
@@ -1856,17 +1859,17 @@ collapse (sum)  tamhogesc, by(proyecto folioviv foliohog);
 
 sort proyecto folioviv foliohog;
 
-save "$bases\tamhogesc14.dta", replace;
+save "$data\tamhogesc14.dta", replace;
 
 *************************************************************************
 *Bienestar por ingresos
 *************************************************************************;
 
-use "$bases\ingresotot14.dta", clear;
+use "$data\ingresotot14.dta", clear;
 
 *Incorporación de la información sobre el tamaño del hogar ajustado;
 
-merge proyecto folioviv foliohog using "$bases\tamhogesc14.dta";
+merge proyecto folioviv foliohog using "$data\tamhogesc14.dta";
 tab _merge;
 drop _merge;
 
@@ -1932,7 +1935,7 @@ ing_mon ing_lab ing_ren ing_tra nomon pago_esp reg_esp;
 
 sort proyecto folioviv foliohog;
 
-save "$bases\p_ingresos14.dta", replace;
+save "$data\p_ingresos14.dta", replace;
 
 ************************************************************************
 *Parte VIII Pobreza 
@@ -1942,34 +1945,34 @@ save "$bases\p_ingresos14.dta", replace;
 Integración de las bases*
 *************************;
 
-use "$bases\ic_rezedu14.dta", clear;
+use "$data\ic_rezedu14.dta", clear;
 
-merge proyecto folioviv foliohog numren using "$bases\ic_asalud14.dta";
+merge proyecto folioviv foliohog numren using "$data\ic_asalud14.dta";
 tab _merge;
 drop _merge;
 sort proyecto folioviv foliohog numren;
 
-merge proyecto folioviv foliohog numren using "$bases\ic_segsoc14.dta";
+merge proyecto folioviv foliohog numren using "$data\ic_segsoc14.dta";
 tab _merge;
 drop _merge;
 sort proyecto folioviv foliohog;
 
-merge proyecto folioviv foliohog using "$bases\ic_cev14.dta";
+merge proyecto folioviv foliohog using "$data\ic_cev14.dta";
 tab _merge;
 drop _merge;
 sort proyecto folioviv foliohog;
 
-merge proyecto folioviv foliohog using "$bases\ic_sbv14.dta";
+merge proyecto folioviv foliohog using "$data\ic_sbv14.dta";
 tab _merge;
 drop _merge;
 sort proyecto folioviv foliohog;
 
-merge proyecto folioviv foliohog using "$bases\ic_ali14.dta";
+merge proyecto folioviv foliohog using "$data\ic_ali14.dta";
 tab _merge;
 drop _merge;
 sort proyecto folioviv foliohog;
 
-merge proyecto folioviv foliohog using "$bases\p_ingresos14.dta";
+merge proyecto folioviv foliohog using "$data\p_ingresos14.dta";
 tab _merge;
 drop _merge;
 
@@ -2198,7 +2201,7 @@ rename factor_hog factor;
 
 sort proyecto folioviv foliohog numren;
 
-save "$bases\pobreza_14.dta", replace;
+save "$data\pobreza_14.dta", replace;
 
 *=====================================================================*
 * Year of sample
@@ -2243,21 +2246,21 @@ replace cont_ss=. if ss_mm==. & ss_aa==.;
 		
 sort proyecto folioviv foliohog numren;		
 
-save "$bases\pam_2014.dta", replace;
+save "$data\pam_2014.dta", replace;
 
 use "$data\vivienda.dta", clear;
 keep proyecto folioviv tenencia;
 destring tenencia, replace;
 sort proyecto folioviv ;
-merge m:m proyecto folioviv using "$bases\pam_2014.dta";
+merge m:m proyecto folioviv using "$data\pam_2014.dta";
 drop _merge;
-save "$bases\pam_2014.dta", replace;
+save "$data\pam_2014.dta", replace;
 
 use "$data\trabajos.dta", clear;
 keep proyecto folioviv foliohog numren htrab;
 sort proyecto folioviv foliohog numren;
-merge m:m proyecto folioviv foliohog numren using "$bases\pam_2014.dta";
+merge m:m proyecto folioviv foliohog numren using "$data\pam_2014.dta";
 drop _merge;
-save "$bases\pam_2014.dta", replace;
+save "$data\pam_2014.dta", replace;
 
 log close;
