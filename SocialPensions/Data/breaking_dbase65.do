@@ -25,8 +25,8 @@ save "$base\dbase15.dta", replace
 *========================================================================*
 /* To append it back */
 *========================================================================*
-use "$base/dbase1.dta", clear
+use "$data/dbase1.dta", clear
 foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15{
-    append using "$base/dbase`x'.dta"
+    append using "$data/dbase`x'.dta"
 }
-save "$data\dbase65.dta", replace
+save "$base\dbase65.dta", replace
