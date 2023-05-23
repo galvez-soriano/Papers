@@ -10,8 +10,8 @@ ssc install xtivreg2 */
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/annievm3m4vup/Paper-Big-Cities/main"
-gl base= "C:\Users\ogalvezs\Documents\CentralCities\Base"
-gl doc= "C:\Users\ogalvezs\Documents\CentralCities\Doc"
+gl base= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Base"
+gl doc= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Doc"
 *========================================================================*
 /* Merge dataset that includes city and suburb fiscal variables */
 *========================================================================*
@@ -39,6 +39,7 @@ rename sb_totalcapitaloutlays co
 rename sb_basic_cur be
 rename sb_transfer_cur ta
 rename sb_other_cur oe
+rename sb_totalutilcuroper uo
 
 bysort year govs_state: gen ncity=_N 
 sort id_govs year ncity
@@ -57,8 +58,8 @@ gen str idcity=govs_state+nstate
 /* To see number of cities per state */
 *collapse ncity, by(idcity)
 
-reshape wide tr tt te to co be ta oe, i(id_govs year) j(idcity) string
-collapse tr* tt* te* to* co* be* ta* oe*, by(year)
+reshape wide tr tt te to co be ta oe uo, i(id_govs year) j(idcity) string
+collapse tr* tt* te* to* co* be* ta* oe* uo*, by(year)
 
 save "$base/SubIV.dta", replace
 
@@ -84,13 +85,13 @@ merge m:1 year using "$base/SubIV.dta"
 drop _merge
 sort id_govs year
 
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo {
 	gen `i'IV=.
 }
-order id_govs year idcity trIV ttIV teIV toIV coIV beIV taIV oeIV
+order id_govs year idcity trIV ttIV teIV toIV coIV beIV taIV oeIV uoIV
 /* Filling missing variables */
 *States with only two cities
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo {
 foreach j in 03 04 05 06 07 {
 	gen `i'03`j'=.
 	gen `i'06`j'=.
@@ -103,7 +104,7 @@ foreach j in 03 04 05 06 07 {
 }
 }
 *States with only three cities
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach j in 04 05 06 07 {
 	gen `i'01`j'=.
 	gen `i'33`j'=.
@@ -112,25 +113,25 @@ foreach j in 04 05 06 07 {
 }
 }
 *States with only four cities
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach j in 05 06 07 {
 	gen `i'10`j'=.
 }
 }
 /*States with five cities
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach j in 07 {
 	gen `i'36`j'=.
 	gen `i'44`j'=.
 }
 }*/
 *States with six cities
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach j in 07 {
 	gen `i'36`j'=.
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach j in 01 03 05 06 10 19 26 33 34 36 37 39 43 44 47 48 {
 	egen `i'`j'=rowtotal(`i'`j'01 `i'`j'02 `i'`j'03 `i'`j'04 `i'`j'05 `i'`j'06 `i'`j'07)
 }
@@ -139,114 +140,114 @@ foreach j in 01 03 05 06 10 19 26 33 34 36 37 39 43 44 47 48 {
 Sates with only one city have as instrument all other cities. So, I create
 the sum of all suburbs in my sample. I start with states having more than one 
 city and I finish with states having only one city*/
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 	egen `i'_all=rowtotal(`i'01 `i'03 `i'05 `i'06 `i'10 `i'19 `i'26 `i'33 ///
 	`i'34 `i'36 `i'37 `i'39 `i'43 `i'44 `i'47 `i'48 `i'1101 `i'1401 ///
 	`i'1501 `i'1601 `i'1701 `i'1801 `i'2101 `i'2201 `i'2301 `i'2401 ///
 	`i'2501 `i'2801 `i'2901 `i'3201 `i'3801 `i'5001)
 }
 /* Substracting city i (itself) for those with more than one city */
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'01 - `i'01`k' if nstate=="`k'" & govs_state=="01"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'03 - `i'03`k' if nstate=="`k'" & govs_state=="03"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'05 - `i'05`k' if nstate=="`k'" & govs_state=="05"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'06 - `i'06`k' if nstate=="`k'" & govs_state=="06"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'10 - `i'10`k' if nstate=="`k'" & govs_state=="10"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'10 - `i'10`k' if nstate=="`k'" & govs_state=="19"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'26 - `i'26`k' if nstate=="`k'" & govs_state=="26"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'33 - `i'33`k' if nstate=="`k'" & govs_state=="33"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'34 - `i'34`k' if nstate=="`k'" & govs_state=="34"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'36 - `i'36`k' if nstate=="`k'" & govs_state=="36"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'37 - `i'37`k' if nstate=="`k'" & govs_state=="37"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'39 - `i'39`k' if nstate=="`k'" & govs_state=="39"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'43 - `i'43`k' if nstate=="`k'" & govs_state=="43"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'44 - `i'44`k' if nstate=="`k'" & govs_state=="44"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'48 - `i'48`k' if nstate=="`k'" & govs_state=="47"
 }
 }
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach k in 01 02 03 04 05 06 07 {
     replace `i'IV=`i'48 - `i'48`k' if nstate=="`k'" & govs_state=="48"
 }
 }
 /* Substracting city i (itself) for those with only one city */
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 foreach j in 1101 1401 1501 1601 1701 1801 2101 2201 2301 2401 2501 2801 2901 3201 3801 5001{
     replace `i'IV=`i'_all - `i'`j' if idcity=="`j'" & `i'IV==.
 }
 }
 /* To take the mean */
 destring nstate, replace
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 replace `i'IV=`i'IV/(nstate-1) if nstate>=2
 }
 /*
 collapse trIV, by(idcity)
 *There are 68 cities, so n=67 because I am excluding suburb i
 */
-foreach i in tr tt te to co be ta oe {
+foreach i in tr tt te to co be ta oe uo{
 replace `i'IV=`i'IV/67 if nstate==1
 }
 destring idcity, replace
 xtset idcity year
-foreach i in trIV ttIV teIV toIV coIV beIV taIV oeIV {
+foreach i in trIV ttIV teIV toIV coIV beIV taIV oeIV uoIV{
 	 gen dl`i' = log(`i')-log(L.`i')
 	 gen l`i' = log(`i')
 	}
@@ -256,5 +257,5 @@ replace one_city=1 if idcity==1101 | idcity==1401 | idcity==1501 ///
  | idcity==2201 | idcity==2301 | idcity==2401 | idcity==2501 ///
  | idcity==2801 | idcity==2901 | idcity==3201 | idcity==3801 | idcity==5001
 
-keep id_govs year trIV ttIV teIV toIV coIV beIV taIV oeIV d* l* one_city
+keep id_govs year trIV ttIV teIV toIV coIV beIV taIV oeIV uoIV d* l* one_city
 save "$base/SubIV.dta", replace

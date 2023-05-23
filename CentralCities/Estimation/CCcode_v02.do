@@ -10,8 +10,8 @@ ssc install xtivreg2 */
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/annievm3m4vup/Paper-Big-Cities/main"
-gl base= "C:\Users\ogalvezs\Documents\CentralCities\Base"
-gl doc= "C:\Users\ogalvezs\Documents\CentralCities\Doc"
+gl base= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Base"
+gl doc= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Doc"
 *========================================================================*
 /* Merge dataset that include city, suburb fiscal variables and Bartik IV */
 *========================================================================*
@@ -146,17 +146,20 @@ label var dln_sb_totalcurrentoper "Suburb CO"
 label var dln_sb_basic_cur "Suburb BE"
 label var dln_sb_transfer_cur "Suburb TranE"
 label var dln_sb_other_cur "Suburb OE"
+label var dln_sb_totalutilcuroper "Suburb UO"
 label var dltrIV "IV other suburbs TR"
 label var dlttIV "IV other suburbs TT"
 label var dltoIV "IV other suburbs CO"
 label var dlbeIV "IV other suburbs BE"
 label var dltaIV "IV other suburbs TranE"
 label var dloeIV "IV other suburbs OE"
-keep id_govs year msa_sc dltrIV dlttIV dltoIV dlbeIV dltaIV dloeIV one_city B_iv_nmc1 ///
+label var dluoIV "IV other suburbs UO"
+keep id_govs year msa_sc dltrIV dlttIV dltoIV dlbeIV dltaIV dloeIV dluoIV ///
+one_city B_iv_nmc1 ///
 dln_lpc_totalrevenue dln_lpc_totaltaxes dln_lpc_totalcurrentoper ///
 dln_sb_totalrevenue dln_sb_totaltaxes dln_sb_totalcurrentoper ///
-dln_lpc_basic_cur dln_lpc_transfer_cur dln_lpc_other_cur ///
-dln_sb_basic_cur dln_sb_transfer_cur dln_sb_other_cur
+dln_lpc_basic_cur dln_lpc_transfer_cur dln_lpc_other_cur dln_lpc_totalutilcuroper ///
+dln_sb_basic_cur dln_sb_transfer_cur dln_sb_other_cur dln_sb_totalutilcuroper
 egen panelid =group(msa_sc)
 egen timeid =group(year)
 xtset panelid timeid
@@ -234,6 +237,18 @@ esttab using "$doc\tab_IV_OE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Suburbs IV)) keep(dln_sb_other_cur dloeIV) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Utility Current Operation */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalutilcuroper dln_sb_totalutilcuroper if dluoIV!=. & B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_sb_totalutilcuroper dluoIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_lpc_totalutilcuroper dluoIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalutilcuroper (dln_sb_totalutilcuroper = dluoIV) if B_iv_nmc1!=. & year>=1990, fe robust
+esttab using "$doc\tab_IV_UO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totalutilcuroper dluoIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 
 *========================================================================*
 /* Multiple cities in one state 1990-2017 */
@@ -310,6 +325,19 @@ star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Suburbs IV)) keep(dln_sb_other_cur dloeIV) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
+/* Utility Current Operation */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalutilcuroper dln_sb_totalutilcuroper if dluoIV!=. & B_iv_nmc1!=. & year>=1990 & one_city==0, fe vce(robust)
+eststo: xtreg dln_sb_totalutilcuroper dluoIV if B_iv_nmc1!=. & year>=1990 & one_city==0, fe vce(robust)
+eststo: xtreg dln_lpc_totalutilcuroper dluoIV if B_iv_nmc1!=. & year>=1990 & one_city==0, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalutilcuroper (dln_sb_totalutilcuroper = dluoIV) if B_iv_nmc1!=. & year>=1990 & one_city==0, fe robust
+esttab using "$doc\tab_IV_UO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totalutilcuroper dluoIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+
+*========================================================================*
 /* Single cities per state 1990-2017 */
 *========================================================================*
 /* Total Revenue */  
@@ -382,6 +410,18 @@ eststo: xtivreg2 dln_lpc_other_cur (dln_sb_other_cur = dloeIV) if B_iv_nmc1!=. &
 esttab using "$doc\tab_IV_OE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Suburbs IV)) keep(dln_sb_other_cur dloeIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Utility Current Operation */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalutilcuroper dln_sb_totalutilcuroper if dluoIV!=. & B_iv_nmc1!=. & year>=1990 & one_city==1, fe vce(robust)
+eststo: xtreg dln_sb_totalutilcuroper dluoIV if B_iv_nmc1!=. & year>=1990 & one_city==1, fe vce(robust)
+eststo: xtreg dln_lpc_totalutilcuroper dluoIV if B_iv_nmc1!=. & year>=1990 & one_city==1, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalutilcuroper (dln_sb_totalutilcuroper = dluoIV) if B_iv_nmc1!=. & year>=1990 & one_city==1, fe robust
+esttab using "$doc\tab_IV_UO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totalutilcuroper dluoIV) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 
 *========================================================================*
@@ -457,4 +497,16 @@ eststo: xtivreg2 dln_lpc_other_cur (dln_sb_other_cur = dloeIV), fe robust
 esttab using "$doc\tab_IV_OE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Suburbs IV)) keep(dln_sb_other_cur loeIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Utility Current Operation */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalutilcuroper dln_sb_totalutilcuroper if dluoIV!=., fe vce(robust)
+eststo: xtreg dln_sb_totalutilcuroper dluoIV, fe vce(robust)
+eststo: xtreg dln_lpc_totalutilcuroper dluoIV, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalutilcuroper (dln_sb_totalutilcuroper = dluoIV), fe robust
+esttab using "$doc\tab_IV_UO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totalutilcuroper dluoIV) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
