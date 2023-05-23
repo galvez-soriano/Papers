@@ -30,7 +30,7 @@ gen govs_state=substr(id_govs,1,2)
 order id_govs govs_state year
 keep id_govs year govs_state sb_totalrevenue sb_totaltaxes ///
 sb_totalexpenditure sb_totalcurrentoper sb_totalcapitaloutlays ///
-sb_basic_cur sb_transfer_cur sb_other_cur
+sb_basic_cur sb_transfer_cur sb_other_cur sb_totalutilcuroper
 rename sb_totalrevenue tr
 rename sb_totaltaxes tt
 rename sb_totalexpenditure te
