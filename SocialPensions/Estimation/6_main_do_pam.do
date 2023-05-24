@@ -10,11 +10,12 @@
    We also require that you create two folders in your computer. First, 
    a folder with the name "Data", which will store the master data set
    named "dbase65.dta", which can be downloaded along with this program. 
-   Second, a folder with the name "Doc", which will store the 
-   figures and tables created with this program. 
+   Second, a folder with the name "Doc", which will store the figures 
+   and tables created with this program. 
    
-   Once you created these folders, you must define their paths in the 
-   following globals (in lines 27 and 28 of this program), respectively: 
+   Once you have created these folders, you must define their paths in 
+   the following globals (in lines 28 and 29 of this program), 
+   respectively: 
    
    gl data="C:\Users\Documents\Pensions\Data"
    gl doc="C:\Users\Documents\Pensions\Doc"   
@@ -24,15 +25,15 @@
 *=====================================================================*
 clear
 set more off
-gl data="C:\Users\iscot\Documents\GalvezSoriano\Papers\Pensions\Data"
-gl doc="C:\Users\iscot\Documents\GalvezSoriano\Papers\Pensions\Doc"
+gl data="C:\Users\Documents\Pensions\Data"
+gl doc="C:\Users\Documents\Pensions\Doc"
 *=====================================================================*
 /* You could also pull directly the master database from Oscar Galvez-
-Soriano's GitHub website by uncommenting and running lines 35-42 of 
+Soriano's GitHub website by uncommenting and running lines 36-42 of 
 this program. This avoids downloading all data sets to your computer */
 *=====================================================================*
-/*
 gl base="https://raw.githubusercontent.com/galvez-soriano/Papers/main/SocialPensions/Data"
+/*
 use "$base/dbase1.dta", clear
 foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15{
     append using "$base/dbase`x'.dta"
@@ -58,18 +59,20 @@ replace jubi_cat=3 if ss_dir==0 & age>=65 & pam==0
 
 catplot jubi_cat year inc_decile [fw=factor], ///
 percent(inc_decile year) ///
+ysize(1.2) xsize(1) scale(1) ///
 graphregion(fcolor(white)) ///
 var1opts(label(labsize(small))) ///
 var2opts(label(labsize(vsmall))) ///
 var3opts(label(labsize(small)) relabel(`r(relabel)')) ///
-ytitle("Pensions coverage rate", size(small)) ///
+ytitle("Pensions coverage rate", size(small) height(4)) ///
 ylabel(,labs(small)) ///
 asyvars stack ///
-bar(1, color(navy)) bar(2, color(170 94 190)) ///
-bar(3, color(ebblue)) bar(4, color(gs11)) ///
-legend(rows(1) stack size(vsmall) ///
+bar(1, color(navy*.80)) bar(2, color(navy*.60)) ///
+bar(3, color(navy*.40)) bar(4, color(navy*.10)) ///
+legend(rows(1) stack size(1.9) ///
 order(1 "Contributory Pension Only" 2 "PAM Only" ///
-3 "Both Contributory and PAM" 4 "Coverage Gap") symplacement(center))
+3 "Both Contributory and PAM" 4 "Coverage Gap") ///
+symplacement(center) region(lwidth(none)))
 graph export "$doc\fig1.png", replace
 *=====================================================================* 
 /* Figure 2: Parallel trend assumption 2008-2014 */
@@ -192,14 +195,14 @@ cumul lictpc_pam [fw=factor] if rural==1, gen(inc_pam)
 cumul lictpc_hip [fw=factor] if rural==1, gen(inc_hip)
 
 sort folioviv foliohog
-set obs 440050
-replace year = 2014 in 440050
-replace income = 0 in 440050
-replace inc_pam = 0 in 440050
-replace ictpc_pam = 0 in 440050
-replace income_hip = 0 in 440050
-replace lictpc = 0 in 440050
-replace rural = 1 in 440050
+set obs 375372
+replace year = 2014 in 375372
+replace income = 0 in 375372
+replace inc_pam = 0 in 375372
+replace ictpc_pam = 0 in 375372
+replace income_hip = 0 in 375372
+replace lictpc = 0 in 375372
+replace rural = 1 in 375372
 
 twoway line inc_pam lictpc_pam if (lictpc>=0 & lictpc<=11), sort || line income ///
 lictpc if (lictpc>=0 & lictpc<=11), sort || line inc_hip ///
@@ -771,9 +774,9 @@ esttab using "$doc\tab5B.tex", cells(b(star fmt(%9.3f)) se(par)) title(IV ///
 stats(N ar2, fmt(%9.0fc %9.3f)) label replace
 *=====================================================================*
 /* Online Appendix */
-*=====================================================================* <<<=====================================================
+*=====================================================================*
 /* Figure A.1: PAM beneficiaries, 2013-2016
-This table was generated in Excel, file XXX.xls */
+This table was generated in Excel, file "Figure A.1.xlsx" */
 *=====================================================================*
 /* Figure A.2: Outcomes related to health */
 *=====================================================================*
@@ -814,10 +817,34 @@ graph export "$doc\figA2.png", replace
 *=====================================================================*
 /* Figure A.3: Take-up rate and altitude by locality size */
 *=====================================================================*
+use "$base/pam_takalt.dta", clear
+binscatter take_up altitude if loc_size==1, xtitle(Altitude) ///
+xlabel(0(1000)3000) ylabel(.80(.05)1) ytitle(Take-up) absorb(mun) ///
+controls(lond latd) nquantiles(20) subtitle(A. Rural areas)
+graph save "$doc\rural_65",replace
+graph export "$doc\rural_65.png", replace
 
+binscatter  take_up altitude if loc_size==2, xtitle(Altitude) ///
+xlabel(0(1000)3000) ylabel(.80(.05)1) ytitle(Take-up) absorb(mun) ///
+controls(lond latd) nquantiles(20) subtitle(B. Suburban areas)
+graph save "$doc\suburban_65",replace
+graph export "$doc\suburban_65.png", replace
 
+binscatter  take_up altitude if loc_size==3, xtitle(Altitude) ///
+xlabel(0(1000)3000) ylabel(.5(.10)0.9) ytitle(Take-up) absorb(mun) ///
+controls(lond latd) nquantiles(20) subtitle(C. Mid-size urban areas)
+graph save "$doc\urban_65",replace
+graph export "$doc\urban_65.png", replace
 
+binscatter  take_up altitude if loc_size==4, xtitle(Altitude) ///
+xlabel(0(1000)3000) ylabel(.5(.10)0.9) ytitle(Take-up) absorb(mun) ///
+controls(lond latd) nquantiles(20) subtitle(D. Big cities)
+graph save "$doc\city_65",replace
+graph export "$doc\city_65.png", replace
 
+graph combine "$doc\rural_65" "$doc\suburban_65" "$doc\urban_65" "$doc\city_65", ///
+graphregion(color(white) margin()) cols(2) imargin(1 1.2 1.2 1) scale(0.9)
+graph export "$doc\figA3.png", replace
 *=====================================================================*
 /* Figure A.4: PAM effect on other household members */
 *=====================================================================*
@@ -981,14 +1008,14 @@ cumul lictpc [fw=factor] if gender==0 & rural==1, gen(income)
 cumul lictpc_pam [fw=factor] if gender==0 & rural==1, gen(inc_pam)
 
 sort folioviv foliohog
-set obs 440050
-replace year = 2014 in 440050
-replace income = 0 in 440050
-replace inc_pam = 0 in 440050
-replace ictpc_pam = 0 in 440050
-replace lictpc = 0 in 440050
-replace rural = 1 in 440050
-replace gender = 0 in 440050
+set obs 440056
+replace year = 2014 in 440056
+replace income = 0 in 440056
+replace inc_pam = 0 in 440056
+replace ictpc_pam = 0 in 440056
+replace lictpc = 0 in 440056
+replace rural = 1 in 440056
+replace gender = 0 in 440056
 
 twoway line inc_pam lictpc_pam if (lictpc>=0 & lictpc<=11) & gender==0, sort || line income ///
 lictpc if (lictpc>=0 & lictpc<=11) & gender==0, sort ///
