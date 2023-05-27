@@ -424,7 +424,7 @@ star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
 
 *========================================================================*
-/* All states. Multiple cities in one state, 1972-2017 */
+/* All states. Single city in one state, 1972-2017 */
 *========================================================================*
 /* Total Revenue */  
 *========================================================================*
@@ -568,6 +568,156 @@ eststo: xtreg dln_lpc_other_cur dln_sb_other_cur if dloeIV!=. & year<=2007, fe v
 eststo: xtreg dln_sb_other_cur dloeIV if year<=2007 & dln_lpc_other_cur!=., fe vce(robust)
 eststo: xtreg dln_lpc_other_cur dloeIV if year<=2007, fe vce(robust)
 eststo: xtivreg2 dln_lpc_other_cur (dln_sb_other_cur = dloeIV) if year<=2007, fe robust
+esttab using "$doc\tab_IV_OE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_other_cur dloeIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+
+*========================================================================*
+/* All states. Multiple cities in one state, 1972-2007 */
+*========================================================================*
+/* Total Revenue */  
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalrevenue dln_sb_totalrevenue if dltrIV!=. & one_city==0 & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_totalrevenue dltrIV if one_city==0 & dln_lpc_totalrevenue!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_totalrevenue dltrIV if one_city==0 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalrevenue (dln_sb_totalrevenue = dltrIV) if one_city==0 & year<=2007, fe robust
+esttab using "$doc\tab_IV_TR.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totalrevenue dltrIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Taxes */ 
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totaltaxes dln_sb_totaltaxes if dlttIV!=. & one_city==0 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_totaltaxes dlttIV if one_city==0 & dln_lpc_totaltaxes!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_totaltaxes dlttIV if one_city==0 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totaltaxes (dln_sb_totaltaxes = dlttIV) if one_city==0 & year<=2007, fe robust
+esttab using "$doc\tab_IV_TT.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totaltaxes dlttIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Current Operations */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalcurrentoper dln_sb_totalcurrentoper if dltoIV!=. & year<=2007 & one_city==0, fe vce(robust)
+eststo: xtreg dln_sb_totalcurrentoper dltoIV if one_city==0 & dln_lpc_totalcurrentoper!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_totalcurrentoper dltoIV if one_city==0 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalcurrentoper (dln_sb_totalcurrentoper = dltoIV) if one_city==0 & year<=2007, fe robust
+esttab using "$doc\tab_IV_TO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totalcurrentoper dltoIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Basic Expenditure */ 
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_basic_cur dln_sb_basic_cur if dlbeIV!=. & one_city==0 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_basic_cur dlbeIV if one_city==0 & dln_lpc_basic_cur!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_basic_cur dlbeIV if one_city==0 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_basic_cur (dln_sb_basic_cur = dlbeIV) if one_city==0 & year<=2007, fe robust
+esttab using "$doc\tab_IV_BE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_basic_cur dlbeIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Transfer Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_transfer_cur dln_sb_transfer_cur if dltaIV!=. & one_city==0 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_transfer_cur dltaIV if one_city==0 & dln_lpc_transfer_cur!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_transfer_cur dltaIV if one_city==0 & dln_sb_transfer_cur!=. & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_transfer_cur (dln_sb_transfer_cur = dltaIV) if one_city==0 & year<=2007, fe robust
+esttab using "$doc\tab_IV_TranE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_transfer_cur dltaIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Other Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_other_cur dln_sb_other_cur if dloeIV!=. & one_city==0 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_other_cur dloeIV if one_city==0 & dln_lpc_other_cur!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_other_cur dloeIV if one_city==0 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_other_cur (dln_sb_other_cur = dloeIV) if one_city==0 & year<=2007, fe robust
+esttab using "$doc\tab_IV_OE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_other_cur dloeIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+
+*========================================================================*
+/* All states. Single city in one state, 1972-2007 */
+*========================================================================*
+/* Total Revenue */  
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalrevenue dln_sb_totalrevenue if dltrIV!=. & one_city==1 & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_totalrevenue dltrIV if one_city==1 & dln_lpc_totalrevenue!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_totalrevenue dltrIV if one_city==1 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalrevenue (dln_sb_totalrevenue = dltrIV) if one_city==1 & year<=2007, fe robust
+esttab using "$doc\tab_IV_TR.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totalrevenue dltrIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Total Taxes */ 
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totaltaxes dln_sb_totaltaxes if dlttIV!=. & one_city==1 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_totaltaxes dlttIV if one_city==1 & dln_lpc_totaltaxes!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_totaltaxes dlttIV if one_city==1 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totaltaxes (dln_sb_totaltaxes = dlttIV) if one_city==1 & year<=2007, fe robust
+esttab using "$doc\tab_IV_TT.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totaltaxes dlttIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Current Operations */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_totalcurrentoper dln_sb_totalcurrentoper if dltoIV!=. & one_city==1 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_totalcurrentoper dltoIV if one_city==1 & dln_lpc_totalcurrentoper!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_totalcurrentoper dltoIV if one_city==1 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_totalcurrentoper (dln_sb_totalcurrentoper = dltoIV) if one_city==1 & year<=2007, fe robust
+esttab using "$doc\tab_IV_TO.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_totalcurrentoper dltoIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Basic Expenditure */ 
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_basic_cur dln_sb_basic_cur if dlbeIV!=. & one_city==1 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_basic_cur dlbeIV if one_city==1 & dln_lpc_basic_cur!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_basic_cur dlbeIV if one_city==1 & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_basic_cur (dln_sb_basic_cur = dlbeIV) if one_city==1 & year<=2007, fe robust
+esttab using "$doc\tab_IV_BE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_basic_cur dlbeIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Transfer Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_transfer_cur dln_sb_transfer_cur if dltaIV!=. & one_city==1 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_transfer_cur dltaIV if one_city==1 & dln_lpc_transfer_cur!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_transfer_cur dltaIV if one_city==1 & dln_sb_transfer_cur!=. & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_transfer_cur (dln_sb_transfer_cur = dltaIV) if one_city==1 & year<=2007, fe robust
+esttab using "$doc\tab_IV_TranE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_transfer_cur dltaIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Other Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_other_cur dln_sb_other_cur if dloeIV!=. & one_city==1 & year<=2007, fe vce(robust)
+eststo: xtreg dln_sb_other_cur dloeIV if one_city==1 & dln_lpc_other_cur!=. & year<=2007, fe vce(robust)
+eststo: xtreg dln_lpc_other_cur dloeIV if one_city==1 & dln_sb_other_cur!=. & year<=2007, fe vce(robust)
+eststo: xtivreg2 dln_lpc_other_cur (dln_sb_other_cur = dloeIV) if one_city==1 & year<=2007, fe robust
 esttab using "$doc\tab_IV_OE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Suburbs IV)) keep(dln_sb_other_cur dloeIV) label ///
