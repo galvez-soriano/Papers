@@ -5,7 +5,7 @@
 *========================================================================*
 clear
 set more off
-gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/Metrobus/Data/2006"
+gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/Metrobus/Data/2008"
 gl base= "C:\Users\iscot\Documents"
 *========================================================================*
 /* Daily Expenditure 2008 */
