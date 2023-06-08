@@ -10,8 +10,8 @@ ssc install xtivreg2 */
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/annievm3m4vup/Paper-Big-Cities/main"
-gl base= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Base"
-gl doc= "C:\Users\iscot\Documents\GalvezSoriano\Papers\CentralCities\Doc"
+gl base= "C:\Users\galve\Documents\Papers\Current\CCities\Base"
+gl doc= "C:\Users\galve\Documents\Papers\Current\CCities\Doc"
 *========================================================================*
 /* Running the regressions with fiscal variables from other suburbs as 
 instrument */
@@ -721,4 +721,21 @@ eststo: xtivreg2 dln_lpc_other_cur (dln_sb_other_cur = dloeIV) if one_city==1 & 
 esttab using "$doc\tab_IV_OE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
 (Suburbs IV)) keep(dln_sb_other_cur dloeIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+
+*========================================================================*
+/* Alternative specifications. Period 1990-2017 */
+*========================================================================*
+/* Basic Expenditure */ 
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_basic_cur dln_sb_basic_cur dln_sb_transfer_cur dln_sb_other_cur if dlbeIV!=. & B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_sb_basic_cur dlbeIV dltaIV dloeIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_sb_transfer_cur dlbeIV dltaIV dloeIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_sb_other_cur dlbeIV dltaIV dloeIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_lpc_basic_cur dlbeIV dltaIV dloeIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtivreg2 dln_lpc_basic_cur (dln_sb_basic_cur dln_sb_transfer_cur dln_sb_other_cur = dlbeIV dltaIV dloeIV) if B_iv_nmc1!=. & year>=1990, fe robust
+esttab using "$doc\tab_IV_BE3.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_basic_cur dlbeIV dltaIV dloeIV) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
