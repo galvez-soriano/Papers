@@ -737,5 +737,18 @@ eststo: xtreg dln_lpc_basic_cur dlbeIV dltaIV dloeIV if B_iv_nmc1!=. & year>=199
 eststo: xtivreg2 dln_lpc_basic_cur (dln_sb_basic_cur dln_sb_transfer_cur dln_sb_other_cur = dlbeIV dltaIV dloeIV) if B_iv_nmc1!=. & year>=1990, fe robust
 esttab using "$doc\tab_IV_BE3.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
-(Suburbs IV)) keep(dln_sb_basic_cur dlbeIV dltaIV dloeIV) label ///
+(Suburbs IV)) keep(dln_sb_basic_cur dln_sb_transfer_cur dln_sb_other_cur dlbeIV dltaIV dloeIV) label ///
+stats(N r2 F, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Basic Expenditure */
+*========================================================================*
+eststo clear
+eststo: xtreg dln_lpc_basic_cur dln_sb_basic_cur dln_sb_totaltaxes if dlbeIV!=. & B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_sb_basic_cur dlbeIV dlttIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_sb_totaltaxes dlbeIV dlttIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtreg dln_lpc_basic_cur dlbeIV dlttIV if B_iv_nmc1!=. & year>=1990, fe vce(robust)
+eststo: xtivreg2 dln_lpc_basic_cur (dln_sb_basic_cur dln_sb_totaltaxes = dlbeIV dlttIV) if B_iv_nmc1!=. & year>=1990, fe robust
+esttab using "$doc\tab_IV_BE2.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Effect of suburbs on central cities ///
+(Suburbs IV)) keep(dln_sb_basic_cur dln_sb_totaltaxes dlbeIV dlttIV) label ///
 stats(N r2 F, fmt(%9.0fc %9.3f)) replace
