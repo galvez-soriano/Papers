@@ -9,8 +9,8 @@ clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main"
 gl data2= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
-gl base= "C:\Users\ogalvez\Documents\BIARE"
-gl doc= "C:\Users\ogalvez\Documents\BIARE\Doc"
+gl base= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
+gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
 *========================================================================*
 use "$data/biare/2014/poblacion1.dta", clear
 foreach x in 2 3{
@@ -77,11 +77,7 @@ drop nivelaprob gradoaprob antec_esc edo_conyug act_pnea1
 order id_hh id
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare/2014/ingresos.csv", clear 
-tostring foliohog, replace
-tostring folioviv, replace format(%10.0f) force
-replace folioviv="0"+folioviv in 1/45831
-tostring numren, replace format(%02.0f) force
+use "$data/biare/2014/ingresos.dta", clear
 gen str id=(folioviv + foliohog + numren)
 order id
 sort id clave
@@ -100,13 +96,9 @@ drop _merge
 replace income=0 if income==.
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare/2014/trabajos.csv", clear
-tostring foliohog, replace
-tostring folioviv, replace format(%10.0f) force
-replace folioviv="0"+folioviv in 1/18057
-tostring numren, replace format(%02.0f) force
+use "$data/biare/2014/trabajos.dta", clear
 gen str id=(folioviv + foliohog + numren)
-drop if id_trabajo==2
+drop if id_trabajo=="2"
 keep id pago trapais pres_20 htrab sinco scian clas_emp tam_emp tiene_suel no_ing tipoact
 destring pago trapais pres_20 clas_emp tam_emp tiene_suel tipoact, replace
 recode trapais (2=0)
@@ -114,13 +106,9 @@ merge 1:1 id using "$base\eng_abil.dta"
 drop _merge
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare/2014/concentradohogar.csv", clear
+use "$data/biare/2014/concentradohogar.dta", clear
 rename ubica_geo geo
 sort geo
-tostring geo, replace format(%09.0f) force
-tostring foliohog, replace
-tostring folioviv, replace format(%10.0f) force
-replace folioviv="0"+folioviv in 1/10852
 gen str id_hh=(folioviv + foliohog)
 keep id_hh id geo tam_loc sexo_jefe edad_jefe educa_jefe tot_integ ///
 ing_cor smg
@@ -140,11 +128,7 @@ merge 1:m id_hh using "$base\eng_abil.dta"
 drop _merge
 save "$base\eng_abil.dta", replace
 *========================================================================*
-import delimited "$data/biare/2014/biare.csv", clear
-tostring foliohog, replace
-tostring folioviv, replace format(%10.0f) force
-replace folioviv="0"+folioviv in 1/10852
-tostring numren, replace format(%02.0f) force
+use "$data/biare/2014/biare.dta", clear
 gen str id=(folioviv + foliohog + numren)
 keep id lengua_2 factor_per
 destring lengua_2, replace
@@ -195,7 +179,6 @@ replace inc_hh=log(inc_hh)
 replace work=0 if work==.
 replace biare=0 if biare==.
 
-label var hrs_exp "Hrs English"
 label var eng "English (speaking ability)"
 label var edu "Education (years)"
 label var expe "Experience (years)"
@@ -235,8 +218,6 @@ replace hrs_exp=hrs_exp3 if merge2==2 & hrs_exp==.
 drop if _merge==2
 drop _merge merge2 merge3 hrs_exp2 hrs_exp3
 replace hrs_exp=0 if cohort<=1980
+label var hrs_exp "Hrs English"
 
 save "$base\eng_abil.dta", replace
-
-keep if biare==1
-save "$base\eng_abil2.dta", replace
