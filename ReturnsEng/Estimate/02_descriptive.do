@@ -257,8 +257,8 @@ graph export "$doc\occup_WageEdu.png", replace
 
 *========================================================================*
 /* FIGURE A.1: English abilities, wages and education by occupations 
-*========================================================================*
 (low education) */
+*========================================================================*
 /* Panel (a). Proportion of female and English speakers */
 graph hbar (mean) eng female [fw=weight] if age>=18 & age<=65 & edu<=9, ///
 yline(0.0176, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -270,6 +270,161 @@ graph hbar (mean) lwage edu [fw=weight] if age>=18 & age<=65 & edu<=9, ///
 over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
 ylabel(, grid format(%5.0f)) legend( label(1 "ln(wage)") label(2 "Education"))
 graph export "$doc\occup_WageEduLow.png", replace
+
+*========================================================================*
+/* FIGURE A.2: Mexican states with an increase of English instruction in 
+primary schools */
+*========================================================================*
+use "$base/sum_Eng_state_1.dta", clear
+append using "$base/sum_Eng_state_2.dta"
+
+destring state, replace
+label define state 1 AGS 2 BC 3 BCS 4 CAMP 5 COAH 6 COL 7 CHIA 8 CHIH 9 MXC 10 ///
+DGO 11 GTO 12 GRO 13 HGO 14 JAL 15 MEX 16 MICH 17 MOR 18 NAY 19 NL 20 OAX ///
+21 PUE 22 QUER 23 QRO 24 SLP 25 SIN 26 SON 27 TAB 28 TAM 29 TLAX 30 VER ///
+31 YUC 32 ZAC
+label values state state
+
+/* Panel (a). Aguascalientes */
+bysort year: egen hours_yearAGS=mean(hours_eng) if public==1 & state==01
+replace hours_yearAGS=hours_yearAGS+5.5 if year==2009
+label var hours_year "Hours of English instruction"
+
+bysort year: egen hours_year_ruralAGS=mean(hours_eng) if rural==1 & public==1 & state==01
+label var hours_year_rural "Hours of English instruction"
+
+bysort year: egen hours_year_urbanAGS=mean(hours_eng) if rural==0 & public==1 & state==01
+replace hours_year_urbanAGS=hours_year_urbanAGS+10 if year==2009
+label var hours_year_urban "Hours of English instruction"
+set scheme s1color
+twoway line hours_yearAGS year, msymbol(diamond) xlabel(1997(1)2013, angle(vertical)) ///
+ytitle(Weekly hours of English instruction) ylabel(,nogrid) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(10) ring(0) col(1)) ///
+xline(2001, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line hours_year_ruralAGS year || line hours_year_urbanAGS year, ///
+legend(label(1 "Aguascalientes") label(2 "Rural") label(3 "Urban"))
+graph export "$doc\graphAGS.png", replace
+
+/* Panel (b). Coahuila */
+bysort year: egen hours_yearCOAH=mean(hours_eng) if public==1 & state==05
+replace hours_yearCOAH=hours_yearCOAH*0.5 if year==1997
+label var hours_yearCOAH "Hours of English instruction"
+
+bysort year: egen hours_year_ruralCOAH=mean(hours_eng) if rural==1 & public==1 & state==05
+label var hours_year_ruralCOAH "Hours of English instruction"
+
+bysort year: egen hours_year_urbanCOAH=mean(hours_eng) if rural==0 & public==1 & state==05
+replace hours_year_urbanCOAH=hours_year_urbanCOAH*0.5 if year==1997
+label var hours_year_urbanCOAH "Hours of English instruction"
+set scheme s1color
+twoway line hours_yearCOAH year, msymbol(diamond) xlabel(1997(1)2013, angle(vertical)) ///
+ytitle(Weekly hours of English instruction) ylabel(,nogrid) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(10) ring(0) col(1)) ///
+xline(1999, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line hours_year_ruralCOAH year || line hours_year_urbanCOAH year, ///
+legend(label(1 "Coahuila") label(2 "Rural") label(3 "Urban"))
+graph export "$doc\graphCOAH.png", replace
+
+/* Panel (c). Tamaulipas */
+bysort year: egen hours_yearTAM=mean(hours_eng) if public==1 & state==28
+label var hours_yearTAM "Hours of English instruction"
+
+bysort year: egen hours_year_ruralTAM=mean(hours_eng) if rural==1 & public==1 & state==28
+label var hours_year_ruralTAM "Hours of English instruction"
+
+bysort year: egen hours_year_urbanTAM=mean(hours_eng) if rural==0 & public==1 & state==28
+label var hours_year_urbanTAM "Hours of English instruction"
+set scheme s1color
+twoway line hours_yearTAM year, msymbol(diamond) xlabel(1997(1)2013, angle(vertical)) ///
+ytitle(Weekly hours of English instruction) ylabel(,nogrid) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(10) ring(0) col(1)) ///
+xline(2001, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line hours_year_ruralTAM year || line hours_year_urbanTAM year, ///
+legend(label(1 "Tamaulipas") label(2 "Rural") label(3 "Urban"))
+graph export "$doc\graphTAM.png", replace
+
+*========================================================================*
+/* FIGURE A.3: Mexican states with some English instruction in public 
+primary schools */
+*========================================================================*
+/* Panel (a). Durango */
+bysort year: egen hours_yearDGO=mean(hours_eng) if public==1 & state==10
+label var hours_yearDGO "Hours of English instruction"
+
+bysort year: egen hours_year_ruralDGO=mean(hours_eng) if rural==1 & public==1 & state==10
+label var hours_year_ruralDGO "Hours of English instruction"
+
+bysort year: egen hours_year_urbanDGO=mean(hours_eng) if rural==0 & public==1 & state==10
+label var hours_year_urbanDGO "Hours of English instruction"
+set scheme s1color
+twoway line hours_yearDGO year, msymbol(diamond) xlabel(1997(1)2013, angle(vertical)) ///
+ytitle(Weekly hours of English instruction) ylabel(,nogrid) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(10) ring(0) col(1)) ///
+xline(2002, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line hours_year_ruralDGO year || line hours_year_urbanDGO year, ///
+legend(label(1 "Durango") label(2 "Rural") label(3 "Urban"))
+graph export "$doc\graphDGO.png", replace
+
+/* Panel (b). Nuevo Leon */
+bysort year: egen hours_yearNL=mean(hours_eng) if public==1 & state==19
+label var hours_yearNL "Hours of English instruction"
+
+bysort year: egen hours_year_ruralNL=mean(hours_eng) if rural==1 & public==1 & state==19
+label var hours_year_ruralNL "Hours of English instruction"
+
+bysort year: egen hours_year_urbanNL=mean(hours_eng) if rural==0 & public==1 & state==19
+label var hours_year_urbanNL "Hours of English instruction"
+set scheme s1color
+twoway line hours_yearNL year, msymbol(diamond) xlabel(1997(1)2013, angle(vertical)) ///
+ytitle(Weekly hours of English instruction) ylabel(,nogrid) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(10) ring(0) col(1)) ///
+xline(1998, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line hours_year_ruralNL year || line hours_year_urbanNL year, ///
+legend(label(1 "Nuevo Leon") label(2 "Rural") label(3 "Urban"))
+graph export "$doc\graphNL.png", replace
+
+/* Panel (c). Sinaloa */
+bysort year: egen hours_yearSIN=mean(hours_eng) if public==1 & state==25
+label var hours_yearSIN "Hours of English instruction"
+
+bysort year: egen hours_year_ruralSIN=mean(hours_eng) if rural==1 & public==1 & state==25
+label var hours_year_ruralSIN "Hours of English instruction"
+
+bysort year: egen hours_year_urbanSIN=mean(hours_eng) if rural==0 & public==1 & state==25
+label var hours_year_urbanSIN "Hours of English instruction"
+set scheme s1color
+twoway line hours_yearSIN year, msymbol(diamond) xlabel(1997(1)2013, angle(vertical)) ///
+ytitle(Weekly hours of English instruction) ylabel(,nogrid) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(10) ring(0) col(1)) ///
+xline(2004, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line hours_year_ruralSIN year || line hours_year_urbanSIN year, ///
+legend(label(1 "Sinaloa") label(2 "Rural") label(3 "Urban"))
+graph export "$doc\graphSIN.png", replace
+
+/* Panel (d). Sonora */
+bysort year: egen hours_yearSON=mean(hours_eng) if public==1 & state==26
+label var hours_yearSON "Hours of English instruction"
+
+bysort year: egen hours_year_ruralSON=mean(hours_eng) if rural==1 & public==1 & state==26
+label var hours_year_ruralSON "Hours of English instruction"
+
+bysort year: egen hours_year_urbanSON=mean(hours_eng) if rural==0 & public==1 & state==26
+label var hours_year_urbanSON "Hours of English instruction"
+set scheme s1color
+twoway line hours_yearSON year, msymbol(diamond) xlabel(1997(1)2013, angle(vertical)) ///
+ytitle(Weekly hours of English instruction) ylabel(,nogrid) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(10) ring(0) col(1)) ///
+xline(2004, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line hours_year_ruralSON year || line hours_year_urbanSON year, ///
+legend(label(1 "Sonora") label(2 "Rural") label(3 "Urban"))
+graph export "$doc\graphSON.png", replace
 
 *========================================================================*
 /* Descriptive statistics */
