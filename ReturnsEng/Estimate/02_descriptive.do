@@ -444,6 +444,11 @@ esttab full_sample eng no_eng diff using "$doc\tab2.tex", ///
 cells("mean(pattern(1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 1) fmt(%9.2fc))") ///
 star(* 0.10 ** 0.05 *** 0.01) label replace
 
+/* 
+Note: 
+Replace the "Diff." column from previous table with the coefficients from the
+following regressions as the previous ones did not include the sample weights 
+*/
 eststo clear
 foreach x in income hrs_exp age edu female indigenous married rural{
 eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65 & paidw==1, ///
