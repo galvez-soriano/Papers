@@ -7,12 +7,12 @@ English skills and labor market outcomes in Mexico */
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
-gl base= "C:\Users\iscot\Documents\GalvezSoriano\Papers\EngSkills\Data"
-gl doc= "C:\Users\iscot\Documents\GalvezSoriano\Papers\EngSkills\Doc"
+gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
 *========================================================================*
-/* FIGURE X: Pre-trends test for Aguascalientes */
+/* FIGURE 1: Pre-trends test for Aguascalientes */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1 
 keep if state=="01" | state=="32"
 gen treat=state=="01"
 gen after=cohort>=1990
@@ -31,11 +31,11 @@ areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 3.1 "Eng program", linegap(.2cm) ///
+ysc(r(-1 1)) text(1.2 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_AGS.png", replace
 
@@ -61,7 +61,7 @@ ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 3.1 "Eng program", linegap(.2cm) ///
+ysc(r(-1 1)) text(1.2 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_AGS2.png", replace
 
@@ -78,9 +78,10 @@ ysc(r(-10 10)) text(12 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_AGS3.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Coahuila */
+/* FIGURE 2: Pre-trends test for Coahuila */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1 
 keep if state=="05" | state=="08"
 gen treat=state=="05"
 gen after=cohort>=1988
@@ -99,11 +100,11 @@ areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 7.2 "Eng program", linegap(.2cm) ///
+ysc(r(-1 1)) text(1.2 7.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_COAH.png", replace
 
