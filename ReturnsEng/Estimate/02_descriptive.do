@@ -427,29 +427,29 @@ legend(label(1 "Sonora") label(2 "Rural") label(3 "Urban"))
 graph export "$doc\graphSON.png", replace
 
 *========================================================================*
-/* Descriptive statistics */
+/* TABLE 2: Descriptive statistics */
 *========================================================================*
 use "$base/eng_abil.dta", clear
 keep if biare==1 
 eststo clear
-eststo full_sample: quietly estpost sum eng hrs_exp income age edu female ///
+eststo full_sample: quietly estpost sum income eng hrs_exp age edu female ///
 indigenous married rural [aw=weight] if eng!=. & age>=18 & age<=65 & paidw==1
-eststo eng: quietly estpost sum eng hrs_exp income age edu female ///
+eststo eng: quietly estpost sum income eng hrs_exp age edu female ///
 indigenous married rural [aw=weight] if eng==1 & age>=18 & age<=65 & paidw==1
-eststo no_eng: quietly estpost sum eng hrs_exp income age edu female ///
+eststo no_eng: quietly estpost sum income eng hrs_exp age edu female ///
 indigenous married rural [aw=weight] if eng==0 & age>=18 & age<=65 & paidw==1
-eststo diff: quietly estpost ttest eng hrs_exp income age edu female ///
+eststo diff: quietly estpost ttest income eng hrs_exp age edu female ///
 indigenous married rural if eng!=. & age>=18 & age<=65 & paidw==1, by(eng) unequal
-esttab full_sample eng no_eng diff using "$doc\sum_stats.tex", ///
+esttab full_sample eng no_eng diff using "$doc\tab2.tex", ///
 cells("mean(pattern(1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 1) fmt(%9.2fc))") ///
 star(* 0.10 ** 0.05 *** 0.01) label replace
 
 eststo clear
-foreach x in eng hrs_exp income age edu female indigenous married rural{
+foreach x in income hrs_exp age edu female indigenous married rural{
 eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65 & paidw==1, ///
 vce(robust)
 }
-esttab using "$doc\sum_stats_diff.tex", ar2 cells(b(star fmt(%9.2fc)) se(par)) ///
+esttab using "$doc\tab2_diff.tex", ar2 cells(b(star fmt(%9.2fc)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng) replace
 *========================================================================*
 /* Graphs for presentation */
