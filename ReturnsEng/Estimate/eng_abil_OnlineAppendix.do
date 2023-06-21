@@ -25,20 +25,7 @@ foreach x in 86 87 88 89 90 91 92 93 94 95 {
 	label var treat_`x' "19`x'"
 }
 replace treat_89=0
-
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1986 & cohort<=1995 & paidw==1 , absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 3.2 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_AGS.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1986 & cohort<=1995 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -52,6 +39,21 @@ ysc(r(-1 1)) text(1.2 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_AGS1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1986 & cohort<=1995 & paidw==1 , absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 3.2 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_AGS2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1986 & cohort<=1995, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -63,8 +65,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_AGS2.png", replace
+graph export "$doc\PTA_AGS3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1986 & cohort<=1995 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -76,7 +79,7 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_AGS3.png", replace
+graph export "$doc\PTA_AGS4.png", replace
 *========================================================================*
 /* FIGURE 2: Pre-trends test for Coahuila */
 *========================================================================*
@@ -95,19 +98,7 @@ foreach x in 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
 }
 replace treat_87=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1979 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) /// 
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 7.2 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_COAH.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1979 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -121,6 +112,21 @@ ysc(r(-2 2)) text(2.4 7.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_COAH1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1979 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) /// 
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 7.2 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_COAH2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1979 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -132,8 +138,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 8.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_COAH2.png", replace
+graph export "$doc\PTA_COAH3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1979 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -145,11 +152,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 7.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_COAH3.png", replace
+graph export "$doc\PTA_COAH4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Durango */
+/* FIGURE 3: Pre-trends test for Durango */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1 
 keep if state=="10" | state=="24"
 gen treat=state=="10"
 gen after=cohort>=1991
@@ -163,19 +171,7 @@ foreach x in 85 86 87 88 89 90 91 92 93 94 95 96 {
 }
 replace treat_90=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1985 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 5.1 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_DGO.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu indigenous married ///
 [aw=weight] if cohort>=1985 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -185,10 +181,25 @@ ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 5.1 "Eng program", linegap(.2cm) ///
+ysc(r(-1 1)) text(1.2 5.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_DGO1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1985 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 5.2 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_DGO2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1985 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -200,8 +211,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 5.1 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_DGO2.png", replace
+graph export "$doc\PTA_DGO3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1985 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -213,63 +225,68 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 5.1 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_DGO3.png", replace
+graph export "$doc\PTA_DGO4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Nuevo Leon */
+/* FIGURE 4: Pre-trends test for Nuevo Leon */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="19" | state=="24"
 gen treat=state=="19"
 gen after=cohort>=1987
 replace after=. if cohort<1981 | cohort>1996
 gen after_treat=after*treat
 
-foreach x in 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
+foreach x in 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 {
     gen treat_`x'=cohort==19`x'
 	replace treat_`x'=0 if treat==0
 	label var treat_`x' "19`x'"
 }
 replace treat_86=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) /// 
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 3.2 "Eng program in 6th grade", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_NL.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1.6(0.8)1.6, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+ysc(r(-1.6 1.6)) text(1.9 3.2 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_NL1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1.6(0.8)1.6, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) /// 
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1.6 1.6)) text(1.9 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_NL2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood working for pay", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1.6(0.8)1.6, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+ysc(r(-1.6 1.6)) text(1.9 3.2 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_NL2.png", replace
+graph export "$doc\PTA_NL3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -281,11 +298,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 3.2 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_NL3.png", replace
+graph export "$doc\PTA_NL4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Sinaloa */
+/* FIGURE 5: Pre-trends test for Sinaloa */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="25" | state=="18"
 gen treat=state=="25"
 gen after=cohort>=1993
@@ -299,45 +317,49 @@ foreach x in 89 90 91 92 93 94 95 96{
 }
 replace treat_92=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 3.5 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SIN.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-1(1)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1.4(0.7)1.4, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 3.5 "Eng program", linegap(.2cm) ///
+ysc(r(-1.4 1.4)) text(1.7 3.5 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_SIN1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1.4(0.7)1.4, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1.4 1.4)) text(1.7 3.5 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_SIN2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1966 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood working for pay", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1.4(0.7)1.4, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 3.5 "Eng program", linegap(.2cm) ///
+ysc(r(-1.4 1.4)) text(1.7 3.5 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SIN2.png", replace
+graph export "$doc\PTA_SIN3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1966 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -349,11 +371,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 3.5 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SIN3.png", replace
+graph export "$doc\PTA_SIN4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Sonora */
+/* FIGURE 6: Pre-trends test for Sonora */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="26" | state=="02" | state=="08"
 gen treat=state=="26"
 gen after=cohort>=1993
@@ -367,45 +390,49 @@ foreach x in 91 92 93 94 95 96{
 }
 replace treat_92=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 1.8 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SON.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-1(1)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1.2(0.6)1.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 1.8 "Eng program", linegap(.2cm) ///
+ysc(r(-1.2 1.2)) text(1.45 1.8 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_SON1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1.2(0.6)1.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1.2 1.2)) text(1.45 1.8 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_SON2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood working for pay", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1.2(0.6)1.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 1.8 "Eng program", linegap(.2cm) ///
+ysc(r(-1.2 1.2)) text(1.45 1.8 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SON2.png", replace
+graph export "$doc\PTA_SON3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -417,11 +444,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 1.8 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SON3.png", replace
+graph export "$doc\PTA_SON4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Tamaulipas */
+/* FIGURE 7: Pre-trends test for Tamaulipas */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="28" | state=="02"
 gen treat=state=="28"
 gen after=cohort>=1990
@@ -435,19 +463,7 @@ foreach x in 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
 }
 replace treat_89=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 6 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_TAM.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -461,6 +477,21 @@ ysc(r(-1 1)) text(1.2 6 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_TAM1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 6 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_TAM2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -472,8 +503,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 6 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_TAM2.png", replace
+graph export "$doc\PTA_TAM3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -485,13 +517,14 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 6 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_TAM3.png", replace
+graph export "$doc\PTA_TAM4.png", replace
 *========================================================================*
-/* Robustness Check */
+/* Robustness Check (multiple comparison groups) */
 *========================================================================*
-/* FIGURE X: Pre-trends test for Aguascalientes */
+/* FIGURE 8: Pre-trends test for Aguascalientes */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="01" | state=="06" | state=="11" | state=="18" | state=="24" ///
 | state=="32"
 gen treat=state=="01"
@@ -499,7 +532,6 @@ gen after=cohort>=1990
 replace after=. if cohort<1986 | cohort>1995
 gen after_treat=after*treat
 
-/* PTA */
 foreach x in 86 87 88 89 90 91 92 93 94 95 {
     gen treat_`x'=cohort==19`x'
 	replace treat_`x'=0 if treat==0
@@ -507,19 +539,7 @@ foreach x in 86 87 88 89 90 91 92 93 94 95 {
 }
 replace treat_89=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1986 & cohort<=1995 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 3.1 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_AGSr.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1986 & cohort<=1995 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -533,6 +553,21 @@ ysc(r(-1 1)) text(1.2 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_AGSr1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1986 & cohort<=1995 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 3.1 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_AGSr2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1986 & cohort<=1995, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -544,8 +579,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 3.1 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_AGSr2.png", replace
+graph export "$doc\PTA_AGSr3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1986 & cohort<=1995 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -557,11 +593,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 3.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_AGSr3.png", replace
+graph export "$doc\PTA_AGSr4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Coahuila */
+/* FIGURE 9: Pre-trends test for Coahuila */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="05" | state=="08" | state=="24" | state=="32"
 gen treat=state=="05"
 gen after=cohort>=1988
@@ -575,19 +612,7 @@ foreach x in 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
 }
 replace treat_87=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight]if cohort>=1979 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) /// 
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 7.2 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_COAHr.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1979 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -601,6 +626,21 @@ ysc(r(-3 3)) text(3.6 7.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_COAHr1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight]if cohort>=1979 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(9.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) /// 
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 7.2 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_COAHr2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1979 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -612,8 +652,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 8.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_COAHr2.png", replace
+graph export "$doc\PTA_COAHr3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1979 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -625,11 +666,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 7.2 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_COAHr3.png", replace
+graph export "$doc\PTA_COAHr4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Durango */
+/* FIGURE 10: Pre-trends test for Durango */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="10" | state=="08" | state=="24" | state=="32" | state=="14" 
 gen treat=state=="10"
 gen after=cohort>=1991
@@ -643,19 +685,7 @@ foreach x in 85 86 87 88 89 90 91 92 93 94 95 96 {
 }
 replace treat_90=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1985 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 5.1 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_DGOr.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1985 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -669,6 +699,21 @@ ysc(r(-1 1)) text(1.2 5.1 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_DGOr1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1985 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 5.1 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_DGOr2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1985 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -680,8 +725,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 5.1 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_DGOr2.png", replace
+graph export "$doc\PTA_DGOr3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1985 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -693,63 +739,68 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 5.1 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_DGOr3.png", replace
+graph export "$doc\PTA_DGOr4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Nuevo Leon */
+/* FIGURE 11: Pre-trends test for Nuevo Leon */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="19" | state=="08" | state=="24" | state=="32"  
 gen treat=state=="19"
 gen after=cohort>=1987
 replace after=. if cohort<1981 | cohort>1996
 gen after_treat=after*treat
 
-foreach x in 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
+foreach x in 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 {
     gen treat_`x'=cohort==19`x'
 	replace treat_`x'=0 if treat==0
 	label var treat_`x' "19`x'"
 }
 replace treat_86=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight]if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) /// 
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 3.2 "Eng program in 6th grade", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_NLr.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1.2(0.6)1.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) /// 
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+ysc(r(-1.2 1.2)) text(1.4 3.2 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_NLr1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight]if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1.2(0.6)1.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) /// 
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1.2 1.2)) text(1.4 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_NLr2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood working for pay", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1.2(0.6)1.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) text(1.2 3.2 "Eng program in 6th grade", linegap(.2cm) ///
+ysc(r(-1.2 1.2)) text(1.4 3.2 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_NLr2.png", replace
+graph export "$doc\PTA_NLr3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight]if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -761,11 +812,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 3.2 "Eng program in 6th grade", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_NLr3.png", replace
+graph export "$doc\PTA_NLr4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Sinaloa */
+/* FIGURE 12: Pre-trends test for Sinaloa */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="25" | state=="08" | state=="32" | state=="18" | state=="02" ///
 | state=="03"
 gen treat=state=="25"
@@ -780,25 +832,13 @@ foreach x in 89 90 91 92 93 94 95 96{
 }
 replace treat_92=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 3.5 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SINr.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-1(1)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
@@ -806,6 +846,21 @@ ysc(r(-1 1)) text(1.2 3.5 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_SINr1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 3.5 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_SINr2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1966 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -817,8 +872,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 3.5 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SINr2.png", replace
+graph export "$doc\PTA_SINr3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1966 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -830,11 +886,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 3.5 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SINr3.png", replace
+graph export "$doc\PTA_SINr4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Sonora */
+/* FIGURE 13: Pre-trends test for Sonora */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="26" | state=="08" | state=="02" | state=="03" | state=="14" ///
 | state=="32" 
 gen treat=state=="26"
@@ -849,25 +906,13 @@ foreach x in 91 92 93 94 95 96{
 }
 replace treat_92=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 1.8 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SONr.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-1(1)1, labs(medium) grid format(%5.2f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
@@ -875,6 +920,21 @@ ysc(r(-1 1)) text(1.2 1.8 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_SONr1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 1.8 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_SONr2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -886,8 +946,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 1.8 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SONr2.png", replace
+graph export "$doc\PTA_SONr3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1989 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -899,11 +960,12 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 1.8 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_SONr3.png", replace
+graph export "$doc\PTA_SONr4.png", replace
 *========================================================================*
-/* FIGURE X: Pre-trends test for Tamaulipas */
+/* FIGURE 14: Pre-trends test for Tamaulipas */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="28" | state=="08" | state=="32" | state=="18" | state=="02" ///
 | state=="03"
 gen treat=state=="28"
@@ -918,19 +980,7 @@ foreach x in 83 84 85 86 87 88 89 90 91 92 93 94 95 96 {
 }
 replace treat_89=0
 
-areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
-[aw=weight]if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) text(0.6 6 "Eng program", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_TAMr.png", replace
-
+/* Panel (a). Hours of English */
 areg hrs_exp treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -944,6 +994,21 @@ ysc(r(-1 1)) text(1.2 6 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\PTA_TAMr1.png", replace
 
+/* Panel (b). Speak English */
+areg eng treat_* treat i.cohort cohort i.edu female indigenous married ///
+[aw=weight]if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(7.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) text(1.2 6 "Eng program", linegap(.2cm) ///
+size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$doc\PTA_TAMr2.png", replace
+
+/* Panel (c). Paid work */
 areg paidw treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -955,8 +1020,9 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) text(1.2 6 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_TAMr2.png", replace
+graph export "$doc\PTA_TAMr3.png", replace
 
+/* Panel (d). Ln(wage) */
 areg lwage treat_* treat i.cohort cohort i.edu female indigenous married ///
 [aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -968,12 +1034,13 @@ xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-10 10)) text(12 6 "Eng program", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\PTA_TAMr3.png", replace
+graph export "$doc\PTA_TAMr4.png", replace
 *========================================================================*
-/* TABLE X: ITT effect of offering English instruction at school on 
+/* TABLE 1: ITT effect of offering English instruction at school on 
 occupational decisions */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -1131,105 +1198,4 @@ eststo: reghdfe mana fem_pol had_policy female rural indigenous married ///
 eststo: reghdfe abro fem_pol had_policy female rural indigenous married ///
 [aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
 esttab using "$doc\tabSDDoccupGender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(fem_pol) replace
-*========================================================================*
-/* TABLE X: ITT effect of offering English instruction at school on 
-economic industries */
-*========================================================================*
-use "$data/eng_abil.dta", clear
-keep if state=="01" | state=="05" | state=="10" ///
-| state=="19" | state=="25" | state=="26" | state=="28" ///
-| state=="02" | state=="03" | state=="08" | state=="18" ///
-| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
-
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
-replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
-keep if cohort>=1975 & cohort<=1996
-
-gen econ_act=.
-replace econ_act=1 if (scian>=1110 & scian<=1199)
-replace econ_act=2 if (scian>=2110 & scian<=2399)
-replace econ_act=3 if (scian>=3110 & scian<=3399)
-replace econ_act=4 if (scian>=4310 & scian<=9399)
-replace econ_act=5 if scian==980
-
-label define econ_act 1 "Agriculture" 2 "Construction" ///
-3 "Manufacturing" 4 "Services" 5 "Abroad"
-label values econ_act econ_act
-
-gen ag=econ_act==1
-gen cons=econ_act==2
-gen manu=econ_act==3
-gen svcs=econ_act==4
-gen abroad=econ_act==5
-/* Panel A: Full sample */
-eststo clear
-eststo: areg ag had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
-eststo: areg cons had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
-eststo: areg manu had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
-eststo: areg svcs had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
-eststo: areg abroad had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
-esttab using "$doc\tabSDDind.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-/* Panel B: Heterogeneous effects by gender */
-/* Men */
-eststo clear
-eststo: areg ag had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg cons had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg manu had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg svcs had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg abroad had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-esttab using "$doc\tabSDDindMen.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-/* Women */
-eststo clear
-eststo: areg ag had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg cons had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg manu had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg svcs had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg abroad had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-esttab using "$doc\tabSDDindWomen.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-/* Difference in estimate by gender */
-gen fem_pol=female*had_policy
-gen fem_cohort=female*cohort
-destring geo, replace
-gen fem_geo=female*geo
-gen fem_edu=female*edu
-eststo clear
-eststo: reghdfe ag fem_pol had_policy female rural indigenous married ///
-[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-eststo: reghdfe cons fem_pol had_policy female rural indigenous married ///
-[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-eststo: reghdfe manu fem_pol had_policy female rural indigenous married ///
-[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-eststo: reghdfe svcs fem_pol had_policy female rural indigenous married ///
-[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-eststo: reghdfe abroad fem_pol had_policy female rural indigenous married ///
-[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-esttab using "$doc\tabSDDindGender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(fem_pol) replace
