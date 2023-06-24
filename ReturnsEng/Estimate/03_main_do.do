@@ -152,44 +152,44 @@ keep if state=="01" | state=="32"
 gen treat=state=="01"
 gen after=cohort>=1990
 replace after=. if cohort<1986 | cohort>1995
-gen after_treat=after*treat
+gen after_treatAGS=after*treat
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store hrs_ags
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store eng_ags
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_ags
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store wage_ags
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
 estimates store hrs_ags1
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
 estimates store eng_ags1
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatAGS treat i.cohort i.edu female indigenous ///
 married if edu<=9 [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_ags1
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
 estimates store wage_ags1
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
 estimates store hrs_ags2
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
 estimates store eng_ags2
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatAGS treat i.cohort i.edu female indigenous ///
 married if edu>9 [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_ags2
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatAGS treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
 estimates store wage_ags2
 
@@ -199,20 +199,46 @@ keep if state=="05" | state=="08"
 gen treat=state=="05"
 gen after=cohort>=1988
 replace after=. if cohort<1979 | cohort>1996 
-gen after_treat=after*treat
+gen after_treatCOAH=after*treat
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatCOAH treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store hrs_coah
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatCOAH treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store eng_coah
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatCOAH treat i.cohort i.edu female indigenous ///
 married [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_coah
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatCOAH treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store wage_coah
+
+quietly areg hrs_exp after_treatCOAH treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store hrs_coah1
+quietly areg eng after_treatCOAH treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store eng_coah1
+quietly areg paidw after_treatCOAH treat i.cohort i.edu female indigenous ///
+married if edu<=9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_coah1
+quietly areg lwage after_treatCOAH treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store wage_coah1
+
+quietly areg hrs_exp after_treatCOAH treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store hrs_coah2
+quietly areg eng after_treatCOAH treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store eng_coah2
+quietly areg paidw after_treatCOAH treat i.cohort i.edu female indigenous ///
+married if edu>9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_coah2
+quietly areg lwage after_treatCOAH treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store wage_coah2
 
 use "$data/eng_abil.dta", clear
 keep if biare==1
@@ -220,20 +246,46 @@ keep if state=="10" | state=="24"
 gen treat=state=="10"
 gen after=cohort>=1991
 replace after=. if cohort<1985 | cohort>1996 
-gen after_treat=after*treat
+gen after_treatDGO=after*treat
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatDGO treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store hrs_dgo
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatDGO treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store eng_dgo
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatDGO treat i.cohort i.edu female indigenous ///
 married [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_dgo
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatDGO treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store wage_dgo
+
+quietly areg hrs_exp after_treatDGO treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store hrs_dgo1
+quietly areg eng after_treatDGO treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store eng_dgo1
+quietly areg paidw after_treatDGO treat i.cohort i.edu female indigenous ///
+married if edu<=9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_dgo1
+quietly areg lwage after_treatDGO treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store wage_dgo1
+
+quietly areg hrs_exp after_treatDGO treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store hrs_dgo2
+quietly areg eng after_treatDGO treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store eng_dgo2
+quietly areg paidw after_treatDGO treat i.cohort i.edu female indigenous ///
+married if edu>9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_dgo2
+quietly areg lwage after_treatDGO treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store wage_dgo2
 
 use "$data/eng_abil.dta", clear
 keep if biare==1
@@ -241,20 +293,46 @@ keep if state=="19" | state=="24"
 gen treat=state=="19"
 gen after=cohort>=1987
 replace after=. if cohort<1981 | cohort>1996
-gen after_treat=after*treat
+gen after_treatNL=after*treat
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatNL treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store hrs_nl
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatNL treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store eng_nl
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatNL treat i.cohort i.edu female indigenous ///
 married [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_nl
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatNL treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store wage_nl
+
+quietly areg hrs_exp after_treatNL treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store hrs_nl1
+quietly areg eng after_treatNL treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store eng_nl1
+quietly areg paidw after_treatNL treat i.cohort i.edu female indigenous ///
+married if edu<=9  [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_nl1
+quietly areg lwage after_treatNL treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store wage_nl1
+
+quietly areg hrs_exp after_treatNL treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store hrs_nl2
+quietly areg eng after_treatNL treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store eng_nl2
+quietly areg paidw after_treatNL treat i.cohort i.edu female indigenous ///
+married if edu>9  [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_nl2
+quietly areg lwage after_treatNL treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store wage_nl2
 
 use "$data/eng_abil.dta", clear
 keep if biare==1
@@ -262,20 +340,46 @@ keep if state=="25" | state=="18"
 gen treat=state=="25"
 gen after=cohort>=1993
 replace after=. if cohort<1989 | cohort>1996 
-gen after_treat=after*treat
+gen after_treatSIN=after*treat
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatSIN treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store hrs_sin
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatSIN treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store eng_sin
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatSIN treat i.cohort i.edu female indigenous ///
 married [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_sin
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatSIN treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store wage_sin
+
+quietly areg hrs_exp after_treatSIN treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store hrs_sin1
+quietly areg eng after_treatSIN treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store eng_sin1
+quietly areg paidw after_treatSIN treat i.cohort i.edu female indigenous ///
+married if edu<=9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_sin1
+quietly areg lwage after_treatSIN treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store wage_sin1
+
+quietly areg hrs_exp after_treatSIN treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store hrs_sin2
+quietly areg eng after_treatSIN treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store eng_sin2
+quietly areg paidw after_treatSIN treat i.cohort i.edu female indigenous ///
+married if edu>9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_sin2
+quietly areg lwage after_treatSIN treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store wage_sin2
 
 use "$data/eng_abil.dta", clear
 keep if biare==1
@@ -283,20 +387,46 @@ keep if state=="26" | state=="02" | state=="08"
 gen treat=state=="26"
 gen after=cohort>=1993
 replace after=. if cohort<1991 | cohort>1996 
-gen after_treat=after*treat
+gen after_treatSON=after*treat
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatSON treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store hrs_son
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatSON treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store eng_son
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatSON treat i.cohort i.edu female indigenous ///
 married [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_son
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatSON treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store wage_son
+
+quietly areg hrs_exp after_treatSON treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store hrs_son1
+quietly areg eng after_treatSON treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store eng_son1
+quietly areg paidw after_treatSON treat i.cohort i.edu female indigenous ///
+married if edu<=9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_son1
+quietly areg lwage after_treatSON treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store wage_son1
+
+quietly areg hrs_exp after_treatSON treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store hrs_son2
+quietly areg eng after_treatSON treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store eng_son2
+quietly areg paidw after_treatSON treat i.cohort i.edu female indigenous ///
+married if edu>9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_son2
+quietly areg lwage after_treatSON treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store wage_son2
 
 use "$data/eng_abil.dta", clear
 keep if biare==1
@@ -304,68 +434,114 @@ keep if state=="28" | state=="02"
 gen treat=state=="28"
 gen after=cohort>=1990
 replace after=. if cohort<1983 | cohort>1996 
-gen after_treat=after*treat
+gen after_treatTAM=after*treat
 
-quietly areg hrs_exp after_treat treat i.cohort i.edu female indigenous ///
+quietly areg hrs_exp after_treatTAM treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store hrs_tam
-quietly areg eng after_treat treat i.cohort i.edu female indigenous ///
+quietly areg eng after_treatTAM treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store eng_tam
-quietly areg paidw after_treat treat i.cohort i.edu female indigenous ///
+quietly areg paidw after_treatTAM treat i.cohort i.edu female indigenous ///
 married [aw=weight], absorb(geo) vce(cluster geo)
 estimates store paid_tam
-quietly areg lwage after_treat treat i.cohort i.edu female indigenous ///
+quietly areg lwage after_treatTAM treat i.cohort i.edu female indigenous ///
 married [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 estimates store wage_tam
 
-coefplot (hrs_ags, label(AGS low) offset(-.46) msymbol(S) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(hrs_ags2, label(AGS high) offset(-.43) msymbol(Sh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(hrs_coah, label(COAH low) offset(-.28) msymbol(T) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(hrs_coah2, label(COAH high) offset(-.25) msymbol(Th) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(hrs_nl, label(NL low) offset(-.10) msymbol(O) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(hrs_nl2, label(NL high) offset(-.07) msymbol(Oh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(hrs_sin, label(SIN low) offset(.08) msymbol(D) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(hrs_sin2, label(SIN high) offset(.11) msymbol(Dh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(hrs_son, label(SON low) offset(.26) msymbol(+) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(hrs_son2, label(SON high) offset(.29) msymbol(+) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(hrs_tam, label(TAM low) offset(.44) msymbol(X) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(hrs_tam2, label(TAM high) offset(.47) msymbol(X) mcolor(blue) ciopt(lc(blue) recast(rcap))), ///
-vertical keep(after_treat) yline(0, lcolor(black)) ///
-ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-legend( pos(8) ring(0) col(4) region(lcolor(white)) size(medium)) ///
-graphregion(color(white)) ciopts(recast(rcap))
+quietly areg hrs_exp after_treatTAM treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store hrs_tam1
+quietly areg eng after_treatTAM treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store eng_tam1
+quietly areg paidw after_treatTAM treat i.cohort i.edu female indigenous ///
+married if edu<=9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_tam1
+quietly areg lwage after_treatTAM treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+estimates store wage_tam1
 
-label var after_treat "States"
+quietly areg hrs_exp after_treatTAM treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store hrs_tam2
+quietly areg eng after_treatTAM treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store eng_tam2
+quietly areg paidw after_treatTAM treat i.cohort i.edu female indigenous ///
+married if edu>9 [aw=weight], absorb(geo) vce(cluster geo)
+estimates store paid_tam2
+quietly areg lwage after_treatTAM treat i.cohort i.edu female indigenous ///
+married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+estimates store wage_tam2
+
+label var after_treat " "
 /* PANEL (a) Hours of English */
-coefplot (hrs_ags, label(AGS)) ///
-(hrs_coah, label(COAH)) ///
-(hrs_dgo, label(DGO)) ///
-(hrs_nl, label(NL)) ///
-(hrs_sin, label(SIN)) ///
-(hrs_son, label(SON)) ///
-(hrs_tam, label(TAM)), ///
-keep(after_treat) xline(0, lstyle(grid) lpattern(dash) lcolor(red)) ///
+coefplot ///
+(hrs_ags2, offset(0.15) msymbol(O) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(hrs_ags, msymbol(O) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(hrs_ags1, offset(-0.15) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(hrs_coah2, offset(0.15) msymbol(D) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(hrs_coah, msymbol(D) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(hrs_coah1, offset(-0.15) msymbol(D) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(hrs_dgo2, offset(0.15) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(hrs_dgo, msymbol(T) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(hrs_dgo1, offset(-0.15) msymbol(T) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(hrs_nl2, offset(0.15) msymbol(S) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(hrs_nl, msymbol(S) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(hrs_nl1, offset(-0.15) msymbol(S) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(hrs_sin2, offset(0.15) msymbol(+) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(hrs_sin, msymbol(+) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(hrs_sin1, offset(-0.15) msymbol(+) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(hrs_son2, offset(0.15) msymbol(X) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(hrs_son, msymbol(X) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(hrs_son1, offset(-0.15) msymbol(X) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(hrs_tam2, offset(0.15) msymbol(Oh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(hrs_tam, msymbol(Oh) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(hrs_tam1, offset(-0.15) msymbol(Oh) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))), ///
+keep(after_treatAGS after_treatCOAH after_treatDGO after_treatNL after_treatSIN ///
+after_treatSON after_treatTAM) xline(0, lstyle(grid) lpattern(dash) lcolor(black)) ///
 xtitle("Weekly hours of English instruction", size(medium) height(5)) ///
 xlabel(-0.2(0.2)0.8, labs(medium) format(%5.2f)) ///
-legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium) ) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) levels(90)
+legend( off ) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) levels(90) ///
+coeflabels(after_treatAGS = "AGS" after_treatCOAH = "COAH" after_treatDGO = "DGO" ///
+after_treatNL = "NL" after_treatSIN = "SIN" after_treatSON = "SON" ///
+after_treatTAM = "TAM")
 graph export "$doc\graphDDhrs.png", replace 
 /* PANEL (b) English skills */
-coefplot (eng_ags, label(AGS)) ///
-(eng_coah, label(COAH)) ///
-(eng_dgo, label(DGO)) ///
-(eng_nl, label(NL)) ///
-(eng_sin, label(SIN)) ///
-(eng_son, label(SON)) ///
-(eng_tam, label(TAM)), ///
-vertical keep(after_treat) yline(0) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
-graph export "$doc\graphDDeng.png", replace 
+coefplot ///
+(eng_ags2, offset(0.15) msymbol(O) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(eng_ags, msymbol(O) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(eng_ags1, offset(-0.15) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(eng_coah2, offset(0.15) msymbol(D) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(eng_coah, msymbol(D) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(eng_coah1, offset(-0.15) msymbol(D) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(eng_dgo2, offset(0.15) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(eng_dgo, msymbol(T) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(eng_dgo1, offset(-0.15) msymbol(T) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(eng_nl2, offset(0.15) msymbol(S) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(eng_nl, msymbol(S) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(eng_nl1, offset(-0.15) msymbol(S) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(eng_sin2, offset(0.15) msymbol(+) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(eng_sin, msymbol(+) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(eng_sin1, offset(-0.15) msymbol(+) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(eng_son2, offset(0.15) msymbol(X) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(eng_son, msymbol(X) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(eng_son1, offset(-0.15) msymbol(X) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(eng_tam2, offset(0.15) msymbol(Oh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(eng_tam, msymbol(Oh) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(eng_tam1, offset(-0.15) msymbol(Oh) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))), ///
+keep(after_treatAGS after_treatCOAH after_treatDGO after_treatNL after_treatSIN ///
+after_treatSON after_treatTAM) xline(0, lstyle(grid) lpattern(dash) lcolor(black)) ///
+xtitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
+xlabel(-0.6(0.2)0.8, labs(medium) format(%5.2f)) ///
+legend( off ) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) levels(90) ///
+coeflabels(after_treatAGS = "AGS" after_treatCOAH = "COAH" after_treatDGO = "DGO" ///
+after_treatNL = "NL" after_treatSIN = "SIN" after_treatSON = "SON" ///
+after_treatTAM = "TAM")
+graph export "$doc\graphDDeng.png", replace
 /* PANEL (c) Paid work */
 coefplot (paid_ags, label(AGS)) ///
 (paid_coah, label(COAH)) ///
