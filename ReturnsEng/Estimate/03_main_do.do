@@ -142,7 +142,7 @@ ylabel(-2(2)6, labs(small) grid) ///
 xtitle("Levels of education", size(small) height(5)) xlabel(,labs(small)) ///
 graphregion(color(white)) scheme(s2mono) recast(connected) ciopts(recast(rcap)) ///
 ysc(r(-2 6)) levels(90)
-graph export "$doc\fig3.png", replace 
+graph export "$doc\fig3.png", replace
 *========================================================================*
 /* FIGURE 4. Effect of English programs by state (DiD estimates) */
 *========================================================================*
@@ -543,38 +543,77 @@ after_treatNL = "NL" after_treatSIN = "SIN" after_treatSON = "SON" ///
 after_treatTAM = "TAM")
 graph export "$doc\graphDDeng.png", replace
 /* PANEL (c) Paid work */
-coefplot (paid_ags, label(AGS)) ///
-(paid_coah, label(COAH)) ///
-(paid_dgo, label(DGO)) ///
-(paid_nl, label(NL)) ///
-(paid_sin, label(SIN)) ///
-(paid_son, label(SON)) ///
-(paid_tam, label(TAM)), ///
-vertical keep(after_treat) yline(0) ///
-ytitle("Likelihood working for pay", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
-graph export "$doc\graphDDpaid.png", replace 
+coefplot ///
+(paid_ags2, offset(0.15) msymbol(O) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(paid_ags, msymbol(O) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(paid_ags1, offset(-0.15) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(paid_coah2, offset(0.15) msymbol(D) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(paid_coah, msymbol(D) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(paid_coah1, offset(-0.15) msymbol(D) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(paid_dgo2, offset(0.15) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(paid_dgo, msymbol(T) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(paid_dgo1, offset(-0.15) msymbol(T) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(paid_nl2, offset(0.15) msymbol(S) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(paid_nl, msymbol(S) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(paid_nl1, offset(-0.15) msymbol(S) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(paid_sin2, offset(0.15) msymbol(+) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(paid_sin, msymbol(+) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(paid_sin1, offset(-0.15) msymbol(+) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(paid_son2, offset(0.15) msymbol(X) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(paid_son, msymbol(X) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(paid_son1, offset(-0.15) msymbol(X) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(paid_tam2, offset(0.15) msymbol(Oh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(paid_tam, msymbol(Oh) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(paid_tam1, offset(-0.15) msymbol(Oh) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))), ///
+keep(after_treatAGS after_treatCOAH after_treatDGO after_treatNL after_treatSIN ///
+after_treatSON after_treatTAM) xline(0, lstyle(grid) lpattern(dash) lcolor(black)) ///
+xtitle("Likelihood of working for pay", size(medium) height(5)) ///
+xlabel(-0.6(0.2)0.8, labs(medium) format(%5.2f)) ///
+legend( off ) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) levels(90) ///
+coeflabels(after_treatAGS = "AGS" after_treatCOAH = "COAH" after_treatDGO = "DGO" ///
+after_treatNL = "NL" after_treatSIN = "SIN" after_treatSON = "SON" ///
+after_treatTAM = "TAM")
+graph export "$doc\graphDDpaid.png", replace
+ 
 /* PANEL (d) Wages */
-coefplot (wage_ags, label(AGS)) ///
-(wage_coah, label(COAH)) ///
-(wage_dgo, label(DGO)) ///
-(wage_nl, label(NL)) ///
-(wage_sin, label(SIN)) ///
-(wage_son, label(SON)) ///
-(wage_tam, label(TAM)), ///
-vertical keep(after_treat) yline(0) ///
-ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-legend( off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+coefplot ///
+(wage_ags2, offset(0.15) msymbol(O) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(wage_ags, msymbol(O) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(wage_ags1, offset(-0.15) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(wage_coah2, offset(0.15) msymbol(D) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(wage_coah, msymbol(D) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(wage_coah1, offset(-0.15) msymbol(D) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(wage_dgo2, offset(0.15) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(wage_dgo, msymbol(T) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(wage_dgo1, offset(-0.15) msymbol(T) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(wage_nl2, offset(0.15) msymbol(S) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(wage_nl, msymbol(S) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(wage_nl1, offset(-0.15) msymbol(S) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(wage_sin2, offset(0.15) msymbol(+) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(wage_sin, msymbol(+) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(wage_sin1, offset(-0.15) msymbol(+) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(wage_son2, offset(0.15) msymbol(X) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(wage_son, msymbol(X) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(wage_son1, offset(-0.15) msymbol(X) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
+(wage_tam2, offset(0.15) msymbol(Oh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+(wage_tam, msymbol(Oh) mcolor(black) ciopt(lc(black) recast(rcap))) ///
+(wage_tam1, offset(-0.15) msymbol(Oh) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))), ///
+keep(after_treatAGS after_treatCOAH after_treatDGO after_treatNL after_treatSIN ///
+after_treatSON after_treatTAM) xline(0, lstyle(grid) lpattern(dash) lcolor(black)) ///
+xtitle("Percentage change of wages", size(medium) height(5)) ///
+xlabel(-5(1)5, labs(medium) format(%5.0f)) ///
+legend( off ) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) levels(90) ///
+coeflabels(after_treatAGS = "AGS" after_treatCOAH = "COAH" after_treatDGO = "DGO" ///
+after_treatNL = "NL" after_treatSIN = "SIN" after_treatSON = "SON" ///
+after_treatTAM = "TAM")
 graph export "$doc\graphDDwage.png", replace
 *========================================================================*
-/* TABLE 4. Intention to treat effect of offering English instruction at 
-school */
+/* TABLE 4. Effect of English programs (staggered DiD) */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -590,7 +629,7 @@ replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
 keep if cohort>=1975 & cohort<=1996
 
-/* Panel A: Full sample */
+/* Full sample */
 eststo clear
 eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
@@ -605,109 +644,11 @@ eststo: areg student had_policy i.cohort i.edu female indigenous married ///
 esttab using "$doc\tab_StaggDD.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-/* Panel B: Men */
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if female==0, absorb(geo) vce(cluster geo)
-eststo: areg student had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if female==0, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_StaggDDmen.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-/* Panel B: Women */
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if female==1, absorb(geo) vce(cluster geo)
-eststo: areg student had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if female==1, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_StaggDDwomen.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-/* Difference in estimate by gender */
-gen fem_pol=female*had_policy
-gen fem_cohort=female*cohort
-destring geo, replace
-gen fem_geo=female*geo
-gen fem_edu=female*edu
-eststo clear
-eststo: reghdfe hrs_exp fem_pol had_policy female indigenous married ///
-[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-eststo: reghdfe eng fem_pol had_policy female indigenous married ///
-[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-eststo: reghdfe lwage fem_pol had_policy female indigenous married ///
-[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-eststo: reghdfe paidw fem_pol had_policy female indigenous married ///
-[aw=weight], absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-eststo: reghdfe student fem_pol had_policy female indigenous married ///
-[aw=weight], absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
-esttab using "$doc\tab_StaggDDgender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(fem_pol) replace
-/* Panel D: Low education sample */
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
-eststo: areg student had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_StaggDDlow.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-/* Panel E: High education sample */
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if edu>9, absorb(geo) vce(cluster geo)
-eststo: areg student had_policy i.cohort i.edu female indigenous married ///
-[aw=weight] if edu>9, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab_StaggDDhigh.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-/* Difference in estimate by education */
-gen lowe=edu<=9
-gen edu_pol=lowe*had_policy
-gen edu_cohort=lowe*cohort
-destring geo, replace
-gen edu_geo=lowe*geo
-gen edu_low=lowe*edu
-eststo clear
-eststo: reghdfe hrs_exp edu_pol had_policy female indigenous married ///
-[aw=weight] if paidw==1, absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
-eststo: reghdfe eng edu_pol had_policy female indigenous married ///
-[aw=weight] if paidw==1, absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
-eststo: reghdfe lwage edu_pol had_policy female indigenous married ///
-[aw=weight] if paidw==1, absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
-eststo: reghdfe paidw edu_pol had_policy female indigenous married ///
-[aw=weight], absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
-eststo: reghdfe student edu_pol had_policy female indigenous married ///
-[aw=weight], absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
-esttab using "$doc\tab_StaggDDedu.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(edu_pol) replace
 *========================================================================*
 /* TABLE 5. Returns to English abilities (IV estimate) */
 *========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -1018,311 +959,6 @@ ylabel(-.1(0.05).1, labs(medium) grid format(%5.2f)) ///
 legend( pos(8) ring(0) col(2) region(lcolor(white)) size(medium)) ///
 graphregion(color(white)) ciopts(recast(rcap)) legend(off) levels(90)
 graph export "$doc\graphSDDheterMana.png", replace
-*========================================================================*
-/* FIGURE 6: ITT effect of offering English instruction at school on 
-economic industries */
-*========================================================================*
-use "$data/eng_abil.dta", clear
-keep if state=="01" | state=="05" | state=="10" ///
-| state=="19" | state=="25" | state=="26" | state=="28" ///
-| state=="02" | state=="03" | state=="08" | state=="18" ///
-| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
-
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
-replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
-keep if cohort>=1975 & cohort<=1996
-
-gen econ_act=.
-replace econ_act=1 if (scian>=1110 & scian<=1199)
-replace econ_act=2 if (scian>=2110 & scian<=2399)
-replace econ_act=3 if (scian>=3110 & scian<=3399)
-replace econ_act=4 if (scian>=4310 & scian<=9399)
-replace econ_act=5 if scian==980
-
-label define econ_act 1 "Agriculture" 2 "Construction" ///
-3 "Manufacturing" 4 "Services" 5 "Abroad"
-label values econ_act econ_act
-
-gen ag=econ_act==1
-gen cons=econ_act==2
-gen manu=econ_act==3
-gen svcs=econ_act==4
-gen abroad=econ_act==5
-
-eststo clear
-quietly areg ag had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store ag_men
-quietly areg ag had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store ag_women
-quietly areg ag had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store ag_low
-quietly areg ag had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store ag_high
-
-quietly areg cons had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store cons_men
-quietly areg cons had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store cons_women
-quietly areg cons had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store cons_low
-quietly areg cons had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store cons_high
-
-quietly areg manu had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store manu_men
-quietly areg manu had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store manu_women
-quietly areg manu had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store manu_low
-quietly areg manu had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store manu_high
-
-quietly areg svcs had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store svcs_men
-quietly areg svcs had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store svcs_women
-quietly areg svcs had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store svcs_low
-quietly areg svcs had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store svcs_high
-
-label var had_policy "SDD heterogeneous effects by gender and education"
-/* Panel (a) Agriculture */
-coefplot (ag_men, label(Men) offset(-.25) msymbol(S) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(ag_women, label(Women) offset(-.22) msymbol(Sh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(ag_low, label(Low-education) offset(.25) msymbol(T) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(ag_high, label(High-education) offset(.28) msymbol(Th) mcolor(blue) ciopt(lc(blue) recast(rcap))), ///
-vertical keep(had_policy) yline(0, lcolor(black)) ///
-ytitle("Likelihood of working in agriculture", size(medium) height(5)) ///
-ylabel(-.1(0.05).1, labs(medium) grid format(%5.2f)) ///
-legend( pos(8) ring(0) col(2) region(lcolor(white)) size(medium)) ///
-graphregion(color(white)) ciopts(recast(rcap)) levels(90)
-graph export "$doc\graphSDDheterAg.png", replace
-/* Panel (b) Construction */
-coefplot (cons_men, label(Men) offset(-.25) msymbol(S) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(cons_women, label(Women) offset(-.22) msymbol(Sh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(cons_low, label(Low-education) offset(.25) msymbol(T) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(cons_high, label(High-education) offset(.28) msymbol(Th) mcolor(blue) ciopt(lc(blue) recast(rcap))), ///
-vertical keep(had_policy) yline(0, lcolor(black)) ///
-ytitle("Likelihood of working in construction", size(medium) height(5)) ///
-ylabel(-.1(0.05).1, labs(medium) grid format(%5.2f)) ///
-legend( pos(8) ring(0) col(2) region(lcolor(white)) size(medium)) ///
-graphregion(color(white)) ciopts(recast(rcap)) levels(90) legend(off)
-graph export "$doc\graphSDDheterCons.png", replace
-/* Panel (c) Manufacturing */
-coefplot (manu_men, label(Men) offset(-.25) msymbol(S) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(manu_women, label(Women) offset(-.22) msymbol(Sh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(manu_low, label(Low-education) offset(.25) msymbol(T) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(manu_high, label(High-education) offset(.28) msymbol(Th) mcolor(blue) ciopt(lc(blue) recast(rcap))), ///
-vertical keep(had_policy) yline(0, lcolor(black)) ///
-ytitle("Likelihood of working in manufacturing", size(medium) height(5)) ///
-ylabel(-.1(0.05).1, labs(medium) grid format(%5.2f)) ///
-legend( pos(8) ring(0) col(2) region(lcolor(white)) size(medium)) ///
-graphregion(color(white)) ciopts(recast(rcap)) levels(90) legend(off)
-graph export "$doc\graphSDDheterManu.png", replace
-/* Panel (d) Services */
-coefplot (svcs_men, label(Men) offset(-.25) msymbol(S) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(svcs_women, label(Women) offset(-.22) msymbol(Sh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(svcs_low, label(Low-education) offset(.25) msymbol(T) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(svcs_high, label(High-education) offset(.28) msymbol(Th) mcolor(blue) ciopt(lc(blue) recast(rcap))), ///
-vertical keep(had_policy) yline(0, lcolor(black)) ///
-ytitle("Likelihood of working in services", size(medium) height(5)) ///
-ylabel(-.1(0.05).1, labs(medium) grid format(%5.2f)) ///
-legend( pos(8) ring(0) col(2) region(lcolor(white)) size(medium)) ///
-graphregion(color(white)) ciopts(recast(rcap)) levels(90) legend(off)
-graph export "$doc\graphSDDheterSvcs.png", replace
-*========================================================================*
-/* FIGURE 7. ITT effect of offering English instruction and English 
-intensive jobs */
-*========================================================================*
-use "$data/eng_abil.dta", clear
-keep if state=="01" | state=="05" | state=="10" ///
-| state=="19" | state=="25" | state=="26" | state=="28" ///
-| state=="02" | state=="03" | state=="08" | state=="18" ///
-| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
-
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
-replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
-keep if cohort>=1975 & cohort<=1996
-
-bysort scian: egen eng_ind=mean(eng)
-xtile eng_speak=eng_ind, nq(4)
-
-gen econ_act=.
-replace econ_act=1 if (scian>=1110 & scian<=1199)
-replace econ_act=2 if (scian>=2110 & scian<=2399)
-replace econ_act=3 if (scian>=3110 & scian<=3399)
-replace econ_act=4 if (scian>=4310 & scian<=9399)
-replace econ_act=5 if scian==980
-
-label define econ_act 1 "Agriculture" 2 "Construction" ///
-3 "Manufacturing" 4 "Services" 5 "Abroad"
-label values econ_act econ_act
-
-gen ag=econ_act==1
-gen cons=econ_act==2
-gen manu=econ_act==3
-gen svcs=econ_act==4
-gen abroad=econ_act==5
-
-gen cons_low=cons==1 & eng_speak<4
-gen cons_high=cons==1 & eng_speak==4
-gen manu_low=manu==1 & eng_speak<4
-gen manu_high=manu==1 & eng_speak==4
-gen svcs_low=svcs==1 & eng_speak<4
-gen svcs_high=svcs==1 & eng_speak==4
-
-eststo clear
-quietly areg cons_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store cons_low_men
-quietly areg cons_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store cons_low_women
-quietly areg cons_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store cons_low_low
-quietly areg cons_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store cons_low_high
-quietly areg cons_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store cons_high_men
-quietly areg cons_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store cons_high_women
-quietly areg cons_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store cons_high_low
-quietly areg cons_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store cons_high_high
-
-quietly areg manu_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store manu_low_men
-quietly areg manu_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store manu_low_women
-quietly areg manu_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store manu_low_low
-quietly areg manu_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store manu_low_high
-quietly areg manu_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store manu_high_men
-quietly areg manu_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store manu_high_women
-quietly areg manu_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store manu_high_low
-quietly areg manu_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store manu_high_high
-
-quietly areg svcs_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store svcs_low_men
-quietly areg svcs_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store svcs_low_women
-quietly areg svcs_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store svcs_low_low
-quietly areg svcs_low had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store svcs_low_high
-quietly areg svcs_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
-estimates store svcs_high_men
-quietly areg svcs_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
-estimates store svcs_high_women
-quietly areg svcs_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
-estimates store svcs_high_low
-quietly areg svcs_high had_policy i.cohort i.edu female rural ///
-indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
-estimates store svcs_high_high
-
-label var had_policy "SDD heterogeneous effects for low and high-English intensive jobs"
-
-/* Panel (a) Construction */
-coefplot (cons_low_men, label(Low-Eng Men) offset(-.35) msymbol(S) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(cons_low_women, label(Low-Eng Women) offset(-.32) msymbol(Sh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(cons_low_low, label(Low-Eng Low-education) offset(-.22) msymbol(T) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(cons_low_high, label(Low-Eng High-education) offset(-.19) msymbol(Th) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(cons_high_men, label(High-Eng Men) offset(.19) msymbol(O) mcolor(cranberry) ciopt(lc(cranberry) recast(rcap))) ///
-(cons_high_women, label(High-Eng Women) offset(.22) msymbol(Oh) mcolor(orange) ciopt(lc(orange) recast(rcap))) ///
-(cons_high_low, label(High-Eng Low-education) offset(.32) msymbol(D) mcolor(cranberry) ciopt(lc(cranberry) recast(rcap))) ///
-(cons_high_high, label(High-Eng High-education) offset(.35) msymbol(Dh) mcolor(orange) ciopt(lc(orange) recast(rcap))), ///
-vertical keep(had_policy) yline(0, lcolor(black)) ///
-ytitle("Likelihood of working in construction", size(medium) height(5)) ///
-ylabel(-.1(0.05).1, labs(medium) grid format(%5.2f)) ///
-legend( pos(8) ring(0) col(2) region(lcolor(white)) size(medium)) ///
-graphregion(color(white)) ciopts(recast(rcap)) levels(90) 
-graph export "$doc\graphSDDheterEngCons.png", replace
-/* Panel (b) Manufacturing */
-coefplot (manu_low_men, label(Low-Eng Men) offset(-.35) msymbol(S) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(manu_low_women, label(Low-Eng Women) offset(-.32) msymbol(Sh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(manu_low_low, label(Low-Eng Low-education) offset(-.22) msymbol(T) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(manu_low_high, label(Low-Eng High-education) offset(-.19) msymbol(Th) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(manu_high_men, label(High-Eng Men) offset(.19) msymbol(O) mcolor(cranberry) ciopt(lc(cranberry) recast(rcap))) ///
-(manu_high_women, label(High-Eng Women) offset(.22) msymbol(Oh) mcolor(orange) ciopt(lc(orange) recast(rcap))) ///
-(manu_high_low, label(High-Eng Low-education) offset(.32) msymbol(D) mcolor(cranberry) ciopt(lc(cranberry) recast(rcap))) ///
-(manu_high_high, label(High-Eng High-education) offset(.35) msymbol(Dh) mcolor(orange) ciopt(lc(orange) recast(rcap))), ///
-vertical keep(had_policy) yline(0, lcolor(black)) ///
-ytitle("Likelihood of working in manufacturing", size(medium) height(5)) ///
-ylabel(-.1(0.05).1, labs(medium) grid format(%5.2f)) ///
-legend( pos(8) ring(0) col(2) region(lcolor(white)) size(medium)) ///
-graphregion(color(white)) ciopts(recast(rcap)) levels(90) legend(off)
-graph export "$doc\graphSDDheterEngManu.png", replace 
-/* Panel (c) Services */
-coefplot (svcs_low_men, label(Low-Eng Men) offset(-.35) msymbol(S) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(svcs_low_women, label(Low-Eng Women) offset(-.32) msymbol(Sh) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(svcs_low_low, label(Low-Eng Low-education) offset(-.22) msymbol(T) mcolor(dkgreen) ciopt(lc(dkgreen) recast(rcap))) ///
-(svcs_low_high, label(Low-Eng High-education) offset(-.19) msymbol(Th) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(svcs_high_men, label(High-Eng Men) offset(.19) msymbol(O) mcolor(cranberry) ciopt(lc(cranberry) recast(rcap))) ///
-(svcs_high_women, label(High-Eng Women) offset(.22) msymbol(Oh) mcolor(orange) ciopt(lc(orange) recast(rcap))) ///
-(svcs_high_low, label(High-Eng Low-education) offset(.32) msymbol(D) mcolor(cranberry) ciopt(lc(cranberry) recast(rcap))) ///
-(svcs_high_high, label(High-Eng High-education) offset(.35) msymbol(Dh) mcolor(orange) ciopt(lc(orange) recast(rcap))), ///
-vertical keep(had_policy) yline(0, lcolor(black)) ///
-ytitle("Likelihood of working in services", size(medium) height(5)) ///
-ylabel(-.1(0.05).1, labs(medium) grid format(%5.2f)) ///
-legend( pos(8) ring(0) col(2) region(lcolor(white)) size(medium)) ///
-graphregion(color(white)) ciopts(recast(rcap)) levels(90) legend(off)
-graph export "$doc\graphSDDheterEngSvcs.png", replace 
 *========================================================================*
 /* Robustness Checks */ 
 *========================================================================*
@@ -1976,9 +1612,8 @@ graph export "$doc\graphDDwage2.png", replace
 *========================================================================*
 /* TABLE A.2. Heterogenous effects */
 *========================================================================*
-/* Staggered DiD: By ethnicity */
-*========================================================================*
 use "$data/eng_abil.dta", clear
+keep if biare==1
 keep if state=="01" | state=="05" | state=="10" ///
 | state=="19" | state=="25" | state=="26" | state=="28" ///
 | state=="02" | state=="03" | state=="08" | state=="18" ///
@@ -1994,7 +1629,115 @@ replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
 destring state, replace
 keep if cohort>=1975 & cohort<=1996
-
+*========================================================================*
+/* By gender */
+*========================================================================*
+/* Panel A: Men */
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if female==0, absorb(geo) vce(cluster geo)
+eststo: areg student had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if female==0, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_StaggDDmen.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+/* Panel B: Women */
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if female==1, absorb(geo) vce(cluster geo)
+eststo: areg student had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if female==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_StaggDDwomen.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+/* Difference in estimate by gender */
+gen fem_pol=female*had_policy
+gen fem_cohort=female*cohort
+destring geo, replace
+gen fem_geo=female*geo
+gen fem_edu=female*edu
+eststo clear
+eststo: reghdfe hrs_exp fem_pol had_policy female indigenous married ///
+[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
+eststo: reghdfe eng fem_pol had_policy female indigenous married ///
+[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
+eststo: reghdfe lwage fem_pol had_policy female indigenous married ///
+[aw=weight] if paidw==1, absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
+eststo: reghdfe paidw fem_pol had_policy female indigenous married ///
+[aw=weight], absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
+eststo: reghdfe student fem_pol had_policy female indigenous married ///
+[aw=weight], absorb(fem_cohort fem_geo fem_edu cohort edu geo) vce(cluster geo)
+esttab using "$doc\tab_StaggDDgender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(fem_pol) replace
+*========================================================================*
+/* By educational attainment */
+*========================================================================*
+/* Panel D: Low education sample */
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
+eststo: areg student had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if edu<=9, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_StaggDDlow.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+/* Panel E: High education sample */
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if edu>9, absorb(geo) vce(cluster geo)
+eststo: areg student had_policy i.cohort i.edu female indigenous married ///
+[aw=weight] if edu>9, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab_StaggDDhigh.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+/* Difference in estimate by education */
+gen lowe=edu<=9
+gen edu_pol=lowe*had_policy
+gen edu_cohort=lowe*cohort
+destring geo, replace
+gen edu_geo=lowe*geo
+gen edu_low=lowe*edu
+eststo clear
+eststo: reghdfe hrs_exp edu_pol had_policy female indigenous married ///
+[aw=weight] if paidw==1, absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
+eststo: reghdfe eng edu_pol had_policy female indigenous married ///
+[aw=weight] if paidw==1, absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
+eststo: reghdfe lwage edu_pol had_policy female indigenous married ///
+[aw=weight] if paidw==1, absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
+eststo: reghdfe paidw edu_pol had_policy female indigenous married ///
+[aw=weight], absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
+eststo: reghdfe student edu_pol had_policy female indigenous married ///
+[aw=weight], absorb(edu_cohort edu_geo edu_low cohort edu geo) vce(cluster geo)
+esttab using "$doc\tab_StaggDDedu.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(edu_pol) replace
+*========================================================================*
+/* By ethnicity */
+*========================================================================*
+/* Panel E: Indigenous */
 eststo clear
 eststo: areg hrs_exp had_policy i.state i.cohort i.edu female ///
 indigenous married [aw=weight] if indigenous==1 & paidw==1, absorb(geo) vce(cluster geo)
@@ -2009,7 +1752,7 @@ indigenous married [aw=weight] if indigenous==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDind.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
+/* Panel F: Non-indigenous */
 eststo clear
 eststo: areg hrs_exp had_policy i.state i.cohort i.edu female ///
 indigenous married [aw=weight] if indigenous==0 & paidw==1, absorb(geo) vce(cluster geo)
@@ -2024,7 +1767,7 @@ indigenous married [aw=weight] if indigenous==0, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDnind.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
+/* Difference in estimate by ethnicity */
 gen ind_pol=indigenous*had_policy
 gen ind_cohort=indigenous*cohort
 gen ind_state=indigenous*state
@@ -2043,25 +1786,9 @@ i.edu female indigenous married [aw=weight], absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDethnic.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Ethnicity differences) keep(ind_pol) replace
 *========================================================================*
-/* Staggered DiD: By geographical context */
+/* By geographical context */
 *========================================================================*
-use "$data/eng_abil.dta", clear
-keep if state=="01" | state=="05" | state=="10" ///
-| state=="19" | state=="25" | state=="26" | state=="28" ///
-| state=="02" | state=="03" | state=="08" | state=="18" ///
-| state=="14" | state=="24" | state=="32" | state=="06" | state=="11"
-
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
-replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996)
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
-destring state, replace
-keep if cohort>=1975 & cohort<=1996
-
+/* Panel G: Rural */
 eststo clear
 eststo: areg hrs_exp had_policy i.state i.cohort i.edu female ///
 indigenous married [aw=weight] if rural==1 & paidw==1, absorb(geo) vce(cluster geo)
@@ -2076,7 +1803,7 @@ indigenous married [aw=weight] if rural==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDrural.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
+/* Panel H: Urban */
 eststo clear
 eststo: areg hrs_exp had_policy i.state i.cohort i.edu female ///
 indigenous married [aw=weight] if rural==0 & paidw==1, absorb(geo) vce(cluster geo)
@@ -2091,7 +1818,7 @@ indigenous married [aw=weight] if rural==0, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab_SDDurban.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
+/* Difference in estimate by geographical contex */
 gen rul_pol=rural*had_policy
 gen rul_cohort=rural*cohort
 gen rul_state=rural*state
