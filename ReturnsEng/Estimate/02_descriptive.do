@@ -431,14 +431,67 @@ graph export "$doc\graphSON.png", replace
 *========================================================================*
 use "$base/eng_abil.dta", clear
 keep if biare==1 
+destring sinco, replace
+gen occup=.
+replace occup=1 if (sinco>6101 & sinco<=6131) | (sinco>6201 & sinco<=6231) ///
+| sinco==6999
+replace occup=2 if (sinco>=9111 & sinco<=9899) 
+replace occup=3 if sinco==6311 | (sinco>=8111 & sinco<=8199) | (sinco>=8211 ///
+& sinco<=8212) | (sinco>=8311 & sinco<=8999)
+replace occup=4 if (sinco>=7111 & sinco<=7135) | (sinco>=7211 & sinco<=7223) ///
+| (sinco>=7311 & sinco<=7353) | (sinco>=7411 & sinco<=7412) | (sinco>=7511 & ///
+sinco<=7517) | (sinco>=7611 & sinco<=7999)
+replace occup=5 if (sinco>=5111 & sinco<=5116) | (sinco>=5211 & sinco<=5254) ///
+| (sinco>=5311 & sinco<=5314) | (sinco>=5411 & sinco<=5999)
+replace occup=6 if sinco==4111 | (sinco>=4211 & sinco<=4999)
+replace occup=7 if (sinco>=3111 & sinco<=3142) | (sinco>=3211 & sinco<=3999)
+replace occup=8 if (sinco>=2111 & sinco<=2625) | (sinco>=2631 & sinco<=2639) ///
+| (sinco>=2641 & sinco<=2992)
+replace occup=9 if (sinco>=1111 & sinco<=1999) | sinco==2630 ///
+| sinco==2630 | sinco==2640 | sinco==3101 | sinco==3201 | sinco==4201 ///
+| sinco==5101 | sinco==5201 | sinco==5301 | sinco==5401 | sinco==6101 ///
+| sinco==6201 | sinco==7101 | sinco==7201 | sinco==7301 | sinco==7401 ///
+| sinco==7501 | sinco==7601 | sinco==8101 | sinco==8201 | sinco==8301
+replace occup=10 if sinco==980
+
+label define occup 1 "Farming" 2 "Elementary occupations" 3 "Machine operators" ///
+4 "Crafts" 5 "Customer service" 6 "Sales" 7 "Clerical support" ///
+8 "Professionals/Technicians" 9 "Managerial" 10 "Abroad" 
+label values occup occup
+
+gen farm=occup==1
+label var farm "Farming" 
+gen elem=occup==2
+label var elem "Elementary"
+gen mach=occup==3
+label var mach "Machine operators"
+gen craf=occup==4
+label var craf "Crafts" 
+gen cust=occup==5
+label var cust "Customer service" 
+gen sale=occup==6
+label var sale "Sales"
+gen cler=occup==7
+label var cler "Clerical support"
+gen prof=occup==8
+label var prof "Professionals"
+gen mana=occup==9
+label var mana "Managerial"
+gen abro=occup==10
+label var abro "Abroad"
+
 eststo clear
-eststo full_sample: quietly estpost sum income eng hrs_exp age edu female ///
+eststo full_sample: quietly estpost sum income farm elem mach craf ///
+cust sale cler prof mana abro eng hrs_exp age edu female ///
 indigenous married rural [aw=weight] if eng!=. & age>=18 & age<=65 & paidw==1
-eststo eng: quietly estpost sum income eng hrs_exp age edu female ///
+eststo eng: quietly estpost sum income farm elem mach craf ///
+cust sale cler prof mana abro eng hrs_exp age edu female ///
 indigenous married rural [aw=weight] if eng==1 & age>=18 & age<=65 & paidw==1
-eststo no_eng: quietly estpost sum income eng hrs_exp age edu female ///
+eststo no_eng: quietly estpost sum income farm elem mach craf ///
+cust sale cler prof mana abro eng hrs_exp age edu female ///
 indigenous married rural [aw=weight] if eng==0 & age>=18 & age<=65 & paidw==1
-eststo diff: quietly estpost ttest income eng hrs_exp age edu female ///
+eststo diff: quietly estpost ttest income farm elem mach craf ///
+cust sale cler prof mana abro eng hrs_exp age edu female ///
 indigenous married rural if eng!=. & age>=18 & age<=65 & paidw==1, by(eng) unequal
 esttab full_sample eng no_eng diff using "$doc\tab2.tex", ///
 cells("mean(pattern(1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 1) fmt(%9.2fc))") ///
@@ -450,7 +503,8 @@ Replace the "Diff." column from previous table with the coefficients from the
 following regressions as the previous ones did not include the sample weights 
 */
 eststo clear
-foreach x in income hrs_exp age edu female indigenous married rural{
+foreach x in income farm elem mach craf cust sale cler prof mana abro ///
+hrs_exp age edu female indigenous married rural{
 eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65 & paidw==1, ///
 vce(robust)
 }
