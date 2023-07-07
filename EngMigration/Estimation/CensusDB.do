@@ -10,14 +10,16 @@ gl base= "C:\Users\galve\Documents\Papers\Current\EngMigration\Base"
 gl doc= "C:\Users\galve\Documents\Papers\Current\EngMigration\Doc"
 *========================================================================*
 import delimited "$data/data/main/MexCensus/2020/Migrantes00.CSV", clear
-keep ent mun factor id_viv id_mii factor msexo medad mfecemim mfecemia ///
-mpaires mfecretm mfecreta mperls tamloc mlugori_c
+keep ent mun factor id_viv id_mii mper factor msexo medad mfecemim mfecemia ///
+mpaires mfecretm mfecreta mperls tamloc mlugori_c 
 
 replace mperls=. if mperls==99
 tostring id_viv, replace format(%012.0f) force
 tostring id_mii, replace format(%014.0f) force
 tostring mperls, replace format(%05.0f) force
-gen str id_persona=(id_viv+mperls)
+tostring mper, replace format(%05.0f) force
+gen str id_persona=(id_viv+mper)
+gen str id_persona_hh=(id_viv+mperls)
 gen migrant=1
 rename ent state
 rename msexo female
@@ -33,17 +35,19 @@ gen rural=tamloc==1
 gen time_migra=(mfecreta-mfecemia)*12
 replace time_migra=time_migra+(mfecretm-mfecemim) if time_migra==0
 replace time_migra=time_migra-mfecemim+mfecretm if time_migra>=12
-keep state mun factor id_viv id_persona female rural cohort migrant time_migra mperls mlugori_c
+keep state mun factor id_viv id_persona id_persona_hh id_mii female rural cohort migrant time_migra mperls mlugori_c
 save "$base\migrant.dta", replace
 *========================================================================*
 keep if mperls=="."
-keep if cohort>=1997 & cohort<=2002
-keep state mun factor id_viv cohort migrant female rural time_migra mlugori_c
+*keep if cohort>=1997 & cohort<=2002
+keep state mun factor id_viv id_persona id_mii cohort migrant female rural time_migra mlugori_c
 save "$base\migrantAppend.dta", replace
 *========================================================================*
 use "$base\migrant.dta", clear
 keep if mperls!="."
-keep state mun factor id_viv id_persona female rural migrant time_migra mlugori_c
+keep id_persona_hh migrant time_migra mlugori_c
+duplicates drop id_persona_hh, force
+rename id_persona_hh id_persona
 save "$base\migrantMerge.dta", replace
 *========================================================================*
 /*use "$data/personas00_1.dta", clear
@@ -91,8 +95,7 @@ tostring mun5, replace format(%03.0f) force
 gen str geo=(state5+mun5)
 replace geo="." if mun5=="."
 
-merge m:m id_persona using "$base\migrantMerge.dta"
-drop if _merge==2
+merge 1:1 id_persona using "$base\migrantMerge.dta"
 drop _merge 
 
 save "$base\census20.dta", replace
@@ -157,11 +160,11 @@ save "$base\census20.dta", replace
 *========================================================================* 
 use "$base\census20.dta", clear
 
-merge m:m geo cohort using "$data/Papers/main/EngInstruction/Data/exposure_mun.dta"
+merge 1:m geo cohort using "$data/Papers/main/EngInstruction/Data/exposure_mun.dta"
 drop if _merge==2
 drop if geo=="."
 drop _merge
-merge m:m state cohort using "$data/Papers/main/EngInstruction/Data/exposure_state.dta"
+merge 1:m state cohort using "$data/Papers/main/EngInstruction/Data/exposure_state.dta"
 drop if _merge!=3
 
 replace hrs_exp=hrs_exp2 if hrs_exp==. & state==state5
@@ -173,7 +176,7 @@ tostring state, replace format(%02.0f) force
 tostring mun, replace format(%03.0f) force
 gen str geo=(state+mun)
 
-merge m:m geo using "$data/Papers/main/EngInstruction/Data/p_stud_census2020.dta"
+merge 1:m geo using "$data/Papers/main/EngInstruction/Data/p_stud_census2020.dta"
 drop if _merge==2
 drop _merge
 
