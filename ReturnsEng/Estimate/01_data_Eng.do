@@ -202,18 +202,18 @@ use "$data2/exposure_loc1.dta", clear
 append using "$data2/exposure_loc2.dta"
 sort geo cohort
 
-merge m:m geo cohort using "$base\eng_abil.dta"
+merge m:1 geo cohort using "$base\eng_abil.dta"
 drop if _merge==1
 rename _merge merge2
 
 gen geo_mun=substr(geo,1,5)
 
-merge m:m geo_mun cohort using "$data2/exposure_mun.dta"
+merge 1:m geo_mun cohort using "$data2/exposure_mun.dta"
 replace hrs_exp=hrs_exp2 if merge2==2 & hrs_exp==.
 drop if _merge==2
 
 rename _merge merge3
-merge m:m state cohort using "$data2/exposure_state.dta"
+merge 1:m state cohort using "$data2/exposure_state.dta"
 replace hrs_exp=hrs_exp3 if merge2==2 & hrs_exp==.
 drop if _merge==2
 drop _merge merge2 merge3 hrs_exp2 hrs_exp3
