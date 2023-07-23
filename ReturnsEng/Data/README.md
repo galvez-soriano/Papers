@@ -9,3 +9,5 @@ Crosswalk INEGI - SINCO 2011 to SOC2010: https://www.inegi.org.mx/datos/clasific
 Work activities (O*NET): https://www.onetonline.org/find/descriptor/browse/4.A/4.A.2/4.A.3/4.A.3.a
 
 SINCO 2011 catalog: https://www.snieg.mx/DocumentacionPortal/Normatividad/historica/sinco-2012.pdf
+
+Crosswalk SOC 2010-2018: https://www.bls.gov/soc/2018/crosswalks_used_by_agencies.htm
