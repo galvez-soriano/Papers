@@ -78,10 +78,17 @@ replace edu=. if edu==99
 rename ent_pais_res_5a state5
 rename mun_res_5a mun5
 gen work=conact<=19
-gen formal=0 if work==1
+gen formal=.
+replace formal=0 if work==1
 replace formal=1 if (vacaciones==3 | servicio_medico==5 | incap_sueldo==1 | ///
  sar_afore==3 | credito_vivienda==5 | utilidades==7)
 drop vacaciones servicio_medico incap_sueldo sar_afore credito_vivienda utilidades
+replace formal=1 if actividades_c>=9311 & actividades_c<=9399
+replace formal=1 if actividades_c==2110 | actividades_c==2132
+replace formal=1 if actividades_c==2211
+replace formal=1 if actividades_c==4810 | actividades_c==4910 | actividades_c==4920
+replace formal=1 if actividades_c==5210
+
 rename ingtrmen wage
 replace wage=. if wage==999999
 rename hortra hrs_w
@@ -95,8 +102,7 @@ tostring mun5, replace format(%03.0f) force
 gen str geo=(state5+mun5)
 replace geo="." if mun5=="."
 
-merge 1:1 id_persona using "$base\migrantMerge.dta"
-drop _merge 
+merge 1:1 id_persona using "$base\migrantMerge.dta", nogen
 
 save "$base\census20.dta", replace
 *========================================================================*
