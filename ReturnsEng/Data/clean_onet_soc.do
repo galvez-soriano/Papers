@@ -29,3 +29,9 @@ bysort soc_code18: gen duplica2=_n
 drop if duplica==2 & duplica2==2
 drop duplica duplica2
 save "$base/soc10_18.dta", replace
+
+import delimited "$data/Handling_and_Moving_Objects.csv", clear
+save "$base/onet_moving_objects.dta", replace
+
+import delimited "$data/Performing_General_Physical_Activities.csv", clear
+save "$base/onet_physical_activ.dta", replace
