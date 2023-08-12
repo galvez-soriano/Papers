@@ -1178,6 +1178,12 @@ areg eng_int_occup had_policy i.cohort i.edu female rural ///
 indigenous married [aw=weight] if paidw==1 & edu>9, absorb(geo) vce(cluster geo)
 */
 *========================================================================*
+/* TABLE XX. English programs and types of occupations */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+
+*========================================================================*
 /* Robustness Checks */ 
 *========================================================================*
 /*Neighboring states as comparison group in DD models */

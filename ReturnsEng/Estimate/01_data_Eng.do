@@ -221,3 +221,14 @@ replace hrs_exp=0 if cohort<=1980
 label var hrs_exp "Hrs English"
 
 save "$base\eng_abil.dta", replace
+*========================================================================*
+use "$data2/sinco11_soc10.dta", clear
+drop sinco2011_title soc2010_title
+rename soc2010 soc_code10
+merge m:1 soc_code10 using "$data2/soc10_18.dta"
+keep if _merge==3
+drop _merge soc_n10 soc_code10
+merge m:1 soc_code18 using "$data2/onet19_soc18.dta"
+keep if _merge==3
+drop _merge soc_n18 soc_code18
+save "$base\sinco11_onet19.dta", replace
