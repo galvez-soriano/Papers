@@ -202,7 +202,7 @@ use "$data2/exposure_loc1.dta", clear
 append using "$data2/exposure_loc2.dta"
 sort geo cohort
 
-merge m:1 geo cohort using "$base\eng_abil.dta"
+merge 1:m geo cohort using "$base\eng_abil.dta"
 drop if _merge==1
 rename _merge merge2
 
