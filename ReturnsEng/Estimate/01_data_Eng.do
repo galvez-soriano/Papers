@@ -158,7 +158,7 @@ save "$base\eng_abil.dta", replace
 use "$base\eng_abil.dta", clear
 collapse (mean) weight, by(id_hh)
 
-merge m:m id_hh using "$base\eng_abil.dta"
+merge 1:m id_hh using "$base\eng_abil.dta"
 drop _merge
 gen state=substr(geo,1,2)
 gen cohort=2014-age
@@ -208,12 +208,12 @@ rename _merge merge2
 
 gen geo_mun=substr(geo,1,5)
 
-merge 1:m geo_mun cohort using "$data2/exposure_mun.dta"
+merge m:1 geo_mun cohort using "$data2/exposure_mun.dta"
 replace hrs_exp=hrs_exp2 if merge2==2 & hrs_exp==.
 drop if _merge==2
 
 rename _merge merge3
-merge 1:m state cohort using "$data2/exposure_state.dta"
+merge m:1 state cohort using "$data2/exposure_state.dta"
 replace hrs_exp=hrs_exp3 if merge2==2 & hrs_exp==.
 drop if _merge==2
 drop _merge merge2 merge3 hrs_exp2 hrs_exp3
