@@ -104,10 +104,10 @@ sort state id_mun id_loc cct shift year
 save "$base\d_schools.dta", replace
 *========================================================================*
 /* Creating exposure variable at locality level
-The Mexican school census has missing values for some observations at 
+The Mexican school census has missing values for some observations at the
 locality level. In this section of the do file, I fill in those missings.
 First, I add the missing years and then I interpolate the missing 
-observations using the mean between two priximate years. */
+observations using the mean between two proximate years. */
 *========================================================================*
 use "$base\d_schools.dta", clear
 
