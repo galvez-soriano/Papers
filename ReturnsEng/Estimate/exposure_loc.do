@@ -823,7 +823,7 @@ replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==2
 replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==2
 keep geo year hrs_exp
 
-/* Nine missing years */
+/* Ten missing years */
 bysort geo: gen nobs=_n
 bysort geo: gen nobs_tot=_N
 count
