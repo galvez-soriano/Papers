@@ -10,7 +10,7 @@ clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EngInstruction/Stat911"
 gl base2= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EngInstruction/Data"
-gl base= "C:\Users\ogalvez\Documents\EngAbil\Data"
+gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Data"
 *========================================================================*
 clear
 foreach x in 97 98 99 00 01 02 03 04 05 06 07 08 09 10 11 12 13{
@@ -142,9 +142,6 @@ replace year=2006 if year==. & sum_year==20016
 replace year=2007 if year==. & sum_year==20015
 
 sort geo year
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==10
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year!=1997 & year!=2007 & nobs_tot==10
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & year==2007 & nobs_tot==10
 drop nobs nobs_tot obs sum_year
 
 /* Two missing years */
@@ -185,12 +182,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 
 sort geo year
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==9
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==9
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==9
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==9
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==9
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==9
 keep geo year hrs_exp
 
 /* Three missing years */
@@ -241,13 +232,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
-
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==8
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==8
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==8
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==8
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==8
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==8
 keep geo year hrs_exp
 
 /* Four missing years */
@@ -309,13 +293,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
-
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==7
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==7
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==7
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==7
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==7
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==7
 keep geo year hrs_exp
 
 /* Five missing years */
@@ -388,13 +365,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
-
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==6
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==6
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==6
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==6
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==6
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==6
 keep geo year hrs_exp
 
 /* Six missing years */
@@ -478,13 +448,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
-
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==5
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==5
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==5
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==5
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==5
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==5
 keep geo year hrs_exp
 
 /* Seven missing years */
@@ -579,13 +542,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
-
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==4
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==4
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==4
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==4
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==4
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==4
 keep geo year hrs_exp
 
 /* Eight missing years */
@@ -691,13 +647,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
-
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==3
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==3
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==3
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==3
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==3
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==3
 keep geo year hrs_exp
 
 /* Nine missing years */
@@ -814,13 +763,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
-
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==2
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==2
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==2
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==2
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==2
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==2
 keep geo year hrs_exp
 
 /* Ten missing years */
@@ -948,13 +890,6 @@ bysort geo: egen replace_year=sum(diff_year)
 replace year=replace_year if count_obs==2007 & year==.
 sort geo year
 drop count_obs diff_year replace_year
-
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & year==1997 & nobs_tot==1
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==1
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & hrs_exp[_n+1]==. & nobs_tot==1
-replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n+1])/2 if missing(hrs_exp) & year>1997 & year<2006 & nobs_tot==1
-replace hrs_exp=hrs_exp[_n+1]*0.95 if missing(hrs_exp) & nobs_tot==1
-replace hrs_exp=hrs_exp[_n-1]*1.05 if missing(hrs_exp) & nobs_tot==1
 keep geo year hrs_exp
 
 /* Older cohorts */
@@ -972,20 +907,119 @@ replace year=count_obs if year==.
 drop nobs obs count_obs
 
 sort geo year
-replace hrs_exp=hrs_exp[_n+1]*0.90 if missing(hrs_exp) & year==1996
-replace hrs_exp=hrs_exp[_n+1]*0.90 if missing(hrs_exp) & year==1995
-replace hrs_exp=hrs_exp[_n+1]*0.90 if missing(hrs_exp) & year==1994
-replace hrs_exp=hrs_exp[_n+1]*0.80 if missing(hrs_exp) & year==1993
-replace hrs_exp=hrs_exp[_n+1]*0.80 if missing(hrs_exp) & year==1992
-replace hrs_exp=0 if missing(hrs_exp) & year==1991
-replace hrs_exp=0 if missing(hrs_exp) & year==1990
-
 gen cohort=year-11
 gen check=substr(geo,6,10)
 drop if check==""
-drop year check
+drop check
 
 save "$base\exposure_loc.dta", replace
+*========================================================================* 
+use "$base\exposure_loc.dta", clear
+sort geo year
+gen state=substr(geo,1,2)
+gen hrs_exp0=hrs_exp
+
+forval i = 1/17 {
+    gen next_year_hrs_exp = hrs_exp[_n+1]
+    replace hrs_exp = 0 if next_year_hrs_exp == 0 & !missing(next_year_hrs_exp) & year < year[_n+1]
+    drop next_year_hrs_exp
+}
+
+gen interpolated_hrs_exp = (hrs_exp[_n-1] + hrs_exp[_n+1])/2
+
+replace hrs_exp = interpolated_hrs_exp if missing(hrs_exp) & !missing(hrs_exp[_n-1]) & !missing(hrs_exp[_n+1]) & year > year[_n-1] & year < year[_n+1]
+
+drop interpolated_hrs_exp
+
+bysort geo: egen min_eng=min(hrs_exp)
+bysort geo: egen max_eng=max(hrs_exp)
+bysort geo: egen mean_eng=mean(hrs_exp) if hrs_exp!=0
+bysort geo: egen tot_eng=total(hrs_exp)
+bysort geo: gen nz_obs=tot_eng/mean_eng
+bysort geo: gen gr_eng=max_eng/nz_obs
+
+bysort geo: gen lin_eng=0 if hrs_exp==0
+bysort geo: replace lin_eng=lin_eng[_n-1]+gr_eng[_n] if missing(lin_eng)
+bysort geo: replace gr_eng=gr_eng[_n-1] if gr_eng[_n-1]>0 & gr_eng[_n-1]!=. & missing(gr_eng)
+
+foreach x in 1986 1985 1984 1983 1982 1981 1980 1979{
+bysort geo: replace hrs_exp=hrs_exp[_n+1]-gr_eng[_n]/10 if hrs_exp[_n]==. & cohort==`x'
+}
+replace hrs_exp=0 if hrs_exp<0 & hrs_exp!=.
+
+/* Aguascalientes */
+bysort geo: replace hrs_exp=hrs_exp[_n-1]+gr_eng[_n] if hrs_exp[_n-1]>0 & gr_eng[_n]!=. & gr_eng[_n]<=0.25 & hrs_exp==. & state=="01"  & cohort>=1990
+bysort geo: replace hrs_exp=hrs_exp[_n-1] if hrs_exp[_n-1]>hrs_exp[_n] & hrs_exp[_n]<hrs_exp[_n+1] & hrs_exp[_n+1]!=. & hrs_exp[_n-1]!=. & hrs_exp!=. & state=="01"  & cohort>=1990
+/* Durango */
+bysort geo: replace hrs_exp=hrs_exp[_n-1]+gr_eng[_n] if hrs_exp[_n-1]>0 & gr_eng[_n]!=. & gr_eng[_n]<=0.25 & hrs_exp==. & state=="10"  & cohort>=1991
+bysort geo: replace hrs_exp=hrs_exp[_n-1] if hrs_exp[_n-1]>hrs_exp[_n] & hrs_exp[_n]<hrs_exp[_n+1] & hrs_exp[_n+1]!=. & hrs_exp[_n-1]!=. & hrs_exp!=. & state=="10"  & cohort>=1991
+/* Nuevo Leon */
+bysort geo: replace hrs_exp=hrs_exp[_n-1]+gr_eng[_n] if hrs_exp[_n-1]>0 & gr_eng[_n]!=. & gr_eng[_n]<=0.25 & hrs_exp==. & state=="19"  & cohort>=1987
+bysort geo: replace hrs_exp=hrs_exp[_n-1] if hrs_exp[_n-1]>hrs_exp[_n] & hrs_exp[_n]<hrs_exp[_n+1] & hrs_exp[_n+1]!=. & hrs_exp[_n-1]!=. & hrs_exp!=. & state=="19"  & cohort>=1987
+/* Sinaloa */
+bysort geo: replace hrs_exp=hrs_exp[_n-1]+gr_eng[_n] if hrs_exp[_n-1]>0 & gr_eng[_n]!=. & gr_eng[_n]<=0.25 & hrs_exp==. & state=="25"  & cohort>=1993
+bysort geo: replace hrs_exp=hrs_exp[_n-1] if hrs_exp[_n-1]>hrs_exp[_n] & hrs_exp[_n]<hrs_exp[_n+1] & hrs_exp[_n+1]!=. & hrs_exp[_n-1]!=. & hrs_exp!=. & state=="25"  & cohort>=1993
+/* Sonora */
+bysort geo: replace hrs_exp=hrs_exp[_n-1]+gr_eng[_n] if hrs_exp[_n-1]>0 & gr_eng[_n]!=. & gr_eng[_n]<=0.25 & hrs_exp==. & state=="26"  & cohort>=1993
+bysort geo: replace hrs_exp=hrs_exp[_n-1] if hrs_exp[_n-1]>hrs_exp[_n] & hrs_exp[_n]<hrs_exp[_n+1] & hrs_exp[_n+1]!=. & hrs_exp[_n-1]!=. & hrs_exp!=. & state=="26"  & cohort>=1993
+/* Tamaulipas */
+bysort geo: replace hrs_exp=hrs_exp[_n-1]+gr_eng[_n] if hrs_exp[_n-1]>0 & gr_eng[_n]!=. & gr_eng[_n]<=0.25 & hrs_exp==. & state=="28"  & cohort>=1989
+bysort geo: replace hrs_exp=hrs_exp[_n-1] if hrs_exp[_n-1]>hrs_exp[_n] & hrs_exp[_n]<hrs_exp[_n+1] & hrs_exp[_n+1]!=. & hrs_exp[_n-1]!=. & hrs_exp!=. & state=="28"  & cohort>=1989
+/* Baja California Sur */
+replace hrs_exp=(hrs_exp[_n-1]+hrs_exp[_n]+hrs_exp[_n])/3 if hrs_exp[_n]!=. & hrs_exp[_n-1]!=. & state=="03" & cohort==1996
+
+replace hrs_exp=0 if hrs_exp==.
+
+replace hrs_exp=hrs_exp[_n-1] if hrs_exp[_n-1]>hrs_exp[_n] & hrs_exp[_n-2]>hrs_exp[_n] & hrs_exp[_n-3]>hrs_exp[_n] & cohort>1986
+
+bysort state cohort: egen hrs_eng=mean(hrs_exp)
+label var hrs_eng "Extrapolated"
+bysort state cohort: egen hrs_eng0=mean(hrs_exp0)
+label var hrs_eng0 "With missings"
+
+twoway (line hrs_eng cohort if state=="01") (line hrs_eng0 cohort if state=="01")
+graph export "$base\figAGS.png", replace
+twoway (line hrs_eng cohort if state=="10") (line hrs_eng0 cohort if state=="10")
+graph export "$base\figDGO.png", replace
+twoway (line hrs_eng cohort if state=="19") (line hrs_eng0 cohort if state=="19")
+graph export "$base\figNL.png", replace
+twoway (line hrs_eng cohort if state=="25") (line hrs_eng0 cohort if state=="25")
+graph export "$base\figSIN.png", replace
+twoway (line hrs_eng cohort if state=="26") (line hrs_eng0 cohort if state=="26")
+graph export "$base\figSON.png", replace
+twoway (line hrs_eng cohort if state=="28") (line hrs_eng0 cohort if state=="28")
+graph export "$base\figTAM.png", replace
+
+twoway (line hrs_eng cohort if state=="02") (line hrs_eng0 cohort if state=="02")
+graph export "$base\figBC.png", replace
+twoway (line hrs_eng cohort if state=="03") (line hrs_eng0 cohort if state=="03")
+graph export "$base\figBCS.png", replace
+twoway (line hrs_eng cohort if state=="06") (line hrs_eng0 cohort if state=="06")
+graph export "$base\figCOL.png", replace
+twoway (line hrs_eng cohort if state=="08") (line hrs_eng0 cohort if state=="08")
+graph export "$base\figCHIH.png", replace
+twoway (line hrs_eng cohort if state=="11") (line hrs_eng0 cohort if state=="11")
+graph export "$base\figGTO.png", replace
+twoway (line hrs_eng cohort if state=="14") (line hrs_eng0 cohort if state=="14")
+graph export "$base\figJAL.png", replace
+twoway (line hrs_eng cohort if state=="18") (line hrs_eng0 cohort if state=="18")
+graph export "$base\figNAY.png", replace
+twoway (line hrs_eng cohort if state=="24") (line hrs_eng0 cohort if state=="24")
+graph export "$base\figSLP.png", replace
+twoway (line hrs_eng cohort if state=="32") (line hrs_eng0 cohort if state=="32")
+graph export "$base\figZAC.png", replace
+
+keep geo cohort hrs_exp
+
+save "$base\exposure_loc.dta", replace
+*========================================================================*
+use "$base\exposure_loc.dta", clear
+keep in 1/900000
+save "$base\exposure_loc1.dta", replace
+
+use "$base\exposure_loc.dta", clear
+keep in 900001/l
+save "$base\exposure_loc2.dta", replace
 *========================================================================*
 use "$base\exposure_loc.dta", clear
 
