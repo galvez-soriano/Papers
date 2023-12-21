@@ -12,13 +12,14 @@ gl base= "C:\Users\galve\Documents\Papers\Current\Metrobus\Data"
 *========================================================================*
 use "$data/sdem12.dta", clear
 
-gen str id=folio+num_ren
+gen folio=folioviv+foliohog
+gen str id=folio+numren
 label var id "ID"
 rename folio hid
 label var hid "Household ID"
 rename parentesco relation
 label var relation "Relation"
-gen female==sexo=="2"
+gen female=(sexo=="2")
 label var female "Female"
 rename edad age
 label var age "Age"
@@ -30,44 +31,36 @@ rename nivel stud_level
 label var stud_level "Student Level"
 rename grado stud_grade
 label var stud_grade "Student Grade"
-gen private=tipo_esc=="2"
+gen private=tipoesc=="2"
 label var private "Private School"
-destring n_instr141 n_instr142, replace
+destring nivelaprob gradoaprob, replace
 gen edu=.
-replace edu=0 if n_instr141==0 | n_instr141==1
-replace edu=n_instr142 if n_instr==2
-replace edu=6+n_instr142 if n_instr141==3
-replace edu=9+n_instr142 if n_instr141==4 & antec_esc==" "
-replace edu=9+n_instr142 if n_instr141==4 & antec_esc=="2"
-replace edu=9+n_instr142 if n_instr141==5 & antec_esc=="2"
-replace edu=n_instr142 if n_instr141==6 & antec_esc=="1"
-replace edu=9+n_instr142 if n_instr141==6 & antec_esc=="2"
-replace edu=12+n_instr142 if n_instr141==5 & antec_esc=="3"
-replace edu=12+n_instr142 if n_instr141==6 & antec_esc=="3"
-replace edu=12+n_instr142 if n_instr141==7 & antec_esc=="3"
-replace edu=16+n_instr142 if n_instr141==8 & antec_esc=="4"
-replace edu=16+n_instr142 if n_instr141==9 & antec_esc=="4"
-replace edu=18+n_instr142 if n_instr141==9 & antec_esc=="5"
+replace edu=0 if nivelaprob==0 | nivelaprob==1
+replace edu=gradoaprob if nivelaprob==2
+replace edu=6+gradoaprob if nivelaprob==3
+replace edu=9+gradoaprob if nivelaprob==4 & antec_esc==" "
+replace edu=9+gradoaprob if nivelaprob==4 & antec_esc=="2"
+replace edu=9+gradoaprob if nivelaprob==5 & antec_esc=="2"
+replace edu=gradoaprob if nivelaprob==6 & antec_esc=="1"
+replace edu=9+gradoaprob if nivelaprob==6 & antec_esc=="2"
+replace edu=12+gradoaprob if nivelaprob==5 & antec_esc=="3"
+replace edu=12+gradoaprob if nivelaprob==6 & antec_esc=="3"
+replace edu=12+gradoaprob if nivelaprob==7 & antec_esc=="3"
+replace edu=16+gradoaprob if nivelaprob==8 & antec_esc=="4"
+replace edu=16+gradoaprob if nivelaprob==9 & antec_esc=="4"
+replace edu=18+gradoaprob if nivelaprob==9 & antec_esc=="5"
 label var edu "Years of Education"
 gen work=trabajo=="1"
 label var work "Work"
-gen paidw=sueldo08=="1" | sueldo19=="1"
-label var paidw "Paid Work"
-gen labor=trabajo=="1" | bus_trab=="10" | (bus_trab>"100" & bus_trab<"200" & bus_trab!=" ")
+gen labor=trabajo=="1" | act_buscot=="10" | (act_buscot>"100" & act_buscot<"200" & act_buscot!=" ")
 label var labor "Labor"
-gen self_emp=posicion07>="4"
-label var self_emp "Self-Employed"
-rename scian101 naics
-label var naics "NAICS"
-rename cmo091 occupa
-label var occupa "Occupation"
-rename horas_trab hrs_work
+rename hor_1 hrs_work
 label var hrs_work "Hours of Work"
 
 order id hid state relation female age student stud_level stud_grade private ///
-edu work verific labor paidw self_emp naics occupa hrs_work
+edu work labor hrs_work
 keep id hid state relation female age student stud_level stud_grade private ///
-edu work verific labor paidw self_emp naics occupa hrs_work
+edu work labor hrs_work
 
 save "$base\2012.dta", replace
 
@@ -80,23 +73,11 @@ rename folio hid
 label var hid "Household ID"
 rename ubica_geo mun_id
 label var mun_id "Municipality ID"
-rename residentes hh_size
+rename tot_resid hh_size
 label var hh_size "Household Size"
-rename vehi04_1 car
-label var car "Car"
-rename vehi04_2 suv
-label var suv "SUV"
-rename vehi04_3 truck
-label var truck "Truck"
-rename vehi04_4 motorcycle
-label var motorcycle "Motorcycle"
-rename vehi04_5 bicycle
-label var bicycle "Bicycle"
-rename factor weight
-label var weight "Weight"
 
-order hid mun_id weight hh_size car suv truck motorcycle bicycle
-keep hid mun_id weight hh_size car suv truck motorcycle bicycle
+order hid mun_id
+keep hid mun_id
 
 merge 1:m hid using "$base\2012.dta", nogen
 save "$base\2012.dta", replace
@@ -106,7 +87,8 @@ save "$base\2012.dta", replace
 *========================================================================*
 use "$data/income12.dta", clear
 
-gen str id=folio+num_ren
+gen folio=folioviv+foliohog
+gen str id=folio+numren
 label var id "ID"
 rename ing_tri income
 label var income "Income"
@@ -122,17 +104,18 @@ save "$base\2012.dta", replace
 use "$data/expend12_1.dta", clear
 append using "$data/expend12_2.dta"
 
+gen folio=folioviv+foliohog
 rename folio hid
 label var hid "Household ID"
-gen subway=gas_tri/3 if clave=="B001"
+gen subway=gasto_tri/3 if clave=="B001"
 label var subway "Subway"
-gen bus=gas_tri/3 if clave=="B002"
+gen bus=gasto_tri/3 if clave=="B002"
 label var bus "Bus"
-gen train=gas_tri/3 if clave=="B003"
+gen train=gasto_tri/3 if clave=="B003"
 label var train "Train"
-gen combi=gas_tri/3 if clave=="B004"
+gen combi=gasto_tri/3 if clave=="B004"
 label var combi "Combi"
-gen taxi=gas_tri/3 if clave=="B005"
+gen taxi=gasto_tri/3 if clave=="B005"
 label var taxi "Taxi"
 collapse (sum) subway bus train combi taxi, by(hid)
 
