@@ -123,25 +123,26 @@ append using "$data/expend06_4.dta"
 rename folio hid
 label var hid "Household ID"
 gen subway=gas_tri/3 if clave=="B001"
-label var subway "Subway"
+label var subway "Expenditure in Subway"
 gen bus=gas_tri/3 if clave=="B002"
-label var bus "Bus"
+label var bus "Expenditure in Bus"
 gen train=gas_tri/3 if clave=="B003"
-label var train "Train"
+label var train "Expenditure in Train"
 gen combi=gas_tri/3 if clave=="B004"
+label var combi "Expenditure in Combi"
 gen taxi=gas_tri/3 if clave=="B005"
-collapse (sum) subway bus train combi taxi, by(hid)
+label var taxi "Expenditure in Taxi"
+gen taxi=gas_tri/3 if clave=="F010"
+label var gasoline "Expenditure in Gasoline"
+collapse (sum) subway bus train combi taxi gasoline, by(hid)
 
-keep hid subway bus train combi taxi
+keep hid subway bus train combi taxi gasoline
 merge 1:m hid using "$base\2006.dta", nogen
 
-order id hid state mun_id weight relation female age student stud_level ///
+gen year=2006
+
+order id hid state year mun_id weight relation female age student stud_level ///
 stud_grade private edu work verific labor paidw self_emp naics occupa ///
 hrs_work income
 
 save "$base\2006.dta", replace
-
-*========================================================================*
-/* Year 2006 */
-*========================================================================*
-gen year=2006
