@@ -1,13 +1,13 @@
 *========================================================================*
-* English program and earnings
+* English program and migration
 *========================================================================*
 * Oscar Galvez-Soriano
 *========================================================================*
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\galve\Documents\Papers\Current\EngMigration\Base"
-gl doc= "C:\Users\galve\Documents\Papers\Current\EngMigration\Doc"
+gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
 import delimited "$data/data/main/MexCensus/2020/Migrantes00.CSV", clear
 keep ent mun factor id_viv id_mii mper factor msexo medad mfecemim mfecemia ///
@@ -18,8 +18,8 @@ tostring id_viv, replace format(%012.0f) force
 tostring id_mii, replace format(%014.0f) force
 tostring mperls, replace format(%05.0f) force
 tostring mper, replace format(%05.0f) force
-gen str id_persona=(id_viv+mper)
-gen str id_persona_hh=(id_viv+mperls)
+gen str id=(id_viv+mper)
+gen str id_hh=(id_viv+mperls)
 gen migrant=1
 rename ent state
 rename msexo female
@@ -30,12 +30,13 @@ replace mfecemia=. if mfecemia==9999
 replace mfecretm=. if mfecretm==99
 replace mfecreta=. if mfecreta==9999
 replace mlugori_c=. if mlugori_c==999
+rename mlugori_c migrant_state
 gen cohort=mfecemia-medad
 gen rural=tamloc==1
 gen time_migra=(mfecreta-mfecemia)*12
 replace time_migra=time_migra+(mfecretm-mfecemim) if time_migra==0
 replace time_migra=time_migra-mfecemim+mfecretm if time_migra>=12
-keep state mun factor id_viv id_persona id_persona_hh id_mii female rural cohort migrant time_migra mperls mlugori_c
+keep state mun factor id_viv id id_hh id_mii female rural cohort migrant time_migra mperls migrant_state
 save "$base\migrant.dta", replace
 *========================================================================*
 keep if mperls=="."
@@ -50,14 +51,14 @@ duplicates drop id_persona_hh, force
 rename id_persona_hh id_persona
 save "$base\migrantMerge.dta", replace
 *========================================================================*
-/*use "$data/personas00_1.dta", clear
+/*use "$data/data/main/MexCensus/2020/personas00_1.dta", clear
 foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 ///
 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 ///
 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91{
-    append using "$data/personas00_`x'.dta"
+    append using "$data/data/main/MexCensus/2020/personas00_`x'.dta"
 }
-save "$base\personas00.dta", replace */
+save "$base\personas00.dta", replace*/
 use "$base\personas00.dta", clear
 
 keep ent mun id_viv id_persona factor sexo edad asisten mun_asi ent_pais_asi escoacum ///
@@ -65,6 +66,7 @@ ent_pais_res_5a mun_res_5a conact ocupacion_c vacaciones servicio_medico ///
 incap_sueldo sar_afore credito_vivienda ingtrmen hortra actividades_c ///
 mun_trab ent_pais_trab tamloc utilidades
 
+rename id_persona id
 tostring id_viv, replace format(%012.0f) force
 rename ent state
 rename sexo female
