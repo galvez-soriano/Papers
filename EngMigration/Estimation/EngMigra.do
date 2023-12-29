@@ -11,7 +11,7 @@ gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
 /*
 use "$data/Papers/main/EngMigration/Data/labor_census20_1.dta", clear
-foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 {
+foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 {
     append using "$data/Papers/main/EngMigration/Data/labor_census20_`x'.dta"
 }
 save "$base\labor_census20.dta", replace 
