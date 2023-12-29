@@ -38,7 +38,7 @@ eststo: areg work had_policy rural female i.edu i.cohort [aw=factor], absorb(geo
 eststo: areg lwage had_policy rural female i.edu i.cohort [aw=factor] if work==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab1_census.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(hrs_exp) replace
+title(Census estimations) keep(had_policy) replace
 
 
 *========================================================================*
