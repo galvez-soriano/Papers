@@ -41,14 +41,14 @@ save "$base\migrant.dta", replace
 *========================================================================*
 keep if mperls=="."
 *keep if cohort>=1997 & cohort<=2002
-keep state mun factor id_viv id_persona id_mii cohort migrant female rural time_migra mlugori_c
+keep state mun factor id_viv id id_mii cohort migrant female rural time_migra migrant_state
 save "$base\migrantAppend.dta", replace
 *========================================================================*
 use "$base\migrant.dta", clear
 keep if mperls!="."
-keep id_persona_hh migrant time_migra mlugori_c
-duplicates drop id_persona_hh, force
-rename id_persona_hh id_persona
+keep id_hh migrant time_migra migrant_state
+duplicates drop id_hh, force
+rename id_hh id
 save "$base\migrantMerge.dta", replace
 *========================================================================*
 /*use "$data/data/main/MexCensus/2020/personas00_1.dta", clear
@@ -104,23 +104,21 @@ tostring mun5, replace format(%03.0f) force
 gen str geo=(state5+mun5)
 replace geo="." if mun5=="."
 
-merge 1:1 id_persona using "$base\migrantMerge.dta", nogen
+merge 1:1 id using "$base\migrantMerge.dta", nogen
 
 save "$base\census20.dta", replace
 *========================================================================*
 use "$base\census20.dta", clear
 
 gen cohort=.
-replace cohort=1997 if age==23
-replace cohort=1998 if age==22
-replace cohort=1999 if age==21
-replace cohort=2000 if age==20
-replace cohort=2001 if age==19
-replace cohort=2002 if age==18
+replace cohort=2020-age
+keep if cohort>=1979 & cohort<=1996
 label var cohort "Cohorts"
 
 replace migrant=0 if migrant==.
 append using "$base\migrantAppend.dta"
+keep if cohort!=.
+keep if cohort>=1979 & cohort<=1996
 
 gen ind_act=.
 replace ind_act=0 if work==0 & student==1 & migrant!=1
@@ -129,29 +127,19 @@ replace ind_act=2 if work==1 & formal==0 & migrant!=1
 replace ind_act=3 if work==0 & student==0 & migrant!=1
 replace ind_act=4 if migrant==1
 
-keep if cohort!=.
-drop if cohort<1997 | cohort>2002
 replace wage=1 if wage==0
 gen lwage=log(wage)
 gen age2=age^2
 replace ind_act=2 if ind_act==. & conact<=19
 replace ind_act=3 if ind_act==.
 
-tostring mlugori_c, replace format(%02.0f) force
+tostring migrant_state, replace format(%02.0f) force
 tostring state, replace format(%02.0f) force
 tostring mun, replace format(%03.0f) force
 replace geo=(state+mun) if geo=="." & migrant==1
 replace geo=(state+mun) if geo=="" & migrant==1
-replace state5=mlugori_c if state5=="" & migrant==1
-drop mlugori_c 
-
-/*
-use "$data/Papers/main/EngMigration/Data/census20_1.dta", clear
-foreach x in 2 3 4 5 6 7 {
-    append using "$data/Papers/main/EngMigration/Data/census20_`x'.dta"
-}
-save "$base\census20.dta", replace 
-*/
+replace state5=migrant_state if state5=="" & migrant==1
+drop migrant_state 
 
 catplot ind_act cohort [fw=factor], percent(cohort) ///
 graphregion(fcolor(white)) scheme(s2mono) ///
@@ -163,34 +151,35 @@ legend(rows(1) stack size(small) ///
 order(1 "Student" 2 "Formal worker" ///
 3 "Informal worker" 4 "Inactive" 5 "Migrant") ///
 symplacement(center))
-*graph export "$doc\labor_census20.png", replace
+graph export "$doc\econ_status.png", replace
+
 save "$base\census20.dta", replace
 *========================================================================* 
 use "$base\census20.dta", clear
 
-merge 1:m geo cohort using "$data/Papers/main/EngInstruction/Data/exposure_mun.dta"
+gen geo_mun = geo
+replace geo_mun=state+mun if geo=="."
+
+merge m:1 geo_mun cohort using "$data/Papers/main/ReturnsEng/Data/exposure_mun.dta"
 drop if _merge==2
-drop if geo=="."
+*drop if geo=="."
 drop _merge
-merge 1:m state cohort using "$data/Papers/main/EngInstruction/Data/exposure_state.dta"
+merge m:1 state cohort using "$data/Papers/main/ReturnsEng/Data/exposure_state.dta"
 drop if _merge!=3
 
-replace hrs_exp=hrs_exp2 if hrs_exp==. & state==state5
-drop _merge hrs_exp2
-drop if hrs_exp==.
+rename hrs_exp2 hrs_exp 
+replace hrs_exp=hrs_exp3 if hrs_exp==.
+drop _merge hrs_exp3
 
-drop geo
-tostring state, replace format(%02.0f) force
-tostring mun, replace format(%03.0f) force
+gen imputed_state=geo=="."
+drop geo geo_mun
 gen str geo=(state+mun)
-
+order geo
+/*
 merge 1:m geo using "$data/Papers/main/EngInstruction/Data/p_stud_census2020.dta"
 drop if _merge==2
 drop _merge
-
-label define ind_act 0 "Student" 1 "Formal worker" ///
-2 "Informal worker" 3 "Inactive" 4 "Migrant"
-label values ind_act ind_act
+*/
 
 replace student=0 if ind_act!=0
 replace work=0 if ind_act==0 | ind_act==3 | migrant==1
