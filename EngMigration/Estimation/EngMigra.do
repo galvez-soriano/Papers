@@ -6,8 +6,8 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\galve\Documents\Papers\Current\EngMigration\Base"
-gl doc= "C:\Users\galve\Documents\Papers\Current\EngMigration\Doc"
+gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
 /*
 use "$data/Papers/main/EngMigration/Data/labor_census20_1.dta", clear
@@ -17,7 +17,16 @@ foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 {
 save "$base\labor_census20.dta", replace 
 */
 use "$base\labor_census20.dta", clear
-replace lwage=0 if lwage==.
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995)
+replace had_policy=1 if state=="05" & (cohort>=1988 & cohort<=1996)
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996)
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996)
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996)
+
+
 
 eststo clear
 eststo: areg student hrs_exp rural female i.cohort [aw=factor], absorb(geo) vce(cluster geo)
@@ -31,103 +40,7 @@ esttab using "$doc\tab1_census.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
 title(Census estimations) keep(hrs_exp) replace
 
-eststo clear
-eststo: areg student hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg formal_s hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg informal_s hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg inactive hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg migrant hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg work hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg lwage hrs_exp rural female i.edu i.cohort [aw=factor] if work==1 & ps43==1, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab1_census_low.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(hrs_exp) replace
 
-eststo clear
-eststo: areg student hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg formal_s hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg informal_s hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg inactive hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg migrant hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg work hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==0, absorb(geo) vce(cluster geo)
-eststo: areg lwage hrs_exp rural female i.edu i.cohort [aw=factor] if work==1 & ps43==1 & female==0, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab1_census_low_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(hrs_exp) replace
-
-eststo clear
-eststo: areg student hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg formal_s hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg informal_s hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg inactive hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg migrant hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg work hrs_exp rural female i.cohort [aw=factor] if ps43==1 & female==1, absorb(geo) vce(cluster geo)
-eststo: areg lwage hrs_exp rural female i.edu i.cohort [aw=factor] if work==1 & ps43==1 & female==1, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab1_census_low_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(hrs_exp) replace
-
-gen hrs_fem=hrs_exp*female
-eststo clear
-eststo: areg student hrs_fem hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg formal_s hrs_fem hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg informal_s hrs_fem hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg inactive hrs_fem hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg migrant hrs_fem hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg work hrs_fem hrs_exp rural female i.cohort [aw=factor] if ps43==1, absorb(geo) vce(cluster geo)
-eststo: areg lwage hrs_fem hrs_exp rural female i.edu i.cohort [aw=factor] if work==1 & ps43==1, absorb(geo) vce(cluster geo)
-esttab using "$doc\tab1_census_low_gender.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Census estimations) keep(hrs_fem) replace
-
-label var hrs_exp "Proportion of individuals enrolled in school"
-
-eststo clear
-foreach x in 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50{
-areg work hrs_exp rural female i.cohort [aw=factor] if ps`x'==1, absorb(geo) vce(cluster geo)
-estimates store work`x'
-}
-coefplot (work35, label(p<=0.35)) (work36, label(p<=0.36)) ///
-(work37, label(p<=0.37)) (work38, label(p<=0.38)) (work39, label(p<=0.39)) ///
-(work40, label(p<=0.40)) (work41, label(p<=0.41)) (work42, label(p<=0.42)) ///
-(work43, label(p<=0.43) mcolor(red) ciopts(recast(rcap) color(red))) ///
-(work44, label(p<=0.44)) (work45, label(p<=0.45)) (work46, label(p<=0.46)) ///
-(work47, label(p<=0.47)) (work48, label(p<=0.48)) (work49, label(p<=0.49)) ///
-(work50, label(p<=0.50)), vertical keep(hrs_exp) yline(0) ///
-ytitle("Probability of working", size(medium) height(5)) ///
-ylabel(-0.15(0.05)0.15, labs(medium) grid format(%5.2f)) ///
-legend( pos(1) ring(0) col(4)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
-graph export "$doc\work_c20_low.png", replace
-
-eststo clear
-foreach x in 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50{
-areg lwage hrs_exp rural female i.edu i.cohort [aw=factor] if ps`x'==1 & work==1, absorb(geo) vce(cluster geo)
-estimates store wage`x'
-}
-coefplot (wage35, label(p<=0.35)) (wage36, label(p<=0.36)) ///
-(wage37, label(p<=0.37)) (wage38, label(p<=0.38)) (wage39, label(p<=0.39)) ///
-(wage40, label(p<=0.40)) (wage41, label(p<=0.41)) (wage42, label(p<=0.42)) ///
-(wage43, label(p<=0.43) mcolor(red) ciopts(recast(rcap) color(red))) ///
-(wage44, label(p<=0.44)) (wage45, label(p<=0.45)) (wage46, label(p<=0.46)) ///
-(wage47, label(p<=0.47)) (wage48, label(p<=0.48)) (wage49, label(p<=0.49)) ///
-(wage50, label(p<=0.50)), vertical keep(hrs_exp) yline(0) ///
-ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-legend( pos(1) ring(0) col(4)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
-graph export "$doc\wages_c20_low.png", replace
-
-catplot ind_act cohort [fw=factor] if ps43==1, percent(cohort) ///
-graphregion(fcolor(white)) scheme(s2mono) ///
-var1opts(label(labsize(small))) ///
-var2opts(label(labsize(small)) relabel(`r(relabel)')) ///
-ytitle("Percentage of individuals by labor market status", size(small)) ///
-asyvars stack ///
-legend(rows(1) stack size(small) ///
-order(1 "Student" 2 "Formal worker" ///
-3 "Informal worker" 4 "Inactive" 5 "Migrant") ///
-symplacement(center))
-*graph export "$doc\labor_census20_low.png", replace
 *========================================================================*
 /* Heterogeneous effects */
 *========================================================================*

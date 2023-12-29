@@ -5,7 +5,7 @@
 *========================================================================*
 clear
 set more off
-gl base= "C:\Users\galve\Documents\Papers\Current\English on labor outcomes\Data\Census"
+gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
 *========================================================================*
 use "$base\personas00.dta", clear
 
@@ -28,27 +28,27 @@ save "$base\personas00_91.dta", replace
 use "$base\census20.dta", clear
 local start=0
 local end=0
-foreach x in 1 2 3 4 5 6 {
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 {
 	use "$base\census20.dta", clear
 	local start=`end'+1
-	local end=216000*`x'
+	local end=201364*`x'
 	keep in `start'/`end'
 	save "$base\census20_`x'.dta", replace
 }
 use "$base\census20.dta", clear
-keep in 1296001/l
-save "$base\census20_7.dta", replace
+keep in 3624553/l
+save "$base\census20_19.dta", replace
 *========================================================================*
 use "$base\labor_census20.dta", clear
 local start=0
 local end=0
-foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 {
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 {
 	use "$base\labor_census20.dta", clear
 	local start=`end'+1
-	local end=102000*`x'
+	local end=173910*`x'
 	keep in `start'/`end'
 	save "$base\labor_census20_`x'.dta", replace
 }
 use "$base\labor_census20.dta", clear
-keep in 1326001/l
-save "$base\labor_census20_14.dta", replace
+keep in 3652111/l
+save "$base\labor_census20_22.dta", replace
