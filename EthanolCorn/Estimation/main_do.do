@@ -1,4 +1,8 @@
 /* ========================================================== */
+/* Renewable Fuel Standard, Corn Production, and Midwest 
+Farmland Values 
+Authors: Hoanh Le and Oscar Galvez-Soriano */
+/* ========================================================== */
 clear 
 set more off
 gl data = "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EthanolCorn/Data"
