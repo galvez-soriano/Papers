@@ -6,7 +6,7 @@ Authors: Hoanh Le and Oscar Galvez-Soriano */
 clear 
 set more off
 gl data = "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EthanolCorn/Data"
-gl doc = "C:\Users\Oscar Galvez-Soriano\Documents\Papers\Ethanol\Doc"
+gl doc = "C:\Users\galve\Documents\Papers\Current\CornEthanol\Doc"
 /* ========================================================== */
 * This data only include states in the midwest region
 use  "$data/CensusofAg_LandValue_TotalAgLand_CornGrainHarvested_GovPayment_Pop_LandArea_NCCPI_FarmAnnualReturn_midwest.dta", clear
@@ -114,40 +114,46 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 3)) text(-1.13 2.3 "2005", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\eventsl_q5.png", replace
+graph export "$doc\eventsl_q10.png", replace
 
+/* ========================================================== */
+/* Sensibility analysis */
+/* ========================================================== */
+xtile pct = PecentPlantedCorn, nq(100) // creates percentile variable
 
+/*drop treat* had_policy
 
-drop treat* had_policy
-
-sum PecentPlantedCorn, d
-return list
-gen treat=PecentPlantedCorn>=r(p95)
-replace treat=. if PecentPlantedCorn>r(p5) & PecentPlantedCorn<r(p95)
+gen treat=pct>10
 gen had_policy=treat*after
 
+areg LandValue_Thousand had_policy i.Year, absorb(County) robust*/
+
+label var pct "Percentile of counties ordered by corn production"
+graph set window fontface "Times New Roman"
+
 eststo clear
-eststo: areg LandValue_Thousand had_policy i.Year, absorb(County) robust
+foreach x in 5 6 7 8 9 10 11 12 13 14 15 {
 
-foreach x in 1997 2002 2007 2012 2017{
-gen treat_`x'=0
-replace treat_`x'=1 if treat==1 & Year==`x'
-label var treat_`x' "`x'"
+drop treat* had_policy
+gen treat=pct>`x'
+gen had_policy=treat*after
+
+areg LandValue_Thousand had_policy i.Year, absorb(County) robust
+estimates store corn`x'
 }
-replace treat_2002=0
-
-areg LandValue_Thousand treat_* i.Year, absorb(County) vce(cluster State)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(2.65, lstyle(grid) lpattern(dash) lcolor(red)) ///
+coefplot (corn5, label(>5)) (corn6, label(>6)) (corn7, label(>7)) ///
+(corn8, label(>8)) (corn9, label(>9)) ///
+(corn10, label(>10) mcolor(red) ciopts(recast(rcap) color(red))) ///
+(corn11, label(>11)) (corn12, label(>12)) (corn13, label(>13)) ///
+(corn14, label(>14)) (corn15, label(>15)), ///
+vertical keep(had_policy) yline(1.212716) ///
 ytitle("Land value in thousand dollars", size(medium) height(5)) ///
-ylabel(-0.5(0.5)4, labs(medium) grid format(%5.2f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 4)) text(-0.63 2.3 "2005", linegap(.2cm) ///
-size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\eventsl_q5v95.png", replace
+ylabel(0.25(0.25)1.75, labs(medium) grid format(%5.2f)) ///
+legend( pos(5) ring(0) col(4)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
+graph export "$doc\sa_landv.png", replace
 
+/* ========================================================== */
 
 
 drop treat* had_policy
@@ -155,7 +161,6 @@ drop treat* had_policy
 sum PecentPlantedCorn, d
 return list
 gen treat=PecentPlantedCorn>=r(p90)
-replace treat=. if PecentPlantedCorn>r(p5) & PecentPlantedCorn<r(p90)
 gen had_policy=treat*after
 
 eststo clear
@@ -178,7 +183,7 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.5 4)) text(-0.63 2.3 "2005", linegap(.2cm) ///
 size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$doc\eventsl_q5v90.png", replace
+graph export "$doc\eventsl_q90.png", replace
 
 
 drop treat* had_policy
