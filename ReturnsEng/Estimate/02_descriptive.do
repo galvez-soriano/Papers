@@ -17,7 +17,7 @@ but that they did not offer English instruction: state=="05" & state=="17" */
 *========================================================================*
 use "$base/eng_abil.dta", clear
 gen eng_states=1 if state=="01" | state=="10" | state=="19" | state=="25" ///
-| state=="26" | state=="28" | state=="31"
+| state=="26" | state=="28"
 replace eng_state=0 if eng_state==.
 replace eng=eng*100
 keep if biare==1 // I restrict the sample to only those who were survey in BIARE
