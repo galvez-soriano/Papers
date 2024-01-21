@@ -107,43 +107,6 @@ eststo: reghdfe lwage eng_female eng female indigenous rural married ///
 esttab using "$doc\tab3_diff.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(eng_female) replace
 *========================================================================*
-/* FIGURE 3. Interaction speaks English and education */
-*========================================================================*
-gen edu_level=0
-replace edu_level=1 if edu>=1 & edu<=5
-replace edu_level=2 if edu==6
-replace edu_level=3 if edu>=7 & edu<=8
-replace edu_level=4 if edu==9
-replace edu_level=5 if edu>=10 & edu<=12
-replace edu_level=6 if edu>=13 & edu<=16
-replace edu_level=7 if edu>=17
-
-gen eng_edu=eng*edu_level
-foreach x in 0 1 2 3 4 5 6 7{
-gen engedu`x'=eng_edu==`x'
-}
-replace engedu0=0
-label var engedu0 "No-edu"
-label var engedu1 "Elem-drop"
-label var engedu2 "Elem S"
-label var engedu3 "Middle-drop"
-label var engedu4 "Middle S"
-label var engedu5 "High S"
-label var engedu6 "College"
-label var engedu7 "Graduate"
-
-areg lwage eng i.cohort i.edu female rural married engedu* indigenous ///
-[aw=weight] if age>=18 & age<=65 & paidw==1, absorb(geo) vce(cluster geo)
-
-graph set window fontface "Times New Roman"
-coefplot, vertical keep(engedu*) yline(0) omitted baselevels ///
-ytitle("Returns to English abilities by education levels", size(small) height(5)) ///
-ylabel(-2(2)6, labs(small) grid) ///
-xtitle("Levels of education", size(small) height(5)) xlabel(,labs(small)) ///
-graphregion(color(white)) scheme(s2mono) recast(connected) ciopts(recast(rcap)) ///
-ysc(r(-2 6)) levels(90)
-graph export "$doc\fig3.png", replace
-*========================================================================*
 /* TABLE 4. Effect of English programs (staggered DiD) */
 *========================================================================*
 use "$data/eng_abil.dta", clear
