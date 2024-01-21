@@ -11,13 +11,13 @@ gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
 *========================================================================*
 /* TABLE 1. Adult English speaking ability in Mexico */
 
-/* Note for Renato: For all our analysis, starting with this table, please 
-exclude from the sample the state that we are excluding in the main 
-specifications. I am almost sure it's state=="05", but please double-check. */
+/* Note for Aryaj: For all our analysis, starting with this table, please 
+exclude from the sample the states that declare having an English progra
+but that they did not offer English instruction: state=="05" & state=="17" */
 *========================================================================*
 use "$base/eng_abil.dta", clear
 gen eng_states=1 if state=="01" | state=="10" | state=="19" | state=="25" ///
-| state=="26" | state=="28" | state=="05" | state=="31"
+| state=="26" | state=="28" | state=="31"
 replace eng_state=0 if eng_state==.
 replace eng=eng*100
 keep if biare==1 // I restrict the sample to only those who were survey in BIARE
