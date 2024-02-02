@@ -187,4 +187,11 @@ gen formal_s=ind_act==1
 gen informal_s=ind_act==2
 gen inactive=ind_act==3
 gen labor=conact<=30
+
+/* I only keep individuals who lived five years ago in the same state to 
+make sure that they are likely to belong to the treatment or to the 
+comparison states */
+
+drop if state!=state5
+
 save "$base\labor_census20.dta", replace
