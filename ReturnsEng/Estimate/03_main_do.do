@@ -6,8 +6,8 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
-gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Data"
-gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Doc"
+gl base= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
+gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
 *========================================================================*
 /* TABLE 3: Returns to English abilities in Mexico */
 *========================================================================*
@@ -114,6 +114,7 @@ star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(eng_female) replace
 use "$data/eng_abil.dta", clear
 keep if biare==1
 drop if state=="05" | state=="17"
+keep if cohort>=1981 & cohort<=1996
 sum hrs_exp, d
 return list
 gen engl=hrs_exp>=r(p90)
