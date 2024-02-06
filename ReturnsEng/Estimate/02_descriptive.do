@@ -7,8 +7,8 @@ clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
 gl base= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
-gl base2= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
-gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
+gl base2= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Doc"
 *========================================================================*
 /* FIGURE 1. Exposure to English instruction and English abilities in 
 Mexican states */
@@ -94,106 +94,13 @@ graph export "$doc\occup_WageEdu.png", replace
 *========================================================================*
 /* FIGURE 3. Interaction speaks English and education */
 *========================================================================*
-use "$data/eng_abil.dta", clear
+use "$base/eng_abil.dta", clear
 keep if biare==1
 drop if state=="05" | state=="17"
 keep if cohort>=1981 & cohort<=1996
 sum hrs_exp, d
 return list
 gen engl=hrs_exp>=r(p90)
-*========================================================================*
-/* Regular Staggered DiD */
-*========================================================================*
-/*
-gen first_cohort=0
-replace first_cohort=1990 if state=="01" & engl==1
-replace first_cohort=1991 if state=="10" & engl==1
-replace first_cohort=1987 if state=="19" & engl==1
-replace first_cohort=1993 if state=="25" & engl==1
-replace first_cohort=1993 if state=="26" & engl==1
-replace first_cohort=1990 if state=="28" & engl==1
-
-bysort geo cohort: gen treat2 = cohort == (first_cohort - 8)
-bysort geo cohort: gen treat3 = cohort == (first_cohort - 7)
-bysort geo cohort: gen treat4 = cohort == (first_cohort - 6)
-bysort geo cohort: gen treat5 = cohort == (first_cohort - 5)
-bysort geo cohort: gen treat6 = cohort == (first_cohort - 4)
-bysort geo cohort: gen treat7 = cohort == (first_cohort - 3)
-bysort geo cohort: gen treat8 = cohort == (first_cohort - 2)
-bysort geo cohort: gen treat9 = cohort == (first_cohort - 1)
-bysort geo cohort: gen treat10 = cohort == first_cohort
-bysort geo cohort: gen treat11 = cohort == (first_cohort + 1)
-bysort geo cohort: gen treat12 = cohort == (first_cohort + 2)
-bysort geo cohort: gen treat13 = cohort == (first_cohort + 3)
-bysort geo cohort: gen treat14 = cohort == (first_cohort + 4)
-bysort geo cohort: gen treat15 = cohort == (first_cohort + 5)
-bysort geo cohort: gen treat16 = cohort == (first_cohort + 6)
-bysort geo cohort: gen treat17 = cohort == (first_cohort + 7)
-bysort geo cohort: gen treat18 = cohort == (first_cohort + 8)
-
-replace treat9=0
-
-label var treat2 "-8"
-label var treat3 "-7"
-label var treat4 "-6"
-label var treat5 "-5"
-label var treat6 "-4"
-label var treat7 "-3"
-label var treat8 "-2"
-label var treat9 "-1"
-foreach x in 0 1 2 3 4 5 6 7 8 {
-	label var treat1`x' "`x'"
-}
-
-/* Panel (a) Hours of English */
-areg hrs_exp treat* i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(8.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-0.5(0.5)1.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 1.5)) recast(connected)
-graph export "$doc\PTA_StaggDD1.png", replace
-/* Panel (b) Speak English */
-areg eng treat* i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(8.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) recast(connected)
-graph export "$doc\PTA_StaggDD2.png", replace
-/* Panel (c) Paid work */
-areg paidw treat* i.cohort cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(8.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood working for pay", size(medium) height(5)) ///
-ylabel(-0.5(0.25)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 1)) recast(connected)
-graph export "$doc\PTA_StaggDD3.png", replace
-/* Panel (d) Ln(wage) */
-areg lwage treat* i.cohort i.edu female indigenous married ///
-[aw=weight] if cohort>=1981 & cohort<=1996 & paidw==1, absorb(geo) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(8.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
-ylabel(-2(1)2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-2 2)) recast(connected)
-graph export "$doc\PTA_StaggDD4.png", replace
-*/
 *========================================================================*
 /* Callaway and SantAnna (2021) */
 *========================================================================*
@@ -211,112 +118,102 @@ foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23{
 gen educ`x'=edu==`x'
 }
 
-csdid paidw female indigenous married educ* [iw=weight], time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot
-estat event, window(-6 8) estore(paidw)
+csdid hrs_exp female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(hrs_exp)
 
-coefplot paidw, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of working for pay", size(medium) height(5)) ///
+coefplot hrs_exp, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 ylabel(-1(0.5)1.5, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1.5)) recast(connected) ///
-coeflabels(Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_StaggDD3.png", replace
-
-keep if paidw==1
-csdid hrs_exp female indigenous married educ* [iw=weight], time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot
-estat event, window(-6 8) estore(hrs_exp)
-
-coefplot hrs_exp, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-0.5(0.25)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-.5 1)) recast(connected) ///
-coeflabels(Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_StaggDD1.png", replace
 
-csdid eng female indigenous married educ* [iw=weight], time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot
-estat event, window(-6 8) estore(eng)
+csdid eng female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(eng)
 
 coefplot eng, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of having English speaking abilities", size(medium) height(5)) ///
-ylabel(-0.5(0.25).5, labs(medium) grid format(%5.2f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-.5 .5)) recast(connected) ///
-coeflabels(Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+ysc(r(-1 1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_StaggDD2.png", replace
 
-csdid lwage edu female indigenous married educ* [iw=weight], time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot
-estat event, window(-6 8) estore(lwage)
+csdid paidw female indigenous married educ* [iw=weight], time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(paidw)
 
-coefplot lwage, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Percentage change of wages (/100)", size(medium) height(5)) ///
-ylabel(-3(1)3, labs(medium) grid format(%5.2f)) ///
+coefplot paidw, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of working for pay", size(medium) height(5)) ///
+ylabel(-1.5(0.5)2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-3 3)) recast(connected) ///
-coeflabels(Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+ysc(r(-1.5 2)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_StaggDD3.png", replace
+
+csdid lwage edu female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(lwage)
+
+coefplot lwage, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Percentage change of wages", size(medium) height(5)) ///
+ylabel(-10(5)10, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-10 10)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_StaggDD4.png", replace
-*========================================================================*
-/* FIGURE 4. Interaction speaks English and education */
-*========================================================================*
-/*
-use "$data/eng_abil.dta", clear
-keep if biare==1
-drop if state=="05" | state=="17"
-keep if cohort>=1981 & cohort<=1996
 
-gen edu_level=0
-replace edu_level=0 if edu>=0 & edu<=5
-replace edu_level=1 if edu==6
-replace edu_level=2 if edu>=7 & edu<=8
-replace edu_level=3 if edu==9
-replace edu_level=4 if edu>=10 & edu<=12
-replace edu_level=5 if edu>=13 & edu<=16
-replace edu_level=6 if edu>=17
+gen lhwork=log(hrs_work)
+csdid lhwork female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(lhwork)
 
-gen eng_edu=eng*edu_level
-foreach x in 0 1 2 3 4 5 6{
-gen engedu`x'=eng_edu==`x'
-}
-replace engedu0=0
-label var engedu1 "Elem-drop"
-label var engedu1 "Elem S"
-label var engedu2 "Middle-drop"
-label var engedu3 "Middle S"
-label var engedu4 "High S"
-label var engedu5 "College"
-label var engedu6 "Graduate"
+coefplot lhwork, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Percentage change of labor supply", size(medium) height(5)) ///
+ylabel(-5(2.5)5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-5 5)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_StaggDD5.png", replace
 
-areg lwage eng i.cohort edu female married engedu* indigenous ///
-[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+csdid formal female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(formal)
 
-graph set window fontface "Times New Roman"
-coefplot, vertical keep(engedu*) yline(0) omitted baselevels ///
-ytitle("Returns to English abilities by education levels", size(small) height(5)) ///
-ylabel(-4(4)8, labs(small) grid) ///
-xtitle("Levels of education", size(small) height(5)) xlabel(,labs(small)) ///
-graphregion(color(white)) scheme(s2mono) recast(connected) ciopts(recast(rcap)) ///
-ysc(r(-4 8)) 
-graph export "$doc\fig3.png", replace */
+coefplot formal, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of having a formal job", size(medium) height(5)) ///
+ylabel(-5(2.5)5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-5 5)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_StaggDD6.png", replace
 *========================================================================*
 /* FIGURE A.1: Mexican states with English programs */
 *========================================================================*
@@ -690,7 +587,6 @@ indigenous married rural if eng!=. & age>=18 & age<=65 & paidw==1, by(eng) unequ
 esttab full_sample eng no_eng diff using "$doc\tab2.tex", ///
 cells("mean(pattern(1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 1) fmt(%9.2fc))") ///
 star(* 0.10 ** 0.05 *** 0.01) label replace
-
 /* 
 Note: 
 Replace the "Diff." column from previous table with the coefficients from the
