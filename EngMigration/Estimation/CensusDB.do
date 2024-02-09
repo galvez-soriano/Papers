@@ -40,7 +40,6 @@ keep state mun factor id_viv id id_hh id_mii female rural cohort migrant time_mi
 save "$base\migrant.dta", replace
 *========================================================================*
 keep if mperls=="."
-*keep if cohort>=1997 & cohort<=2002
 keep state mun factor id_viv id id_mii cohort migrant female rural time_migra migrant_state
 save "$base\migrantAppend.dta", replace
 *========================================================================*
@@ -188,7 +187,7 @@ gen informal_s=ind_act==2
 gen inactive=ind_act==3
 gen labor=conact<=30
 
-/* I only keep individuals who lived five years ago in the same state to 
+/* We only keep individuals who lived five years ago in the same state to 
 make sure that they are likely to belong to the treatment or to the 
 comparison states */
 
