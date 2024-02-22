@@ -60,7 +60,7 @@ encode County_str,gen(County)
 sum PecentPlantedCorn, d
 return list
 
-gen treat=PecentPlantedCorn>r(p10)
+gen treat=PecentPlantedCorn>=r(p10)
 gen after=Year>2005
 gen had_policy=treat*after
 
@@ -181,3 +181,38 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
 graph export "$doc\sa_landv.png", replace
 
 /* ========================================================== */
+/* Robust: Heterogeneous Treatment Effects */
+/* ========================================================== */
+areg LandValue_Thousand had_policy i.Year GovPay PopDen ///
+AnnualReturn_mi, absorb(County) robust
+
+gen year_pol=0
+replace year_pol=Year if treat==1 & Year>=2005
+bysort State County: egen first_treat=sum(had_policy)
+bysort State County: egen one_year=sum(year_pol) if first_treat==1
+bysort State County: egen two_year=min(year_pol) if first_treat==2 & year_pol>0
+bysort State County: egen two_year_all=mean(two_year)
+
+replace first_treat=2007 if first_treat==3
+replace first_treat=two_year_all if first_treat==2
+replace first_treat=one_year if first_treat==1
+
+drop one_year two_year two_year_all
+
+csdid LandValue_Thousand had_policy GovPay PopDen AnnualReturn_mi, ///
+ivar(County) time(Year) gvar(first_treat) wboot seed(6)
+estat all
+
+csdid LandValue_Thousand had_policy GovPay PopDen AnnualReturn_mi, ///
+ivar(County) time(Year) gvar(first_treat) long2 wboot seed(6) vce(cluster State)
+estat event, estore(had_policy) 
+
+coefplot had_policy, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(3.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Land value in thousand dollars", size(medium) height(5)) ///
+ylabel(-5(2.5)5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-5 5)) recast(connected) 
+graph export "$doc\PTA.png", replace
