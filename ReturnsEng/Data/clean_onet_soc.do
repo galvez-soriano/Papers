@@ -6,7 +6,7 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
-gl base= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
+gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Data"
 *========================================================================*
 /* O*Net and SOC */
 *========================================================================*
@@ -30,6 +30,12 @@ drop if duplica==2 & duplica2==2
 drop duplica duplica2
 save "$base/soc10_18.dta", replace
 
+use "$data/sinco11_soc10.dta", clear
+drop sinco2011_title soc2010_title
+rename soc2010 soc_code10
+merge m:1 soc_code10 using "$base/soc10_18.dta"
+
+*========================================================================*
 import delimited "$data/Handling_and_Moving_Objects.csv", clear
 gen mov_obj=importance>=50
 rename importance mov_obj_s
