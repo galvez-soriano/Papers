@@ -125,7 +125,7 @@ size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\events.png", replace
 
 /* ========================================================== */
-/* Sensitivity analysis */
+/* Sensibility analysis */
 /* ========================================================== */
 xtile pct = PecentPlantedCorn, nq(100) // creates percentile variable
 
@@ -200,7 +200,7 @@ replace first_treat=one_year if first_treat==1
 drop one_year two_year two_year_all
 
 csdid LandValue_Thousand had_policy GovPay PopDen AnnualReturn_mi, ///
-ivar(County) time(Year) gvar(first_treat) wboot seed(6) vce(cluster State)
+ivar(County) time(Year) gvar(first_treat) wboot seed(6)
 estat all
 
 csdid LandValue_Thousand had_policy GovPay PopDen AnnualReturn_mi, ///
