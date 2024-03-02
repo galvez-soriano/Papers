@@ -9,8 +9,8 @@ clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano/data/main"
 gl data2= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEng/Data"
-gl base= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Data"
-gl doc= "C:\Users\galve\Documents\Papers\Current\Returns to Eng Mex\Doc"
+gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Doc"
 *========================================================================*
 use "$data/biare/2014/poblacion1.dta", clear
 foreach x in 2 3{
@@ -130,9 +130,16 @@ save "$base\eng_abil.dta", replace
 *========================================================================*
 use "$data/biare/2014/biare.dta", clear
 gen str id=(folioviv + foliohog + numren)
-keep id lengua_2 factor_per
-destring lengua_2, replace
+keep id lengua_2 factor_per encsat_1 satis_1 satis_4 satis_6 satis_7 satis_8 satis_10
+destring lengua_2 encsat_1 satis_1 satis_4 satis_6 satis_7 satis_8 satis_10, replace
 rename lengua_2 eng
+rename encsat_1 sgral
+rename satis_1 ssocial
+rename satis_4 ssd_living
+rename satis_6 sachiev
+rename satis_7 sfuture_perspect
+rename satis_8 sleissure
+rename satis_10 secon_activity
 recode eng (2=0)
 gen biare=1
 merge 1:1 id using "$base\eng_abil.dta"
@@ -162,10 +169,6 @@ merge 1:m id_hh using "$base\eng_abil.dta"
 drop _merge
 gen state=substr(geo,1,2)
 gen cohort=2014-age
-gen expe=age-5-edu
-replace expe=0 if age<16
-replace expe=0 if expe<0
-gen expe2=expe^2
 replace eng=0 if eng==.
 gen edu2=edu^2
 gen linc=log(income)
@@ -197,7 +200,7 @@ label var edu_hh "Education household head (\%)"
 label var hh_size "Household size (persons)"
 
 save "$base\eng_abil.dta", replace
-*========================================================================*
+*========================================================================* 
 use "$data2/exposure_loc1.dta", clear
 append using "$data2/exposure_loc2.dta"
 sort geo cohort
@@ -222,13 +225,10 @@ label var hrs_exp "Hrs English"
 
 save "$base\eng_abil.dta", replace
 *========================================================================*
-use "$data2/sinco11_soc10.dta", clear
-drop sinco2011_title soc2010_title
-rename soc2010 soc_code10
-merge m:1 soc_code10 using "$data2/soc10_18.dta"
-keep if _merge==3
-drop _merge soc_n10 soc_code10
-merge m:1 soc_code18 using "$data2/onet19_soc18.dta"
-keep if _merge==3
-drop _merge soc_n18 soc_code18
-save "$base\sinco11_onet19.dta", replace
+destring sinco, replace
+rename sinco sinco2011
+merge m:1 sinco2011 using "$data2/sinco_onet.dta"
+drop if _merge==2
+drop _merge
+keep if age>=18 & age<=65
+save "$base\eng_abil.dta", replace
