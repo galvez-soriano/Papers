@@ -522,12 +522,6 @@ keep if biare==1
 drop if state=="05" | state=="17"
 keep if cohort>=1981 & cohort<=1996
 
-destring sinco, replace
-rename sinco sinco2011
-merge m:1 sinco2011 using "$base/sinco_onet.dta"
-drop if _merge==2
-drop _merge
-
 sum pact, d
 return list
 gen phy_act=pact>=r(p75)
@@ -538,18 +532,26 @@ return list
 gen c_abil=communica>=r(p75)
 replace c_abil=. if paidw!=1
 
+gen dsgral=sgral>=9
+gen dssocial=ssocial>=9
+gen dssdl=ssd_living>=9
+gen dsachiev=sachiev>=9
+gen dsfp=sfuture_perspect>=9
+gen dsleissure=sleissure>=9
+gen dseact=secon_activity>=9
+
 eststo clear
 eststo full_sample: quietly estpost sum income hrs_work formal phy_act ///
-c_abil eng hrs_exp age edu female indigenous married rural ///
+c_abil dssdl dsachiev eng hrs_exp age edu female indigenous married rural ///
 [aw=weight] if eng!=. & age>=18 & age<=65 & paidw==1
 eststo eng: quietly estpost sum income hrs_work formal phy_act ///
-c_abil eng hrs_exp age edu female indigenous married rural ///
+c_abil dssdl dsachiev eng hrs_exp age edu female indigenous married rural ///
 [aw=weight] if eng==1 & age>=18 & age<=65 & paidw==1
 eststo no_eng: quietly estpost sum income hrs_work formal phy_act ///
-c_abil eng hrs_exp age edu female indigenous married rural ///
+c_abil dssdl dsachiev eng hrs_exp age edu female indigenous married rural ///
 [aw=weight] if eng==0 & age>=18 & age<=65 & paidw==1
 eststo diff: quietly estpost ttest income hrs_work formal phy_act ///
-c_abil eng hrs_exp age edu female indigenous married rural ///
+c_abil dssdl dsachiev eng hrs_exp age edu female indigenous married rural ///
 if eng!=. & age>=18 & age<=65 & paidw==1, by(eng) unequal
 esttab full_sample eng no_eng diff using "$doc\tab2.tex", ///
 cells("mean(pattern(1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 1) fmt(%9.2fc))") ///
@@ -561,7 +563,7 @@ following regressions as the previous ones did not include the sample weights
 */
 eststo clear
 foreach x in income hrs_work formal phy_act ///
-c_abil eng hrs_exp age edu female indigenous married rural {
+c_abil dssdl dsachiev eng hrs_exp age edu female indigenous married rural {
 eststo: quietly reg `x' eng [aw=weight] if age>=18 & age<=65 & paidw==1, ///
 vce(robust)
 }

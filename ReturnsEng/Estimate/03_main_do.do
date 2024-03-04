@@ -231,7 +231,7 @@ estat all
 *========================================================================*
 /* Mechanisms */
 *========================================================================*
-/* Figure XX: Effect of English instruction on occupational decisions */
+/* Figure 4: Effect of English instruction on occupational decisions */
 *========================================================================*
 use "$data/eng_abil.dta", clear
 keep if biare==1
@@ -275,9 +275,9 @@ gen c_abil=communica>=r(p75)
 replace c_abil=. if paidw!=1
 
 csdid phy_act female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
-estat event, window(-6 8) estore(phys)
+estat event, window(-5 8) estore(phys)
 coefplot phys, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of working in physically-intensive jobs", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -290,23 +290,23 @@ Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_SDD_PhysicalOccup.png", replace
 
 csdid phy_act female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(phys_low)
+estat event, window(-5 8) estore(phys_low)
 
 csdid phy_act female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(phys_high)
+estat event, window(-5 8) estore(phys_high)
 
 coefplot ///
-(phys_low, label("Low-education") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(phys_high, label("High-education") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+(phys_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(phys_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
 , vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of working in physically-demanding jobs", size(medium) height(5)) ///
-ylabel(-1.5(.5)1.5, labs(medium) grid format(%5.2f)) ///
+ylabel(-2(.5)2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-1.5 1.5)) ///
+legend( off ) ///
+ysc(r(-2 2)) ///
 coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
@@ -315,9 +315,9 @@ graph export "$doc\PTA_SDD_PhysicalOccup_Educa.png", replace
 *========================================================================*
 
 csdid c_abil female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
-estat event, window(-6 8) estore(c_abil)
+estat event, window(-5 8) estore(c_abil)
 coefplot c_abil, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of working in jobs requiring communication", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -330,30 +330,145 @@ Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_SDD_Communica.png", replace
 
 csdid c_abil female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(c_abil_low)
+estat event, window(-5 8) estore(c_abil_low)
 
 csdid c_abil female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(c_abil_high)
+estat event, window(-5 8) estore(c_abil_high)
 
 coefplot ///
-(c_abil_low, label("Low-education") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(c_abil_high, label("High-education") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+(c_abil_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(c_abil_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
 , vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of working in jobs requiring communication", size(medium) height(5)) ///
-ylabel(-1.5(.5)1.5, labs(medium) grid format(%5.2f)) ///
+ylabel(-2(.5)2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ///
-legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-1.5 1.5)) ///
+legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+ysc(r(-2 2)) ///
 coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_SDD_Communica_Educa.png", replace
+*========================================================================*
+/* Figure 5: Effect of English instruction on subjective well-being */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17"
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+keep if cohort>=1981 & cohort<=1996
+
+destring geo, replace
+gen first_cohort=0
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
+
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23{
+gen educ`x'=edu==`x'
+}
+
+gen dsgral=sgral>=9
+gen dssocial=ssocial>=9
+gen dssdl=ssd_living>=9
+gen dsachiev=sachiev>=9
+gen dsfp=sfuture_perspect>=9
+gen dsleissure=sleissure>=9
+gen dseact=secon_activity>=9
+
+csdid dssdl female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
+estat event, window(-5 8) estore(dssdl)
+coefplot dssdl, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
+ylabel(-1(0.5)1.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1.5)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD_SatisSDLiving.png", replace
+
+csdid dssdl female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
+estat event, window(-5 8) estore(dssdl_low)
+
+csdid dssdl female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
+estat event, window(-5 8) estore(dssdl_high)
+
+coefplot ///
+(dssdl_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(dssdl_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
+ylabel(-1.5(.5)2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+legend( off ) ///
+ysc(r(-1.5 2)) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD_SatisSDLiving_Educa.png", replace
 
 *========================================================================*
-/* School Enrollment */
+csdid dsachiev female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
+estat event, window(-5 8) estore(dsachiev)
+coefplot dsachiev, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
+ylabel(-1(0.5)1.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1.5)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD_SatisAchiev.png", replace
+
+csdid dsachiev female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
+estat event, window(-5 8) estore(dsachiev_low)
+
+csdid dsachiev female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
+estat event, window(-5 8) estore(dsachiev_high)
+
+coefplot ///
+(dsachiev_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(dsachiev_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
+ylabel(-1.5(.5)2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+ysc(r(-1.5 2)) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD_SatisAchiev_Educa.png", replace
+*========================================================================*
+/* Figure 6: School Enrollment */
 *========================================================================*
 use "$data/eng_abil.dta", clear
 grstyle init
@@ -426,185 +541,3 @@ graph export "$doc\graph_enroll.png", replace
 graph combine "$doc\graphSDDenroll" "$doc\graph_enroll", ///
 graphregion(color(white) margin()) cols(2) imargin(1 1.2 1.2 1) scale(0.9)
 graph export "$doc\fig_edu_enroll.png", replace
-*========================================================================*
-/* Figure XX: Effect of English instruction on occupational decisions */
-*========================================================================*
-use "$data/eng_abil.dta", clear
-keep if biare==1
-drop if state=="05" | state=="17"
-sum hrs_exp, d
-return list
-gen engl=hrs_exp>=r(p90)
-
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
-keep if cohort>=1981 & cohort<=1996
-
-destring geo, replace
-gen first_cohort=0
-replace first_cohort=1990 if state=="01" & engl==1
-replace first_cohort=1991 if state=="10" & engl==1
-replace first_cohort=1987 if state=="19" & engl==1
-replace first_cohort=1993 if state=="25" & engl==1
-replace first_cohort=1993 if state=="26" & engl==1
-replace first_cohort=1990 if state=="28" & engl==1
-
-foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23{
-gen educ`x'=edu==`x'
-}
-
-gen dsgral=sgral>=9
-gen dssocial=ssocial>=9
-gen dssdl=ssd_living>=9
-gen dsachiev=sachiev>=9
-gen dsfp=sfuture_perspect>=9
-gen dsleissure=sleissure>=9
-gen dseact=secon_activity>=9
-
-csdid dsgral female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
-estat all
-csdid dssocial female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
-estat all
-csdid dssdl female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
-estat all
-csdid dsachiev female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
-estat all
-csdid dsfp female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
-estat all
-csdid dsleissure female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
-estat all
-csdid dseact female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
-estat all
-
-
-
-csdid dssdl female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
-estat event, window(-6 8) estore(dssdl)
-coefplot dssdl, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisSDLiving.png", replace
-
-csdid dssdl female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(dssdl_low)
-
-csdid dssdl female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(dssdl_high)
-
-coefplot ///
-(dssdl_low, label("Low-education") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(dssdl_high, label("High-education") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
-ylabel(-1.5(.5)1.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-1.5 1.5)) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisSDLiving_Educa.png", replace
-
-
-
-csdid dssdl female indigenous married educ* if paidw==1 & female==0 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(dssdl_men)
-
-csdid dssdl female indigenous married educ* if paidw==1 & female==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(dssdl_women)
-
-coefplot ///
-(dssdl_women, label("Women") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(dssdl_men, label("Men") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
-ylabel(-1.5(.5)1.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-1.5 1.5)) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisSDLiving_Gender.png", replace
-
-*========================================================================*
-csdid dsachiev female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
-estat event, window(-6 8) estore(dsachiev)
-coefplot dsachiev, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisAchiev.png", replace
-
-csdid dsachiev female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(dsachiev_low)
-
-csdid dsachiev female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(dsachiev_high)
-
-coefplot ///
-(dsachiev_low, label("Low-education") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(dsachiev_high, label("High-education") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
-ylabel(-1.5(.5)1.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-1.5 1.5)) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisAchiev_Educa.png", replace
-
-
-csdid dsachiev female indigenous married educ* if paidw==1 & female==0 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(dsachiev_men)
-
-csdid dsachiev female indigenous married educ* if paidw==1 & female==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-6 8) estore(dsachiev_women)
-
-coefplot ///
-(dsachiev_women, label("Women") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(dsachiev_men, label("Men") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
-ylabel(-1.5(.5)1.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-1.5 1.5)) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisAchiev_Gender.png", replace
