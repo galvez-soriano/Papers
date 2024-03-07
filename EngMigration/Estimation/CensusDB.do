@@ -6,12 +6,12 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
-gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
+gl base= "C:\Users\Oscar Galvez-Soriano\Documents\Papers\EngMigrant\Data"
+gl doc= "C:\Users\Oscar Galvez-Soriano\Documents\Papers\EngMigrant\Doc"
 *========================================================================*
 import delimited "$data/data/main/MexCensus/2020/Migrantes00.CSV", clear
 keep ent mun factor id_viv id_mii mper factor msexo medad mfecemim mfecemia ///
-mpaires mfecretm mfecreta mperls tamloc mlugori_c 
+mpaires mfecretm mfecreta mperls tamloc mlugori_c mpaides_c
 
 replace mperls=. if mperls==99
 tostring id_viv, replace format(%012.0f) force
@@ -30,22 +30,25 @@ replace mfecemia=. if mfecemia==9999
 replace mfecretm=. if mfecretm==99
 replace mfecreta=. if mfecreta==9999
 replace mlugori_c=. if mlugori_c==999
+replace mpaides_c=. if mlugori_c==999
 rename mlugori_c migrant_state
+rename mpaides_c destination_c
+gen dest_us=destination_c==221
 gen cohort=mfecemia-medad
 gen rural=tamloc==1
 gen time_migra=(mfecreta-mfecemia)*12
 replace time_migra=time_migra+(mfecretm-mfecemim) if time_migra==0
 replace time_migra=time_migra-mfecemim+mfecretm if time_migra>=12
-keep state mun factor id_viv id id_hh id_mii female rural cohort migrant time_migra mperls migrant_state
+keep state mun factor id_viv id id_hh id_mii female rural cohort migrant time_migra mperls migrant_state destination_c dest_us
 save "$base\migrant.dta", replace
 *========================================================================*
 keep if mperls=="."
-keep state mun factor id_viv id id_mii cohort migrant female rural time_migra migrant_state
+keep state mun factor id_viv id id_mii cohort migrant female rural time_migra migrant_state destination_c dest_us
 save "$base\migrantAppend.dta", replace
 *========================================================================*
 use "$base\migrant.dta", clear
 keep if mperls!="."
-keep id_hh migrant time_migra migrant_state
+keep id_hh migrant time_migra migrant_state destination_c dest_us
 duplicates drop id_hh, force
 rename id_hh id
 save "$base\migrantMerge.dta", replace
@@ -61,9 +64,9 @@ save "$base\personas00.dta", replace*/
 use "$base\personas00.dta", clear
 
 keep ent mun id_viv id_persona factor sexo edad asisten mun_asi ent_pais_asi escoacum ///
-ent_pais_res_5a mun_res_5a conact ocupacion_c vacaciones servicio_medico ///
+ent_pais_res_5a mun_res_5a conact ocupacion_c aguinaldo vacaciones servicio_medico ///
 incap_sueldo sar_afore credito_vivienda ingtrmen hortra actividades_c ///
-mun_trab ent_pais_trab tamloc utilidades
+mun_trab ent_pais_trab tamloc utilidades perte_indigena
 
 rename id_persona id
 tostring id_viv, replace format(%012.0f) force
@@ -78,17 +81,19 @@ rename escoacum edu
 replace edu=. if edu==99
 rename ent_pais_res_5a state5
 rename mun_res_5a mun5
-gen work=conact<=19
+gen work=conact<=20
 gen formal=.
 replace formal=0 if work==1
-replace formal=1 if (vacaciones==3 | servicio_medico==5 | incap_sueldo==1 | ///
- sar_afore==3 | credito_vivienda==5 | utilidades==7)
+replace formal=1 if (aguinaldo==1 | vacaciones==3 | servicio_medico==5 ///
+| incap_sueldo==1 | sar_afore==3 | credito_vivienda==5 | utilidades==7)
 drop vacaciones servicio_medico incap_sueldo sar_afore credito_vivienda utilidades
 replace formal=1 if actividades_c>=9311 & actividades_c<=9399
 replace formal=1 if actividades_c==2110 | actividades_c==2132
 replace formal=1 if actividades_c==2211
 replace formal=1 if actividades_c==4810 | actividades_c==4910 | actividades_c==4920
 replace formal=1 if actividades_c==5210
+gen indigenous=perte_indigena==1
+drop perte_indigena
 
 rename ingtrmen wage
 replace wage=. if wage==999999
@@ -126,10 +131,11 @@ replace ind_act=2 if work==1 & formal==0 & migrant!=1
 replace ind_act=3 if work==0 & student==0 & migrant!=1
 replace ind_act=4 if migrant==1
 
-replace wage=1 if wage==0
-gen lwage=log(wage)
+gen wpaid=wage>0 & work==1 & wage!=.
+
+gen lwage=log(wage) if wpaid==1
 gen age2=age^2
-replace ind_act=2 if ind_act==. & conact<=19
+replace ind_act=2 if ind_act==. & conact<=20
 replace ind_act=3 if ind_act==.
 
 tostring migrant_state, replace format(%02.0f) force
