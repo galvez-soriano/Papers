@@ -42,13 +42,13 @@ save "$base\census20_19.dta", replace
 use "$base\labor_census20.dta", clear
 local start=0
 local end=0
-foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 {
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 {
 	use "$base\labor_census20.dta", clear
 	local start=`end'+1
-	local end=174260*`x'
+	local end=159110*`x'
 	keep in `start'/`end'
 	save "$base\labor_census20_`x'.dta", replace
 }
 use "$base\labor_census20.dta", clear
-keep in 3485201/l
-save "$base\labor_census20_21.dta", replace
+keep in 3500420/l
+save "$base\labor_census20_23.dta", replace

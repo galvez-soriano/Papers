@@ -11,7 +11,7 @@ gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
 /*
 use "$data/Papers/main/EngMigration/Data/labor_census20_1.dta", clear
-foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 {
+foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 {
     append using "$data/Papers/main/EngMigration/Data/labor_census20_`x'.dta"
 }
 save "$base\labor_census20.dta", replace 
@@ -140,11 +140,19 @@ areg migrant had_policy rural female i.edu i.cohort if migra_states==1 [aw=facto
 /* Length of migration */
 *========================================================================*
 
+replace time_migra=0 if time_migra==. & migra_ret==1
+
+areg time_migra had_policy rural female edu i.cohort if migra_ret==1 [aw=factor], absorb(geo) vce(cluster geo)
+areg time_migra had_policy rural female edu i.cohort if migra_ret==1 & female==1 [aw=factor], absorb(geo) vce(cluster geo)
+areg time_migra had_policy rural female edu i.cohort if migra_ret==1 & female==0 [aw=factor], absorb(geo) vce(cluster geo)
 
 *========================================================================*
 /* Diversification */
 *========================================================================*
 
+areg dest_us had_policy rural female i.cohort if migra_ret==1 [aw=factor], absorb(geo) vce(cluster geo)
+areg dest_us had_policy rural female i.cohort if migra_ret==1 & female==1 [aw=factor], absorb(geo) vce(cluster geo)
+areg dest_us had_policy rural female i.cohort if migra_ret==1 & female==0 [aw=factor], absorb(geo) vce(cluster geo)
 
 *========================================================================*
 /* Timing of migration */
@@ -155,21 +163,45 @@ areg migrant had_policy rural female i.edu i.cohort if migra_states==1 [aw=facto
 /* Regression for main results */
 *========================================================================*
 eststo clear
-eststo: areg student had_policy rural female i.edu i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg formal_s had_policy rural female i.edu i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg informal_s had_policy rural female i.edu i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg inactive had_policy rural female i.edu i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg migrant had_policy rural female i.edu i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg work had_policy rural female i.edu i.cohort [aw=factor], absorb(geo) vce(cluster geo)
-eststo: areg lwage had_policy rural female i.edu i.cohort [aw=factor] if work==1, absorb(geo) vce(cluster geo)
+eststo: areg student had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+eststo: areg formal_s had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+eststo: areg informal_s had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+eststo: areg inactive had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+eststo: areg migrant had_policy rural female i.cohort [aw=factor] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy rural female edu i.cohort [aw=factor] if work==1 & cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab1_census.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+*========================================================================*
+/* Heterogeneous effects */
+*========================================================================*
+eststo clear
+eststo: areg student had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg formal_s had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg informal_s had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg inactive had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg migrant had_policy rural female i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy rural female edu i.cohort [aw=factor] if work==1 & cohort>=1981 & cohort<=1996 & female==0, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab1_census_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+
+eststo clear
+eststo: areg student had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg formal_s had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg informal_s had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg inactive had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg migrant had_policy rural female i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg work had_policy rural female edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy rural female edu i.cohort [aw=factor] if work==1 & cohort>=1981 & cohort<=1996 & female==1, absorb(geo) vce(cluster geo)
+esttab using "$doc\tab1_census_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
 title(Census estimations) keep(had_policy) replace
 
 
-*========================================================================*
-/* Heterogeneous effects */
-*========================================================================*
+
 areg lwage had_policy rural female i.edu i.cohort [aw=factor] if work==1, absorb(geo) vce(cluster geo)
 areg migrant had_policy rural female i.edu i.cohort [aw=factor], absorb(geo) vce(cluster geo)
 

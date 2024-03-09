@@ -6,8 +6,8 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\Oscar Galvez-Soriano\Documents\Papers\EngMigrant\Data"
-gl doc= "C:\Users\Oscar Galvez-Soriano\Documents\Papers\EngMigrant\Doc"
+gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
 import delimited "$data/data/main/MexCensus/2020/Migrantes00.CSV", clear
 keep ent mun factor id_viv id_mii mper factor msexo medad mfecemim mfecemia ///
@@ -146,7 +146,7 @@ replace geo=(state+mun) if geo=="" & migrant==1
 replace state5=migrant_state if state5=="" & migrant==1
 drop migrant_state 
 
-catplot ind_act cohort [fw=factor], percent(cohort) ///
+catplot ind_act cohort [fw=factor] if cohort>1980, percent(cohort) ///
 graphregion(fcolor(white)) scheme(s2mono) ///
 var1opts(label(labsize(small))) ///
 var2opts(label(labsize(small)) relabel(`r(relabel)')) ///
