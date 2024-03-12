@@ -331,8 +331,8 @@ csdid phy_act female indigenous married educ* if paidw==1 & edu>=12 [iw=weight],
 estat event, window(-5 8) estore(phys_high)
 
 coefplot ///
-(phys_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(phys_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+(phys_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(phys_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
 , vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of working in physically-demanding jobs", size(medium) height(5)) ///
@@ -378,8 +378,8 @@ csdid c_abil female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], 
 estat event, window(-5 8) estore(c_abil_high)
 
 coefplot ///
-(c_abil_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(c_abil_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+(c_abil_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(c_abil_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
 , vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of working in jobs requiring communication", size(medium) height(5)) ///
@@ -463,8 +463,8 @@ csdid dssdl female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], t
 estat event, window(-5 8) estore(dssdl_high)
 
 coefplot ///
-(dssdl_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(dssdl_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+(dssdl_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(dssdl_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
 , vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
@@ -502,8 +502,8 @@ csdid dsachiev female indigenous married educ* if paidw==1 & edu>=12 [iw=weight]
 estat event, window(-5 8) estore(dsachiev_high)
 
 coefplot ///
-(dsachiev_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(dsachiev_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+(dsachiev_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(dsachiev_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
 , vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
@@ -511,7 +511,7 @@ ylabel(-1.5(.5)2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium) ) ///
 ysc(r(-1.5 2)) ///
 coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
@@ -669,8 +669,8 @@ csdid high_eng female indigenous married educ* if paidw==1 & edu>=12 [iw=weight]
 estat event, window(-5 8) estore(high_eng_high)
 
 coefplot ///
-(high_eng_low, offset(0.05) label("Low educational achievement") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(high_eng_high, offset(-0.05) label("High educational achievement") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+(high_eng_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(high_eng_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
 , vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Likelihood of working in jobs requiring English", size(medium) height(5)) ///
