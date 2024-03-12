@@ -6,15 +6,15 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\galve\Documents\Papers\Current\EngMigration\Base"
-gl doc= "C:\Users\galve\Documents\Papers\Current\EngMigration\Doc"
+gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
 /*
 use "$data/Papers/main/EngMigration/Data/labor_census20_1.dta", clear
 foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 {
     append using "$data/Papers/main/EngMigration/Data/labor_census20_`x'.dta"
 }
-save "$base\labor_census20.dta", replace
+save "$base\labor_census20.dta", replace 
 */
 use "$base\labor_census20.dta", clear
 drop if state=="05" | state=="17"
@@ -123,6 +123,115 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.01 0.01)) recast(connected)
 *graph export "$doc\PTA_StaggDD1.png", replace
 *========================================================================*
+/* Event study graphs: Callaway and SantAnna (2021) */
+*========================================================================*
+gen first_cohort=0
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
+
+destring geo, replace
+
+csdid student rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(student)
+
+coefplot student, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of being enrolled in school", size(medium) height(5)) ///
+ylabel(-0.20(0.10)0.20, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.20 0.20)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD1.png", replace
+
+csdid formal_s rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(formal_s)
+
+coefplot formal_s, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of having a formal job", size(medium) height(5)) ///
+ylabel(-0.2(0.10)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD2.png", replace
+
+csdid informal_s rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(informal_s)
+
+coefplot informal_s, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of having an informal job", size(medium) height(5)) ///
+ylabel(-0.2(0.10)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD3.png", replace
+
+csdid inactive rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(inactive)
+
+coefplot inactive, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of being inactive", size(medium) height(5)) ///
+ylabel(-0.2(0.10)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD4.png", replace
+
+csdid work rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(work)
+
+coefplot work, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of being employed", size(medium) height(5)) ///
+ylabel(-0.2(0.10)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD5.png", replace
+
+csdid lwage rural female migrant edu if cohort>=1981 & cohort<=1996 & work==1 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(lwage)
+
+coefplot lwage, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Percentage change of wages", size(medium) height(5)) ///
+ylabel(-0.5(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD6.png", replace
+
+*========================================================================*
 /* Regression for main results: Domestic labor market */
 *========================================================================*
 eststo clear
@@ -196,6 +305,25 @@ sum student formal_s informal_s inactive work [fw=factor] if cohort>=1981 & coho
 sum wpaid lwage [fw=factor] if work==1 & cohort>=1981 & cohort<=1996
 sum lwage [fw=factor] if wpaid==1 & cohort>=1981 & cohort<=1996
 *========================================================================*
+/* Regression for main results: Callaway and SantAnna (2021) */
+*========================================================================*
+csdid student rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid formal_s rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid informal_s rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all 
+csdid inactive rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid work rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid wpaid rural female migrant edu if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid lwage rural female migrant edu if work==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid lwage rural female migrant edu if wpaid==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+*========================================================================*
 /* Regression for main results: Migration analysis */
 *========================================================================*
 replace time_migra=0 if time_migra==. & migra_ret==1
@@ -244,6 +372,88 @@ eststo: areg time_migra had_policy rural female edu i.cohort if migra_ret==1 & c
 esttab using "$doc\tab2_migra_high.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
 title(Census estimations) keep(had_policy) replace
+*========================================================================*
+/* Event study graphs: Callaway and SantAnna (2021) */
+*========================================================================*
+csdid migrant rural female if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(migrant)
+
+coefplot migrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of migrate abroad", size(medium) height(5)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.05 0.05)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD7.png", replace
+
+csdid migra_ret rural female if migrant==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(migra_ret)
+
+coefplot migra_ret, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of returning to Mexico after migration", size(medium) height(5)) ///
+ylabel(-0.8(0.4)0.8, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.8 0.8)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD8.png", replace
+
+csdid dest_us rural female if migra_ret==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(dest_us)
+
+coefplot dest_us, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of migrating to the US", size(medium) height(5)) ///
+ylabel(-2(1)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-2 1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD9.png", replace
+
+csdid time_migra rural female if migra_ret==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 8) estore(time_migra)
+
+coefplot time_migra, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Migration length  (months)", size(medium) height(5)) ///
+ylabel(-40(20)40, labs(medium) grid format(%5.0f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-40 40)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD10.png", replace
+*========================================================================*
+/* Regression for main results: Migration analysis
+Callaway and SantAnna (2021) */
+*========================================================================*
+csdid migrant rural female if cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid migra_ret rural female if migrant==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid dest_us rural female if migra_ret==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+csdid time_migra rural female if migra_ret==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+
+sum migrant [fw=factor] if cohort>=1981 & cohort<=1996
+sum migra_ret lwage [fw=factor] if migrant==1 & cohort>=1981 & cohort<=1996
+sum dest_us time_migra [fw=factor] if migra_ret==1 & cohort>=1981 & cohort<=1996
 *========================================================================*
 /* Are English speaker migrants less likely to return? No, women are more 
 likely to return. Explore why. */
