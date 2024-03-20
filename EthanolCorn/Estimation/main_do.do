@@ -102,7 +102,7 @@ reg nccpi had_policy after treat, vce(cluster State)
 
 eststo clear
 eststo: areg LandValue_Thousand had_policy i.Year GovPay PopDen ///
-AnnualReturn_mi, absorb(County) robust
+AnnualReturn_mi, absorb(County) vce(cluster State)
 
 foreach x in 1997 2002 2007 2012 2017{
 gen treat_`x'=0
@@ -125,7 +125,7 @@ size(medium) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$doc\events.png", replace
 
 /* ========================================================== */
-/* Sensibility analysis */
+/* Sensitivity analysis */
 /* ========================================================== */
 xtile pct = PecentPlantedCorn, nq(100) // creates percentile variable
 
@@ -179,6 +179,30 @@ ylabel(-0.5(0.5)2, labs(medium) grid format(%5.2f)) ///
 legend( pos(5) ring(0) col(3)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
 graph export "$doc\sa_landv.png", replace
+/* ========================================================== */
+/* Robust: Heterogeneous Effects */
+/* ========================================================== */
+areg LandValue_Thousand had_policy i.Year GovPay PopDen ///
+AnnualReturn_mi, absorb(County) vce(cluster State)
+
+sum nccpi, d
+return list
+
+gen h_prod=nccpi>=r(p75)
+gen high_hp=had_policy*h_prod
+replace GovPay=GovPay/1000
+
+eststo clear
+eststo: areg LandValue_Thousand had_policy i.Year AnnualReturn_mi PopDen ///
+GovPay if h_prod==1, absorb(County) vce(cluster State)
+eststo: areg LandValue_Thousand had_policy i.Year AnnualReturn_mi PopDen ///
+GovPay if h_prod==0, absorb(County) vce(cluster State)
+eststo: areg LandValue_Thousand high_hp had_policy h_prod##Year AnnualReturn_mi ///
+PopDen GovPay, absorb(County) vce(cluster State)
+esttab using "$doc\tabHE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous Effects by Land Productivity) ///
+keep(had_policy AnnualReturn_mi PopDen GovPay) ///
+stats(N r2, fmt(%9.0fc %9.3f)) replace
 
 /* ========================================================== */
 /* Robust: Heterogeneous Treatment Effects */
