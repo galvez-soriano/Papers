@@ -122,6 +122,12 @@ return list
 gen engl=hrs_exp>=r(p90)
 gen lhwork=log(hrs_work)
 
+tab state, generate(dstate)
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
+25 26 27 28 29 {
+gen c_state`x'=dstate`x'*cohort
+}
+
 gen had_policy=0 
 replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
@@ -133,22 +139,22 @@ replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
 /* Full sample (staggered DiD) */ 
 *========================================================================*
 eststo clear
-eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married ///
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married c_state* ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort i.edu cohort female indigenous married ///
+eststo: areg eng had_policy i.cohort i.edu cohort female indigenous married c_state* ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort i.edu female indigenous married ///
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married c_state* ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort i.edu female indigenous married ///
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married c_state* ///
 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort i.edu female indigenous married ///
+eststo: areg lhwork had_policy i.cohort i.edu female indigenous married c_state* ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort i.edu female indigenous married ///
+eststo: areg formal had_policy i.cohort i.edu female indigenous married c_state* ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
 esttab using "$doc\tab_StaggDD.tex", cells(b(star fmt(%9.3f)) se(par)) ///
@@ -210,6 +216,30 @@ csdid lhwork female indigenous married educ* if paidw==1 [iw=weight], time(cohor
 estat all
 csdid formal female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
 estat all
+*========================================================================*
+/* de Chaisemartin and D'Haultfoeuille (2020) */
+*========================================================================*
+
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(female indigenous married educ*)
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(female indigenous married educ*)
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(female indigenous married educ*)
+did_multiplegt paidw geo cohort had_policy, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(female indigenous married educ*)
+did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(female indigenous married educ*)
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(female indigenous married educ*)
+
+*========================================================================*
+/* Wooldridge (2021) */
+*========================================================================*
+gen treat=first_cohort>0
+hdidregress twfe (bmi medu i.girl i.sports) (hhabit), group(schools) time(year)
+hdidregress twfe (lwage female indigenous married edu) (treat), group(geo) time(cohort)
+
+*========================================================================*
+/* Borusyak, Jaravel, and Spiess (2023) */
+*========================================================================*
+
+did_imputation lwage id cohort had_policy, fe(geo cohort) cluster(geo)
+
 *========================================================================*
 /* Robustness Check: Narrow cohorts */
 *========================================================================*
