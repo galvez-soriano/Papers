@@ -207,6 +207,16 @@ stats(N r2, fmt(%9.0fc %9.3f)) replace
 /* ========================================================== */
 /* Robust: Heterogeneous Treatment Effects */
 /* ========================================================== */
+
+hdidregress twfe (LandValue_Thousand AnnualReturn_mi PopDen GovPay) ///
+(treat), group(County) time(Year)
+
+
+
+
+
+
+
 areg LandValue_Thousand had_policy i.Year GovPay PopDen ///
 AnnualReturn_mi, absorb(County) robust
 
