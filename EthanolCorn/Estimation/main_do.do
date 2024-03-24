@@ -6,12 +6,12 @@ Authors: Hoanh Le and Oscar Galvez-Soriano */
 clear 
 set more off
 gl data = "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EthanolCorn/Data"
-gl doc = "C:\Users\Oscar Galvez Soriano\Documents\Papers\Ethanol\Doc"
+gl doc = "C:\Users\galve\Documents\Papers\Current\CornEthanol\Doc"
 /* ========================================================== */
 * This data only include states in the midwest region
-use  "$data/CensusofAg_LandValue_TotalAgLand_CornGrainHarvested_GovPayment_Pop_LandArea_NCCPI_FarmAnnualReturn_midwest.dta", clear
+use  "$data/RFSdata.dta", clear
 drop if TotalArea==0|TotalArea==.
-/* 6 counties was dropped due to miss data on agland and cropland geoname
+/* 6 counties were dropped due to missing data on ag land and cropland geoname
 Keweenaw, MI
 Sioux, ND
 Slope, ND
@@ -38,6 +38,7 @@ replace PecentPlantedCorn=0 if PecentPlantedCorn==.
 gen log_LandValue=log(LandValue)
 gen LandValue_Thousand = LandValue/1000
 gen AnnualReturn_mi = AnnualReturn/1000
+gen GovPay_mi = GovPay/1000
 *gen LandValueInflationAdj = LandValue_Thousand/Ratio /* 1997 is the reference year*/
 * Label variables
 label variable TotalAgLand "Total Ag Land (thousand acre)"
@@ -47,6 +48,7 @@ label variable PopDen "Population Density (person/square mile)"
 label variable pct_cropland "Percent Cropland"
 label variable LandValue_Thousand "Land Value (thousand/acre)"
 label variable AnnualReturn_mi "Annual Return (million)"
+label variable GovPay_mi "Gov Payment (million)"
 label variable PecentPlantedCorn "Corn Planted (\%)"
 label variable nccpi "NCCPI"
 gen fips_code =real(fips)
@@ -55,19 +57,34 @@ rename State State_str
 encode State_str,gen(State)
 rename County County_str
 encode County_str,gen(County)
-
 /* ========================================================== */
-sum PecentPlantedCorn, d
-return list
+* Difference-in-differences estimation:keep counties in treatment and control constants
+/*egen min_be = min(PecentPlantedCorn) if Year<2007, by(fips)
+bysort fips: gen  min_before = min_be
+bysort fips: replace  min_before = min_be[_n-2] if min_before==.
+bysort fips: replace  min_before = min_before[_n-1] if min_before==.
+egen min_af = min(PecentPlantedCorn) if Year >=2007, by(fips)
+bysort fips: gen  min_after = min_af
+bysort fips: replace  min_after = min_af[_n+3] if min_after==.
+sum PecentPlantedCorn, detail
+gen Treat = 1 if min_before > r(p10) & min_after >r(p10)
+replace Treat = 0 if min_before <=r(p10)& min_after <= r(p10)
+*drop if Treat ==.
 
-gen treat=PecentPlantedCorn>=r(p10)
 gen after=Year>2005
-gen had_policy=treat*after
+gen DiD=Treat*after*/
 
+sum PecentPlantedCorn, d
+gen wcorn=PecentPlantedCorn > r(p10)
+bysort State County: egen nperiods=total(wcorn)
+gen treat=1 if nperiods==5
+replace treat=0 if nperiods==0
+
+gen after=Year>2005
+gen treat_after=treat*after
 /* ========================================================== */
 /* Descriptive statistics */
 /* ========================================================== */
-
 eststo clear
 eststo control_b: quietly estpost sum LandValue_Thousand TotalCropland ///
 TotalAgLand pct_cropland PecentPlantedCorn GovPay AnnualReturn_mi ///
@@ -99,19 +116,21 @@ reg PopDen had_policy after treat, vce(cluster State)
 reg nccpi had_policy after treat, vce(cluster State)
 
 /* ========================================================== */
-
-eststo clear
-eststo: areg LandValue_Thousand had_policy i.Year GovPay PopDen ///
+areg LandValue_Thousand treat_after State#Year i.Year GovPay PopDen ///
 AnnualReturn_mi, absorb(County) vce(cluster State)
-
+/* ========================================================== */
+/* Event study graph */
+/* ========================================================== */
 foreach x in 1997 2002 2007 2012 2017{
 gen treat_`x'=0
 replace treat_`x'=1 if treat==1 & Year==`x'
 label var treat_`x' "`x'"
 }
+
+drop treat_after
 replace treat_2002=0
 
-areg LandValue_Thousand treat_* i.Year GovPay PopDen ///
+areg LandValue_Thousand treat_* State#Year i.Year GovPay PopDen ///
 AnnualReturn_mi, absorb(County) vce(cluster State)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -143,61 +162,76 @@ graph set window fontface "Times New Roman"
 eststo clear
 foreach x in 5 6 7 8 9 10 11 12 13 14 15 {
 
-drop treat* had_policy
-gen treat=pct>`x'
-gen had_policy=treat*after
+drop treat* wcorn nperiods
 
-areg LandValue_Thousand had_policy i.Year GovPay PopDen ///
+gen wcorn=pct > `x'
+bysort State County: egen nperiods=total(wcorn)
+gen treat=1 if nperiods==5
+replace treat=0 if nperiods==0
+
+gen treat_after=treat*after
+
+areg LandValue_Thousand treat_after State#Year i.Year GovPay PopDen ///
 AnnualReturn_mi, absorb(County) vce(cluster State)
 estimates store corn`x'
 }
 
-label var had_policy "Percentile of the distribution of planted corn area relative to total area"
+label var treat_after "Percentile of the distribution of planted corn area relative to total area"
 
-/*coefplot (corn5, label(>5)) (corn6, label(>6)) (corn7, label(>7)) ///
+coefplot (corn5, label(>5)) (corn6, label(>6)) (corn7, label(>7)) ///
 (corn8, label(>8)) (corn9, label(>9)) ///
 (corn10, label(>10) mcolor(red) ciopts(recast(rcap) color(red))) ///
 (corn11, label(>11)) (corn12, label(>12)) (corn13, label(>13)) ///
 (corn14, label(>14)) (corn15, label(>15)), ///
-vertical keep(had_policy) yline(0) ///
-yline(.91646, lstyle(grid) lpattern(dash) lcolor(red)) ///
+vertical keep(treat_after) yline(0) ///
+yline(.7778, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Land value in thousand dollars", size(medium) height(5)) ///
 ylabel(-0.5(0.5)2, labs(medium) grid format(%5.2f)) ///
 legend( pos(2) ring(0) col(4)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
-graph export "$doc\sa_landv.png", replace */
-
+graph export "$doc\sa_landv.png", replace 
+/*
 coefplot (corn6, label(>6)) (corn7, label(>7)) ///
 (corn8, label(>8)) (corn9, label(>9)) ///
 (corn10, label(>10) mcolor(red) ciopts(recast(rcap) color(red))) ///
 (corn11, label(>11)) (corn12, label(>12)) (corn13, label(>13)) ///
 (corn14, label(>14)), ///
 vertical keep(had_policy) yline(0) ///
-yline(.91646, lstyle(grid) lpattern(dash) lcolor(red)) ///
+yline(.7778, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Land value in thousand dollars", size(medium) height(5)) ///
 ylabel(-0.5(0.5)2, labs(medium) grid format(%5.2f)) ///
 legend( pos(5) ring(0) col(3)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
-graph export "$doc\sa_landv.png", replace
+graph export "$doc\sa_landv.png", replace*/
 /* ========================================================== */
 /* Robust: Heterogeneous Effects */
 /* ========================================================== */
-areg LandValue_Thousand had_policy i.Year GovPay PopDen ///
+drop treat* wcorn nperiods
+
+sum PecentPlantedCorn, d
+gen wcorn=PecentPlantedCorn > r(p10)
+bysort State County: egen nperiods=total(wcorn)
+gen treat=1 if nperiods==5
+replace treat=0 if nperiods==0
+
+gen treat_after=treat*after
+
+areg LandValue_Thousand treat_after State#Year i.Year GovPay PopDen ///
 AnnualReturn_mi, absorb(County) vce(cluster State)
 
 sum nccpi, d
 return list
 
-gen h_prod=nccpi>=r(p75)
-gen high_hp=had_policy*h_prod
+gen h_prod=nccpi>=r(p50)
+gen high_hp=treat_after*h_prod
 replace GovPay=GovPay/1000
 
 eststo clear
-eststo: areg LandValue_Thousand had_policy i.Year AnnualReturn_mi PopDen ///
+eststo: areg LandValue_Thousand treat_after State#Year i.Year AnnualReturn_mi PopDen ///
 GovPay if h_prod==1, absorb(County) vce(cluster State)
-eststo: areg LandValue_Thousand had_policy i.Year AnnualReturn_mi PopDen ///
+eststo: areg LandValue_Thousand treat_after State#Year i.Year AnnualReturn_mi PopDen ///
 GovPay if h_prod==0, absorb(County) vce(cluster State)
-eststo: areg LandValue_Thousand high_hp had_policy h_prod##Year AnnualReturn_mi ///
+eststo: areg LandValue_Thousand high_hp treat_after State#Year h_prod##Year AnnualReturn_mi ///
 PopDen GovPay, absorb(County) vce(cluster State)
 esttab using "$doc\tabHE.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous Effects by Land Productivity) ///
