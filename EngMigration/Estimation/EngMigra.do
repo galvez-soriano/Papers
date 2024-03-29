@@ -246,6 +246,7 @@ eststo: areg lwage had_policy rural female migrant edu i.cohort [aw=factor] if w
 esttab using "$doc\tab1_census.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
 title(Census estimations) keep(had_policy) replace
+
 *========================================================================*
 /* Heterogeneous effects */
 *========================================================================*
@@ -323,6 +324,28 @@ csdid lwage rural female migrant edu if work==1 & cohort>=1981 & cohort<=1996 [i
 estat all
 csdid lwage rural female migrant edu if wpaid==1 & cohort>=1981 & cohort<=1996 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
 estat all
+*========================================================================*
+/* Regression for main results: Sun and Abraham (2021) */
+*========================================================================*
+gen first_cohort=0
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
+
+destring geo, replace
+
+gen tgroup=first_cohort
+replace tgroup=. if state!="01" & state!="10" & state!="19" & state!="25" ///
+& state!="26" & state!="28"
+gen cgroup=tgroup==.
+
+eventstudyinteract hrs_exp had_policy if paidw==1 [aw=weight], absorb(geo cohort) ///
+cohort(tgroup) control_cohort(cgroup) covariates(i.edu female indigenous married) ///
+vce(cluster geo)
+
 *========================================================================*
 /* Regression for main results: Migration analysis */
 *========================================================================*
