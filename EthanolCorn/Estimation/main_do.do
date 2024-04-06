@@ -6,7 +6,7 @@ Authors: Hoanh Le and Oscar Galvez-Soriano */
 clear 
 set more off
 gl data = "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EthanolCorn/Data"
-gl doc = "C:\Users\galve\Documents\Papers\Current\CornEthanol\Doc"
+gl doc = "C:\Users\Oscar Galvez Soriano\Documents\Papers\Ethanol\Doc"
 /* ========================================================== */
 * This data only include states in the midwest region
 use  "$data/RFSdata.dta", clear
@@ -241,9 +241,11 @@ stats(N r2, fmt(%9.0fc %9.3f)) replace
 /* ========================================================== */
 /* Robust: Heterogeneous Treatment Effects */
 /* ========================================================== */
+hdidregress aipw (LandValue_Thousand AnnualReturn_mi PopDen GovPay) ///
+(treat_after), group(County) time(Year)
 
 hdidregress twfe (LandValue_Thousand AnnualReturn_mi PopDen GovPay) ///
-(treat), group(County) time(Year)
+(treat_after), group(County) time(Year)
 
 
 
