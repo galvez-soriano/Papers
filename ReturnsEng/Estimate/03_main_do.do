@@ -9,11 +9,11 @@ gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/ReturnsEn
 gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Data"
 gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Doc"
 *========================================================================*
-/* TABLE 3: Returns to English abilities in Mexico */
+/* TABLE 2: Returns to English abilities in Mexico */
 *========================================================================*
 use "$data/eng_abil.dta", clear
 drop if state=="05" | state=="17"
-keep if cohort>=1981 & cohort<=1996
+keep if cohort>=1984 & cohort<=1996
 keep if biare==1
 /* Panel A: Full sample */
 eststo clear
@@ -111,23 +111,27 @@ star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(eng_female) replace
 /* Difference in estimate by education (female) */
 dis (0.840+0.379)/sqrt((0.741^2)+(0.329))
 *========================================================================*
-/* TABLE 4. Effect of English programs (staggered DiD) */
+/* TABLE 3. Effect of English programs (staggered DiD) */
 *========================================================================*
 use "$data/eng_abil.dta", clear
 keep if biare==1
 drop if state=="05" | state=="17"
-keep if cohort>=1981 & cohort<=1996
+keep if cohort>=1984 & cohort<=1996
 sum hrs_exp, d
 return list
 gen engl=hrs_exp>=r(p90)
 gen lhwork=log(hrs_work)
-
+/*
 tab state, generate(dstate)
 foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
 25 26 27 28 29 {
-gen c_state`x'=dstate`x'*cohort
+	foreach z in 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 ///
+	1993 1994 1995 1996 {
+gen c_state`z'_`x'=0
+replace c_state`z'_`x'=1 if dstate`x'==1 & cohort==`z'
 }
-
+}
+*/
 gen had_policy=0 
 replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
@@ -135,31 +139,81 @@ replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring state, replace
 *========================================================================*
 /* Full sample (staggered DiD) */ 
 *========================================================================*
 eststo clear
-eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married c_state* ///
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married state#cohort ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort i.edu cohort female indigenous married c_state* ///
+eststo: areg eng had_policy i.cohort i.edu cohort female indigenous married state#cohort ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort i.edu female indigenous married c_state* ///
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married state#cohort ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort i.edu female indigenous married c_state* ///
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married state#cohort ///
 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort i.edu female indigenous married c_state* ///
+eststo: areg lhwork had_policy i.cohort i.edu female indigenous married state#cohort ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort i.edu female indigenous married c_state* ///
+eststo: areg formal had_policy i.cohort i.edu female indigenous married state#cohort ///
 [aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
 esttab using "$doc\tab_StaggDD.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg eng had_policy i.cohort i.edu cohort female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if female==0, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg lhwork had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg formal had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+esttab using "$doc\tab_StaggDD_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg eng had_policy i.cohort i.edu cohort female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg lwage had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg paidw had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if female==1, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg lhwork had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg formal had_policy i.cohort i.edu female indigenous married state#cohort ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+esttab using "$doc\tab_StaggDD_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+
 *========================================================================*
 /* Sun and Abraham (2021) */
 *========================================================================*
@@ -204,7 +258,7 @@ foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23{
 gen educ`x'=edu==`x'
 }
 
-csdid hrs_exp female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+csdid hrs_exp female indigenous married educ* c_state* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
 estat all
 csdid eng female indigenous married educ* if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
 estat all
@@ -230,9 +284,9 @@ did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) robust_d
 *========================================================================*
 /* Wooldridge (2021) */
 *========================================================================*
-gen treat=first_cohort>0
-hdidregress twfe (bmi medu i.girl i.sports) (hhabit), group(schools) time(year)
-hdidregress twfe (lwage female indigenous married edu) (treat), group(geo) time(cohort)
+destring geo, replace
+
+hdidregress twfe (lwage) (had_policy), group(geo) time(cohort)
 
 *========================================================================*
 /* Borusyak, Jaravel, and Spiess (2023) */
