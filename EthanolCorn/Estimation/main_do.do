@@ -6,7 +6,7 @@ Authors: Hoanh Le and Oscar Galvez-Soriano */
 clear 
 set more off
 gl data = "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EthanolCorn/Data"
-gl doc = "C:\Users\Oscar Galvez Soriano\Documents\Papers\Ethanol\Doc"
+gl doc = "C:\Users\galve\Documents\Papers\Current\CornEthanol\Doc"
 /* ========================================================== */
 * This data only include states in the midwest region
 use  "$data/RFSdata.dta", clear
@@ -250,15 +250,14 @@ hdidregress twfe (LandValue_Thousand AnnualReturn_mi PopDen GovPay) ///
 
 
 
-
-
-
 areg LandValue_Thousand had_policy i.Year GovPay PopDen ///
 AnnualReturn_mi, absorb(County) robust
-
+*========================================================================*
+/* Callaway and SantAnna (2021) */
+*========================================================================*
 gen year_pol=0
 replace year_pol=Year if treat==1 & Year>=2005
-bysort State County: egen first_treat=sum(had_policy)
+bysort State County: egen first_treat=sum(treat_after)
 bysort State County: egen one_year=sum(year_pol) if first_treat==1
 bysort State County: egen two_year=min(year_pol) if first_treat==2 & year_pol>0
 bysort State County: egen two_year_all=mean(two_year)
@@ -266,23 +265,62 @@ bysort State County: egen two_year_all=mean(two_year)
 replace first_treat=2007 if first_treat==3
 replace first_treat=two_year_all if first_treat==2
 replace first_treat=one_year if first_treat==1
+replace first_treat=. if treat==.
 
 drop one_year two_year two_year_all
 
-csdid LandValue_Thousand had_policy GovPay PopDen AnnualReturn_mi, ///
+csdid LandValue_Thousand treat_after GovPay PopDen AnnualReturn_mi, ///
 ivar(County) time(Year) gvar(first_treat) wboot seed(6)
 estat all
 
-csdid LandValue_Thousand had_policy GovPay PopDen AnnualReturn_mi, ///
+csdid LandValue_Thousand treat_after GovPay PopDen AnnualReturn_mi, ///
 ivar(County) time(Year) gvar(first_treat) long2 wboot seed(6) vce(cluster State)
-estat event, estore(had_policy) 
+estat event, estore(treat_after) 
 
-coefplot had_policy, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(3.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+coefplot treat_after, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(1.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Land value in thousand dollars", size(medium) height(5)) ///
-ylabel(-5(2.5)5, labs(medium) grid format(%5.2f)) ///
+ylabel(-2(2)4, labs(medium) grid format(%5.0f)) ///
 xtitle("Year", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-5 5)) recast(connected) 
-graph export "$doc\PTA.png", replace
+ysc(r(-2 4)) recast(connected) ///
+coeflabels(Tm10 = "1997" Tp0 = "2007" Tp5 = "2012" Tp10 = "2017")
+graph export "$doc\PTAcsdid.png", replace
+*========================================================================*
+/* Sun and Abraham (2021) */
+*========================================================================*
+gen tgroup=first_treat & treat!=.
+replace tgroup=. if treat==0
+gen cgroup=tgroup==.
+replace cgroup=. if treat==.
+
+gen K = Year-first_treat
+
+sum first_treat
+gen lastcohort = first_treat==r(max) // dummy for the latest- or never-treated cohort
+forvalues l = 0(5)10 {
+	gen L`l'event = K==`l'
+}
+forvalues l = 5(5)10 {
+	gen F`l'event = K==-`l'
+}
+replace F5event=0 // normalize K=-1 to zero
+
+eventstudyinteract LandValue_Thousand treat_after if treat!=., absorb(County Year) ///
+cohort(tgroup) control_cohort(cgroup) covariates(GovPay PopDen AnnualReturn_mi) ///
+vce(cluster State)
+
+eventstudyinteract LandValue_Thousand L*event F*event if treat!=., absorb(County Year) ///
+cohort(tgroup) control_cohort(cgroup) covariates(GovPay PopDen AnnualReturn_mi) ///
+vce(cluster State)
+
+event_plot e(b_iw)#e(V_iw), plottype(connected) ciplottype(rcap) together ///
+graph_opt(xtitle("Years from policy adoption") legend(off) ///
+yline(0, lp(solid) lc(black)) ///
+xline(-5, lp(dash) lc(ltblue)) ///
+ytitle("Land value in thousand dollars") xlabel(-10(5)10)) ///
+stub_lag(L#event) stub_lead(F#event) ///
+lag_opt(color(navy)) lag_ci_opt(color(navy)) ///
+lead_opt(color(navy)) lead_ci_opt(color(navy))
+graph export "$doc\PTA_SAdid.png", replace
