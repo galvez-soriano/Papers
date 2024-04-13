@@ -66,7 +66,8 @@ use "$base\personas00.dta", clear
 keep ent mun id_viv id_persona factor sexo edad asisten mun_asi ent_pais_asi escoacum ///
 ent_pais_res_5a mun_res_5a conact ocupacion_c aguinaldo vacaciones servicio_medico ///
 incap_sueldo sar_afore credito_vivienda ingtrmen hortra actividades_c ///
-mun_trab ent_pais_trab tamloc utilidades perte_indigena
+mun_trab ent_pais_trab tamloc utilidades perte_indigena hlengua qdialect_inali ///
+hespanol elengua 
 
 rename id_persona id
 tostring id_viv, replace format(%012.0f) force
@@ -107,6 +108,10 @@ tostring state5, replace format(%02.0f) force
 tostring mun5, replace format(%03.0f) force
 gen str geo=(state5+mun5)
 replace geo="." if mun5=="."
+
+recode hlengua (3=0) (9=.)
+recode hespanol (3=0) (9=.)
+recode elengua (5=1) (7=0) (9=.)
 
 merge 1:1 id using "$base\migrantMerge.dta", nogen
 
@@ -160,14 +165,16 @@ graph export "$doc\econ_status.png", replace
 
 save "$base\census20.dta", replace
 *========================================================================* 
+/* Note to me: I may use state5 and mun5 to impute the exposure variable and, in this way, identify who migrated domestically after exposure */
+*========================================================================* 
 use "$base\census20.dta", clear
 
-gen geo_mun = geo
+gen str geo_mun = state5 + mun5
 replace geo_mun=state+mun if geo=="."
 
 merge m:1 geo_mun cohort using "$data/Papers/main/ReturnsEng/Data/exposure_mun.dta"
 drop if _merge==2
-*drop if geo=="."
+
 drop _merge
 merge m:1 state cohort using "$data/Papers/main/ReturnsEng/Data/exposure_state.dta"
 drop if _merge!=3
@@ -177,7 +184,7 @@ replace hrs_exp=hrs_exp3 if hrs_exp==.
 drop _merge hrs_exp3
 
 gen imputed_state=geo=="."
-drop geo geo_mun
+drop geo
 gen str geo=(state+mun)
 order geo
 /*
@@ -193,10 +200,13 @@ gen informal_s=ind_act==2
 gen inactive=ind_act==3
 gen labor=conact<=30
 
+gen dmigrant=geo!=geo_mun
+drop geo_mun mun_asi ent_pais_asi aguinaldo
+
 /* We only keep individuals who lived five years ago in the same state to 
 make sure that they are likely to belong to the treatment or to the 
 comparison states */
 
-drop if state!=state5
+*drop if state!=state5
 
 save "$base\labor_census20.dta", replace

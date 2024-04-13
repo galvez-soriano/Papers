@@ -9,17 +9,13 @@ gl data= "https://raw.githubusercontent.com/galvez-soriano"
 gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
 gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
-/* You are going to run everything including lines 17-21 for the first 
-time because those lines of the code save the database in your computer.
-However, the subsequent times you won't need to run those specific lines 
-again. */
-*========================================================================*
+/*
 use "$data/Papers/main/EngMigration/Data/labor_census20_1.dta", clear
 foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 {
     append using "$data/Papers/main/EngMigration/Data/labor_census20_`x'.dta"
 }
 save "$base\labor_census20.dta", replace 
-
+*/
 use "$base\labor_census20.dta", clear
 drop if state=="05" | state=="17"
 sum hrs_exp, d
@@ -39,62 +35,75 @@ gen spolicy=state=="01" | state=="10" | state=="19" | state=="25" ///
  | state=="26" | state=="28"
 
 gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1995) & engl==1
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
-*========================================================================*
-/* Regression for main results: Sun and Abraham (2021) */
-*========================================================================*
-gen first_cohort=0
-replace first_cohort=1990 if state=="01" & engl==1
-replace first_cohort=1991 if state=="10" & engl==1
-replace first_cohort=1987 if state=="19" & engl==1
-replace first_cohort=1993 if state=="25" & engl==1
-replace first_cohort=1993 if state=="26" & engl==1
-replace first_cohort=1990 if state=="28" & engl==1
 
+*========================================================================*
+/* TABLE 2. Regression for main results: Migration analysis */
+*========================================================================*
+replace time_migra=0 if time_migra==. & migra_ret==1
+*========================================================================*
+/* TABLE 2. Panel A */
+*========================================================================*
+eststo clear
+eststo: areg dmigrant had_policy rural female i.cohort [aw=factor] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+eststo: areg migrant had_policy rural female i.cohort [aw=factor] if cohort>=1981 & cohort<=1996, absorb(geo) vce(cluster geo)
+eststo: areg migra_ret had_policy rural female i.cohort if migrant==1 & cohort>=1981 & cohort<=1996 [aw=factor], absorb(geo) vce(cluster geo)
+eststo: areg dest_us had_policy rural female edu i.cohort if migra_ret==1 & cohort>=1981 & cohort<=1996 [aw=factor], absorb(geo) vce(cluster geo)
+eststo: areg time_migra had_policy rural female edu i.cohort if migra_ret==1 & cohort>=1981 & cohort<=1996 [aw=factor], absorb(geo) vce(cluster geo)
+esttab using "$doc\tab2_migra.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+*========================================================================*
+/* TABLE 2. Panel B */
+*========================================================================*
+eststo clear
+eststo: areg migrant had_policy rural female i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==0, absorb(geo) vce(cluster geo)
+eststo: areg migra_ret had_policy rural female i.cohort if migrant==1 & cohort>=1981 & cohort<=1996 & female==0 [aw=factor], absorb(geo) vce(cluster geo)
+eststo: areg dest_us had_policy rural female edu i.cohort if migra_ret==1 & cohort>=1981 & cohort<=1996 & female==0 [aw=factor], absorb(geo) vce(cluster geo)
+eststo: areg time_migra had_policy rural female edu i.cohort if migra_ret==1 & cohort>=1981 & cohort<=1996 & female==0 [aw=factor], absorb(geo) vce(cluster geo)
+esttab using "$doc\tab2_migra_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+*========================================================================*
+/* TABLE 2. Panel C */
+*========================================================================*
+eststo clear
+eststo: areg migrant had_policy rural female i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & female==1, absorb(geo) vce(cluster geo)
+eststo: areg migra_ret had_policy rural female i.cohort if migrant==1 & cohort>=1981 & cohort<=1996 & female==1 [aw=factor], absorb(geo) vce(cluster geo)
+eststo: areg dest_us had_policy rural female edu i.cohort if migra_ret==1 & cohort>=1981 & cohort<=1996 & female==1 [aw=factor], absorb(geo) vce(cluster geo)
+eststo: areg time_migra had_policy rural female edu i.cohort if migra_ret==1 & cohort>=1981 & cohort<=1996 & female==1 [aw=factor], absorb(geo) vce(cluster geo)
+esttab using "$doc\tab2_migra_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+
+*========================================================================*
+/* TABLE 3. Panel C */
+*========================================================================*
+/* de Chaisemartin and D'Haultfoeuille (2020) */
+*========================================================================*
 destring geo, replace
 
-gen tgroup=first_cohort
-replace tgroup=. if state!="01" & state!="10" & state!="19" & state!="25" ///
-& state!="26" & state!="28"
-gen cgroup=tgroup==.
-
-eventstudyinteract student had_policy if cohort>=1981 & cohort<=1996 ///
-[aw=factor], absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
-covariates(rural female migrant edu) ///
-vce(cluster geo)
-eventstudyinteract formal_s had_policy if cohort>=1981 & cohort<=1996 ///
-[aw=factor], absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
-covariates(rural female migrant edu) ///
-vce(cluster geo)
-eventstudyinteract informal_s had_policy if cohort>=1981 & cohort<=1996 ///
-[aw=factor], absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
-covariates(rural female migrant edu) ///
-vce(cluster geo)
-eventstudyinteract inactive had_policy if cohort>=1981 & cohort<=1996 ///
-[aw=factor], absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
-covariates(rural female migrant edu) ///
-vce(cluster geo)
-eventstudyinteract work had_policy if cohort>=1981 & cohort<=1996 ///
-[aw=factor], absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
-covariates(rural female migrant edu) ///
-vce(cluster geo)
-eventstudyinteract wpaid had_policy if cohort>=1981 & cohort<=1996 ///
-[aw=factor], absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
-covariates(rural female migrant edu) ///
-vce(cluster geo)
-eventstudyinteract lwage had_policy if work==1 & cohort>=1981 & cohort<=1996 ///
-[aw=factor], absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
-covariates(rural female migrant edu) ///
-vce(cluster geo)
-eventstudyinteract lwage had_policy if wpaid==1 & cohort>=1981 & cohort<=1996 ///
-[aw=factor], absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
-covariates(rural female migrant edu) ///
-vce(cluster geo)
+did_multiplegt student geo cohort had_policy if cohort>=1981 & cohort<=1996, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(rural female migrant edu)
+did_multiplegt formal_s geo cohort had_policy if cohort>=1981 & cohort<=1996, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(rural female migrant edu)
+did_multiplegt informal_s geo cohort had_policy if cohort>=1981 & cohort<=1996, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(rural female migrant edu)
+did_multiplegt inactive geo cohort had_policy if cohort>=1981 & cohort<=1996, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(rural female migrant edu)
+did_multiplegt work geo cohort had_policy if cohort>=1981 & cohort<=1996, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(rural female migrant edu)
+did_multiplegt wpaid geo cohort had_policy if cohort>=1981 & cohort<=1996, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(rural female migrant edu)
+did_multiplegt lwage geo cohort had_policy if work==1 & cohort>=1981 & cohort<=1996, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(rural female migrant edu)
+did_multiplegt lwage geo cohort had_policy if wpaid==1 & cohort>=1981 & cohort<=1996, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(rural female migrant edu)
 
 /* The results from these regressions are the ones I want you to copy and paste
 in my Overleaf document, in Table 3, panel B. 
