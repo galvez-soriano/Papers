@@ -12,6 +12,7 @@ ssc install catplot, replace
 ssc install estout, replace
 ssc install grstyle, replace
 ssc install spmap, replace
+ssc install avar, replace
 ssc install boottest, replace
 ssc install reghdfe, replace
 ssc install ftools, replace
