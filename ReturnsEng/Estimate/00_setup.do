@@ -15,5 +15,10 @@ ssc install spmap, replace
 ssc install boottest, replace
 ssc install reghdfe, replace
 ssc install ftools, replace
+ssc install drdid, replace
+ssc install csdid, replace
+ssc install eventstudyinteract, replace
+ssc install did_multiplegt, replace
+ssc install event_plot, replace
 grstyle init
 grstyle set plain, horizontal
