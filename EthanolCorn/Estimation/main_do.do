@@ -6,7 +6,7 @@ Authors: Hoanh Le and Oscar Galvez-Soriano */
 clear 
 set more off
 gl data = "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EthanolCorn/Data"
-gl doc = "C:\Users\galve\Documents\Papers\Current\CornEthanol\Doc"
+gl doc = "C:\Users\Oscar Galvez Soriano\Documents\Papers\Ethanol\Doc"
 /* ========================================================== */
 * This data only include states in the midwest region
 use  "$data/RFSdata.dta", clear
@@ -318,7 +318,7 @@ vce(cluster State)
 event_plot e(b_iw)#e(V_iw), plottype(connected) ciplottype(rcap) together ///
 graph_opt(xtitle("Years from policy adoption") legend(off) ///
 yline(0, lp(solid) lc(black)) ///
-xline(-5, lp(dash) lc(ltblue)) ///
+xline(-2, lp(dash) lc(ltblue)) ///
 ytitle("Land value in thousand dollars") xlabel(-10(5)10)) ///
 stub_lag(L#event) stub_lead(F#event) ///
 lag_opt(color(navy)) lag_ci_opt(color(navy)) ///
