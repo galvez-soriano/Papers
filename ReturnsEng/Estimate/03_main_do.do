@@ -13,7 +13,7 @@ gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Doc"
 *========================================================================*
 use "$data/eng_abil.dta", clear
 drop if state=="05" | state=="17"
-keep if cohort>=1986 & cohort<=1996
+keep if cohort>=1984 & cohort<=1996
 keep if biare==1
 destring state, replace
 *========================================================================*
@@ -120,12 +120,12 @@ star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(eng_female) replace
 /* Difference in estimate by education (female) */
 dis (0.840+0.379)/sqrt((0.741^2)+(0.329))
 *========================================================================*
-/* TABLE 3. Effect of English programs (staggered DiD) */
+/* TABLE 3. Effect of English programs on labor market outcomes */
 *========================================================================*
 use "$data/eng_abil.dta", clear
 keep if biare==1
 drop if state=="05" | state=="17"
-keep if cohort>=1986 & cohort<=1996
+keep if cohort>=1984 & cohort<=1996
 sum hrs_exp, d
 return list
 gen engl=hrs_exp>=r(p90)
@@ -144,24 +144,18 @@ destring state, replace
 /* Panel A: Full sample */ 
 *========================================================================*
 eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort ///
+eststo: areg hrs_exp had_policy i.cohort ///
 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort ///
+eststo: areg eng had_policy i.cohort ///
 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort ///
+eststo: areg lwage had_policy i.cohort ///
 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort ///
+eststo: areg paidw had_policy i.cohort ///
 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-/*eststo: areg lhwork had_policy i.cohort state#cohort ///
-[aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort ///
-[aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci*/
 esttab using "$doc\tab_SDDa.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
@@ -169,22 +163,22 @@ stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /* Panel B: Older individuals who work for pay */ 
 *========================================================================*
 eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort  if cohort>=1986 & cohort<=1994 ///
+eststo: areg hrs_exp had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort if cohort>=1986 & cohort<=1994 ///
+eststo: areg eng had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort if cohort>=1986 & cohort<=1994 ///
+eststo: areg lwage had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort if cohort>=1986 & cohort<=1994 ///
+eststo: areg paidw had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort state#cohort  if cohort>=1986 & cohort<=1994 ///
+eststo: areg lhwork had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort  if cohort>=1986 & cohort<=1994 ///
+eststo: areg formal had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
 esttab using "$doc\tab_SDDb.tex", cells(b(star fmt(%9.3f)) se(par)) ///
@@ -194,82 +188,132 @@ stats(N ar2, fmt(%9.0fc %9.3f)) replace
 /* Panel C: Older individuals who work for pay (with controls) */ 
 *========================================================================*
 eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
+eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
+eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
+eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
+eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
+eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
+eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
 & paidw==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
 esttab using "$doc\tab_SDDc.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
-
-
 *========================================================================*
-/* Panel B: Workers in formal jobs */ 
+/* TABLE 4. Effect of English programs on labor market outcomes */
+*========================================================================*
+/* Panel A: Men */ 
 *========================================================================*
 eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& formal==1 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& female==0 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-esttab using "$doc\tab_SDD_formal.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+esttab using "$doc\tab_SDD_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
-/* Panel B: Workers in informal jobs */ 
+/* Panel B: Women */ 
 *========================================================================*
 eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& formal==0 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& female==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
+eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
 boottest had_policy, seed(6) noci
-esttab using "$doc\tab_SDD_informal.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+esttab using "$doc\tab_SDD_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Panel C: Low educational attainment */
+*========================================================================*
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& edu<12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+esttab using "$doc\tab_SDD_ledu.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
+stats(N ar2, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Panel D: High educational attainment */
+*========================================================================*
+eststo clear
+eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1984 & cohort<=1994 ///
+& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
+boottest had_policy, seed(6) noci
+esttab using "$doc\tab_SDD_hedu.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
 
 *========================================================================*
-/* TABLE 4. English programs and robustness in the presence of heterogeneous 
+/* TABLE 5. English programs and robustness in the presence of heterogeneous 
 treatment effects */
 *========================================================================*
 clear

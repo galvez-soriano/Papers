@@ -15,7 +15,7 @@ gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\ReturnsEng\Doc"
 use "$data/eng_abil.dta", clear
 keep if biare==1
 drop if state=="05" | state=="17"
-keep if cohort>=1986 & cohort<=1994
+keep if cohort>=1984 & cohort<=1994
 sum hrs_exp, d
 return list
 gen engl=hrs_exp>=r(p90)
@@ -62,82 +62,137 @@ foreach x in 0 1 2 3 4 5 6 7 8 {
 	label var treat1`x' "`x'"
 }
 
-drop treat2 treat3 treat4 treat5 treat6 treat17 treat18
+drop treat2 treat3 treat17 treat18
 destring state, replace
 
-reghdfe hrs_exp treat* ///
+reghdfe hrs_exp treat* if paidw==1 ///
+[aw=weight], absorb(cohort geo) vce(cluster geo)
+estimates store hexp_ss
+reghdfe hrs_exp treat* edu female if paidw==1 ///
 [aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(3.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+estimates store hexp_ssc
+
+coefplot ///
+(hexp_ss, label(Sample without controls) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)) ///
+(hexp_ssc, offset(-0.1) label(Sample with controls) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
+vertical keep(treat*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-2 2)) recast(connected)
+legend(pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+ysc(r(-1 1)) recast(connected)
 graph export "$doc\PTA_StagDD1.png", replace
 
-reghdfe eng treat* ///
+reghdfe eng treat* if paidw==1 ///
+[aw=weight], absorb(cohort geo) vce(cluster geo)
+estimates store eng_ss
+reghdfe eng treat* edu female if paidw==1 ///
 [aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(3.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+estimates store eng_ssc
+
+coefplot ///
+(eng_ss, label(Sample without controls) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)) ///
+(eng_ssc, offset(-0.1) label(Sample with controls) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
+vertical keep(treat*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of speaking English", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+legend(off) ///
 ysc(r(-1 1)) recast(connected)
 graph export "$doc\PTA_StagDD2.png", replace
 
 reghdfe paidw treat* ///
+[aw=weight], absorb(cohort geo) vce(cluster geo)
+estimates store paid_ss
+reghdfe paidw treat* edu female ///
 [aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(3.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+estimates store paid_ssc
+
+coefplot ///
+(paid_ss, label(Sample without controls) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)) ///
+(paid_ssc, offset(-0.1) label(Sample with controls) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
+vertical keep(treat*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of working for pay", size(medium) height(5)) ///
-ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-2 2)) recast(connected)
+legend(off) ///
+ysc(r(-1 1)) recast(connected)
 graph export "$doc\PTA_StagDD3.png", replace
 
-reghdfe lwage treat* ///
+reghdfe lwage treat* if paidw==1 ///
+[aw=weight], absorb(cohort geo) vce(cluster geo)
+estimates store wage_ss
+reghdfe lwage treat* edu female if paidw==1 ///
 [aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(3.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+estimates store wage_ssc
+
+coefplot ///
+(wage_ss, label(Sample without controls) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)) ///
+(wage_ssc, offset(-0.1) label(Sample with controls) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
+vertical keep(treat*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Percentage change of wages", size(medium) height(5)) ///
 ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+legend(off) ///
 ysc(r(-10 10)) recast(connected)
 graph export "$doc\PTA_StagDD4.png", replace
 
-reghdfe lhwork treat* ///
-[aw=weight] if paidw==1, absorb(cohort geo state#cohort) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(3.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+
+reghdfe lhwork treat* if paidw==1 ///
+[aw=weight], absorb(cohort geo) vce(cluster geo)
+estimates store ls_ss
+reghdfe lhwork treat* edu female if paidw==1 ///
+[aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
+estimates store ls_ssc
+
+coefplot ///
+(ls_ss, label(Sample without controls) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)) ///
+(ls_ssc, offset(-0.1) label(Sample with controls) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
+vertical keep(treat*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Percentage change of hours worked", size(medium) height(5)) ///
 ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+legend(off) ///
 ysc(r(-2 2)) recast(connected)
 graph export "$doc\PTA_StagDD5.png", replace
 
-reghdfe formal treat* ///
-[aw=weight] if paidw==1, absorb(cohort geo state#cohort) vce(cluster geo)
-coefplot, vertical keep(treat*) yline(0) omitted baselevels ///
-xline(3.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+reghdfe formal treat* if paidw==1 ///
+[aw=weight], absorb(cohort geo) vce(cluster geo)
+estimates store formal_ss
+reghdfe formal treat* edu female if paidw==1 ///
+[aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
+estimates store formal_ssc
+
+coefplot ///
+(formal_ss, label(Sample without controls) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)) ///
+(formal_ssc, offset(-0.1) label(Sample with controls) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
+vertical keep(treat*) yline(0) omitted baselevels ///
+xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of working in formal sector", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+legend(off) ///
 ysc(r(-1 1)) recast(connected)
 graph export "$doc\PTA_StagDD6.png", replace
 *========================================================================*
-/* TABLE 1: Descriptive statistics */  lwage paidw lhwork formal
+/* TABLE 1: Descriptive statistics */ 
 *========================================================================*
 use "$base/eng_abil.dta", clear
 keep if biare==1 
@@ -584,124 +639,3 @@ reg eng female [aw=weight] if age>=18 & age<=65, vce(robust)
 * Ethnicity-English gap
 reg eng indigenous [aw=weight] if age>=18 & age<=65, vce(robust)
 */
-*========================================================================*
-/* TABLE A3. Effect of English programs (staggered DiD) */
-*========================================================================*
-use "$data/eng_abil.dta", clear
-keep if biare==1
-drop if state=="05" | state=="17"
-keep if cohort>=1986 & cohort<=1996
-sum hrs_exp, d
-return list
-gen engl=hrs_exp>=r(p90)
-gen lhwork=log(hrs_work)
-
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
-
-destring state, replace
-*========================================================================*
-/* Panel A: Men */ 
-*========================================================================*
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& female==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-esttab using "$doc\tab_SDD_men.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-*========================================================================*
-/* Panel B: Women */ 
-*========================================================================*
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& female==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & female==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-esttab using "$doc\tab_SDD_women.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-*========================================================================*
-/* Panel C: Low educational attainment */
-*========================================================================*
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& edu<12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu<12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-esttab using "$doc\tab_SDD_ledu.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-*========================================================================*
-/* Panel D: High educational attainment */
-*========================================================================*
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort state#cohort edu female if cohort>=1986 & cohort<=1994 ///
-& paidw==1 & edu>=12 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-esttab using "$doc\tab_SDD_hedu.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
