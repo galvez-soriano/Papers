@@ -210,56 +210,6 @@ esttab using "$doc\tab_SDDc.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
-/* Panel D: Informal */ 
-*========================================================================*
-/*eststo clear
-eststo: areg hrs_exp had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& formal==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==0 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-esttab using "$doc\tab_SDDd.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace
-*========================================================================*
-/* Panel E: Formal */ 
-*========================================================================*
-eststo clear
-eststo: areg hrs_exp had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg eng had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lwage had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg paidw had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& formal==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg lhwork had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-eststo: areg formal had_policy i.cohort if cohort>=1984 & cohort<=1994 ///
-& paidw==1 & formal==1 [aw=weight], absorb(geo) vce(cluster geo)
-boottest had_policy, seed(6) noci
-esttab using "$doc\tab_SDDe.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
-stats(N ar2, fmt(%9.0fc %9.3f)) replace*/
-*========================================================================*
 /* TABLE 4. English programs and robustness in the presence of heterogeneous 
 treatment effects */
 *========================================================================*
@@ -276,8 +226,8 @@ return list
 gen engl=hrs_exp>=r(p90)
 gen lhwork=log(hrs_work)
 
-tab state, generate(dstate)
-/*foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
+/*tab state, generate(dstate)
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
 25 26 27 28 29 {
 	foreach z in 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 ///
 	1993 1994 {
@@ -358,39 +308,78 @@ csdid formal female edu if paidw==1 ///
 [iw=weight], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
 estat all
 *========================================================================*
-/* Panel D: de Chaisemartin and D'Haultfoeuille (2020) */
+/* Panel D: Borusyak, Jaravel, and Spiess (2023) */
 *========================================================================*
+replace first_cohort=1997 if first_cohort==0
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 [aw=weight], ///
+controls(female edu) fe(geo cohort) cluster(geo) autos
+did_imputation eng geo cohort first_cohort if paidw==1 [aw=weight], ///
+controls(female edu) fe(geo cohort) cluster(geo) autos
+did_imputation lwage geo cohort first_cohort if paidw==1 [aw=weight], ///
+controls(female edu) fe(geo cohort) cluster(geo) autos
+did_imputation paidw geo cohort first_cohort [aw=weight], ///
+controls(female edu) fe(geo cohort) cluster(geo) autos
+did_imputation lhwork geo cohort first_cohort if paidw==1 [aw=weight], ///
+controls(female edu) fe(geo cohort) cluster(geo) autos
+did_imputation formal geo cohort first_cohort if paidw==1 [aw=weight], ///
+controls(female edu) fe(geo cohort) cluster(geo) autos
+*========================================================================*
+/* Panel E: de Chaisemartin and D'Haultfoeuille (2020) */
+*========================================================================*
+clear
+clear matrix
+clear mata
+set maxvar 120000
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring geo, replace
+
 did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu)
 did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(2) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu)
 did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu)
 did_multiplegt paidw geo cohort had_policy, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu)
 did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu)
 did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu)
 /* Goodman-Bacon decomposition */
 twowayfeweights hrs_exp geo cohort had_policy if paidw==1, type(feTR) ///
-weight(weight) controls(female edu c_state*)
+weight(weight) controls(female edu)
 twowayfeweights eng geo cohort had_policy if paidw==1, type(feTR) ///
-weight(weight) controls(female edu c_state*)
+weight(weight) controls(female edu)
 twowayfeweights lwage geo cohort had_policy if paidw==1, type(feTR) ///
-weight(weight) controls(female edu c_state*)
+weight(weight) controls(female edu)
 twowayfeweights paidw geo cohort had_policy, type(feTR) ///
-weight(weight) controls(female edu c_state*)
+weight(weight) controls(female edu)
 twowayfeweights lhwork geo cohort had_policy if paidw==1, type(feTR) ///
-weight(weight) controls(female edu c_state*)
+weight(weight) controls(female edu)
 twowayfeweights formal geo cohort had_policy if paidw==1, type(feTR) ///
-weight(weight) controls(female edu c_state*)
+weight(weight) controls(female edu)
 *========================================================================*
 /* Wooldridge (2021) 
 
@@ -398,24 +387,6 @@ I cannot use this method because I have an unbalanced pooled cross
 sectional data */
 *========================================================================*
 *hdidregress aipw (lwage) (had_policy), group(geo) time(cohort)
-*========================================================================*
-/* Panel E: Borusyak, Jaravel, and Spiess (2023) */
-*========================================================================*
-replace first_cohort=1997 if first_cohort==0
-did_imputation hrs_exp geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female indigenous married) fe(geo cohort edu state#cohort) cluster(geo) autos
-did_imputation eng geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female indigenous married) fe(geo cohort edu state#cohort) cluster(geo) autos
-did_imputation lwage geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female indigenous married) fe(geo cohort edu state#cohort) cluster(geo) autos
-did_imputation paidw geo cohort first_cohort [aw=weight], ///
-controls(female indigenous married) fe(geo cohort edu state#cohort) cluster(geo) autos
-did_imputation lhwork geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female indigenous married) fe(geo cohort edu state#cohort) cluster(geo) autos
-did_imputation formal geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female indigenous married) fe(geo cohort edu state#cohort) cluster(geo) autos
-
-
 
 *========================================================================*
 /* Robustness Check: Narrow cohorts */
