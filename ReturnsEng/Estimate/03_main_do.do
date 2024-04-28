@@ -381,6 +381,45 @@ weight(weight) controls(female edu)
 twowayfeweights formal geo cohort had_policy if paidw==1, type(feTR) ///
 weight(weight) controls(female edu)
 *========================================================================*
+/* Heterogeneous effects */
+*========================================================================*
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEngMen_b = e(estimates) \ 0
+matrix hrsEngMen_v = e(variances) \ 0
+
+mat rownames hrsEngMen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEngMen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEngWomen_b = e(estimates) \ 0
+matrix hrsEngWomen_v = e(variances) \ 0
+
+mat rownames hrsEngWomen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEngWomen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+*========================================================================*
+event_plot hrsEngMen_b#hrsEngMen_v hrsEngWomen_b#hrsEngWomen_v, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Men" 4 "Women") pos(5) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(medlarge) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt3(msize(medium) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick))
+graph export "$doc\PTA_hrsEngSex.png", replace
+
+*========================================================================*
 /* Wooldridge (2021) 
 
 I cannot use this method because I have an unbalanced pooled cross
