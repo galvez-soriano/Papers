@@ -6,7 +6,7 @@ Authors: Hoanh Le and Oscar Galvez-Soriano */
 clear 
 set more off
 gl data = "https://raw.githubusercontent.com/galvez-soriano/Papers/main/EthanolCorn/Data"
-gl doc = "C:\Users\Oscar Galvez Soriano\Documents\Papers\Ethanol\Doc"
+gl doc = "C:\Users\galve\Documents\Papers\Current\CornEthanol\Doc"
 /* ========================================================== */
 * This data only include states in the midwest region
 use  "$data/RFSdata.dta", clear
@@ -74,11 +74,12 @@ replace Treat = 0 if min_before <=r(p10)& min_after <= r(p10)
 gen after=Year>2005
 gen DiD=Treat*after*/
 
-sum PecentPlantedCorn, d
-gen wcorn=PecentPlantedCorn > r(p10)
-bysort State County: egen nperiods=total(wcorn)
-gen treat=1 if nperiods==5
-replace treat=0 if nperiods==0
+sum nccpi, d
+*gen wcorn=nccpi > r(p10)
+*bysort State County: egen nperiods=total(wcorn)
+*gen treat=1 if nperiods==5
+*replace treat=0 if nperiods==0
+gen treat=nccpi > r(p10)
 
 gen after=Year>2005
 gen treat_after=treat*after
@@ -146,7 +147,7 @@ graph export "$doc\events.png", replace
 /* ========================================================== */
 /* Sensitivity analysis */
 /* ========================================================== */
-xtile pct = PecentPlantedCorn, nq(100) // creates percentile variable
+xtile pct = nccpi, nq(100) // creates percentile variable
 
 /*drop treat* had_policy
 
@@ -156,19 +157,21 @@ gen had_policy2=treat2*after
 areg LandValue_Thousand had_policy2 i.Year GovPay PopDen ///
 AnnualReturn_mi, absorb(County) robust
 */
-label var pct "Percentile of counties ordered by corn production"
+label var pct "Percentile of counties ordered by NCCPI"
 graph set window fontface "Times New Roman"
-
-eststo clear
-foreach x in 5 6 7 8 9 10 11 12 13 14 15 {
-
-drop treat* wcorn nperiods
-
+/*drop treat* wcorn nperiods
 gen wcorn=pct > `x'
 bysort State County: egen nperiods=total(wcorn)
 gen treat=1 if nperiods==5
 replace treat=0 if nperiods==0
+*/
 
+eststo clear
+foreach x in 5 6 7 8 9 10 11 12 13 14 15 {
+
+drop treat*
+
+gen treat=pct > `x'
 gen treat_after=treat*after
 
 areg LandValue_Thousand treat_after State#Year i.Year GovPay PopDen ///
@@ -176,17 +179,17 @@ AnnualReturn_mi, absorb(County) vce(cluster State)
 estimates store corn`x'
 }
 
-label var treat_after "Percentile of the distribution of planted corn area relative to total area"
+label var treat_after "Percentile of the distribution of NCCPI"
 
 coefplot (corn5, label(>5)) (corn6, label(>6)) (corn7, label(>7)) ///
 (corn8, label(>8)) (corn9, label(>9)) ///
-(corn10, label(>10) mcolor(red) ciopts(recast(rcap) color(red))) ///
+(corn10, label(>10) mcolor(blue) ciopts(recast(rcap) color(blue))) ///
 (corn11, label(>11)) (corn12, label(>12)) (corn13, label(>13)) ///
 (corn14, label(>14)) (corn15, label(>15)), ///
 vertical keep(treat_after) yline(0) ///
-yline(.7778, lstyle(grid) lpattern(dash) lcolor(red)) ///
+yline(.9875402, lstyle(grid) lpattern(dash) lcolor(navy)) ///
 ytitle("Land value in thousand dollars", size(medium) height(5)) ///
-ylabel(-0.5(0.5)2, labs(medium) grid format(%5.2f)) ///
+ylabel(0(0.5)2, labs(medium) grid format(%5.2f)) ///
 legend( pos(2) ring(0) col(4)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
 graph export "$doc\sa_landv.png", replace 
@@ -203,6 +206,7 @@ ylabel(-0.5(0.5)2, labs(medium) grid format(%5.2f)) ///
 legend( pos(5) ring(0) col(3)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
 graph export "$doc\sa_landv.png", replace*/
+
 /* ========================================================== */
 /* Robust: Heterogeneous Effects */
 /* ========================================================== */
@@ -280,11 +284,11 @@ estat event, estore(treat_after)
 coefplot treat_after, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(1.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
 ytitle("Land value in thousand dollars", size(medium) height(5)) ///
-ylabel(-2(2)4, labs(medium) grid format(%5.0f)) ///
+ylabel(-3(3)6, labs(medium) grid format(%5.0f)) ///
 xtitle("Year", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-2 4)) recast(connected) ///
+ysc(r(-3 6)) recast(connected) ///
 coeflabels(Tm10 = "1997" Tp0 = "2007" Tp5 = "2012" Tp10 = "2017")
 graph export "$doc\PTAcsdid.png", replace
 *========================================================================*
@@ -318,9 +322,19 @@ vce(cluster State)
 event_plot e(b_iw)#e(V_iw), plottype(connected) ciplottype(rcap) together ///
 graph_opt(xtitle("Years from policy adoption") legend(off) ///
 yline(0, lp(solid) lc(black)) ///
-xline(-2, lp(dash) lc(ltblue)) ///
+xline(-5, lp(dash) lc(ltblue)) ///
 ytitle("Land value in thousand dollars") xlabel(-10(5)10)) ///
 stub_lag(L#event) stub_lead(F#event) ///
 lag_opt(color(navy)) lag_ci_opt(color(navy)) ///
 lead_opt(color(navy)) lead_ci_opt(color(navy))
 graph export "$doc\PTA_SAdid.png", replace
+
+
+/* ========================================================== */
+/* Robust: Heterogeneous Treatment Effects */
+/* ========================================================== */
+destring fips, replace
+xtset fips Year
+
+drdid LandValue_Thousand State#Year GovPay PopDen AnnualReturn_mi, ///
+ivar(fips) time(Year) tr(treat)
