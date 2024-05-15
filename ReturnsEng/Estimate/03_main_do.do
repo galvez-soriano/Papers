@@ -1484,7 +1484,939 @@ event_plot formal_b1#formal_v1 formal_b2#formal_v2 formal_b3#formal_v3, ///
 	lag_opt3(msize(small) msymbol(T) mfcolor(midblue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(midblue) lwidth(medthick)) 
 graph export "$doc\PTA_FormalStates.png", replace
 
+*========================================================================*
+/* TABLE XXX. Sensitivity changing the treatment and comparison groups */
+*========================================================================*
+clear
+clear matrix
+clear mata
+set maxvar 120000
+*========================================================================*
+/* Changes in treatment group */
+*========================================================================*
+/* Aguascalientes */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17" | state=="01"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
 
+gen had_policy=0 
+*replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring geo, replace
+
+/* Hours of English instruction */
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEng_b1 = e(estimates) \ 0
+matrix hrsEng_v1 = e(variances) \ 0
+
+mat rownames hrsEng_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+mat rownames hrsEng_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+
+/* English speaking ability */
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix Eng_b1 = e(estimates) \ 0
+matrix Eng_v1 = e(variances) \ 0
+
+mat rownames Eng_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+mat rownames Eng_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+
+/* Log of wages */
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix wage_b1 = e(estimates) \ 0
+matrix wage_v1 = e(variances) \ 0
+
+mat rownames wage_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+mat rownames wage_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+
+/* Likelihood of working for pay */
+did_multiplegt paidw geo cohort had_policy, weight(weight) ///
+robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix paidw_b1 = e(estimates) \ 0
+matrix paidw_v1 = e(variances) \ 0
+
+mat rownames paidw_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+mat rownames paidw_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+
+	/* Hrs worked */
+	did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
+	robust_dynamic dynamic(3) placebo(3) breps(100) cluster(geo) ///
+	controls(female edu) 
+
+matrix lhwork_b1 = e(estimates) \ 0
+matrix lhwork_v1 = e(variances) \ 0
+
+mat rownames lhwork_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+mat rownames lhwork_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+
+/* Likelihood of working in formal sector */
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix formal_b1 = e(estimates) \ 0
+matrix formal_v1 = e(variances) \ 0
+
+mat rownames formal_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+mat rownames formal_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
+*========================================================================*
+/* Durango */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17" | state=="10"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+*replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring geo, replace
+
+/* Hours of English instruction */
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEng_b2 = e(estimates) \ 0
+matrix hrsEng_v2 = e(variances) \ 0
+
+mat rownames hrsEng_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEng_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* English speaking ability */
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix Eng_b2 = e(estimates) \ 0
+matrix Eng_v2 = e(variances) \ 0
+
+mat rownames Eng_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames Eng_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Log of wages */
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix wage_b2 = e(estimates) \ 0
+matrix wage_v2 = e(variances) \ 0
+
+mat rownames wage_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames wage_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working for pay */
+did_multiplegt paidw geo cohort had_policy, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix paidw_b2 = e(estimates) \ 0
+matrix paidw_v2 = e(variances) \ 0
+
+mat rownames paidw_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames paidw_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Hrs worked */
+did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix lhwork_b2 = e(estimates) \ 0
+matrix lhwork_v2 = e(variances) \ 0
+
+mat rownames lhwork_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames lhwork_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in formal sector */
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix formal_b2 = e(estimates) \ 0
+matrix formal_v2 = e(variances) \ 0
+
+mat rownames formal_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames formal_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+*========================================================================*
+/* Nuevo Leon */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17" | state=="19"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+*replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring geo, replace
+
+/* Hours of English instruction */
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEng_b3 = e(estimates) \ 0
+matrix hrsEng_v3 = e(variances) \ 0
+
+mat rownames hrsEng_b3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEng_v3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* English speaking ability */
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix Eng_b3 = e(estimates) \ 0
+matrix Eng_v3 = e(variances) \ 0
+
+mat rownames Eng_b3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames Eng_v3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Log of wages */
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix wage_b3 = e(estimates) \ 0
+matrix wage_v3 = e(variances) \ 0
+
+mat rownames wage_b3= Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames wage_v3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working for pay */
+did_multiplegt paidw geo cohort had_policy, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix paidw_b3 = e(estimates) \ 0
+matrix paidw_v3 = e(variances) \ 0
+
+mat rownames paidw_b3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames paidw_v3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Hrs worked */
+did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix lhwork_b3 = e(estimates) \ 0
+matrix lhwork_v3 = e(variances) \ 0
+
+mat rownames lhwork_b3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames lhwork_v3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in formal sector */
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix formal_b3 = e(estimates) \ 0
+matrix formal_v3 = e(variances) \ 0
+
+mat rownames formal_b3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames formal_v3 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+*========================================================================*
+/* Sinaloa */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17" | state=="25"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+*replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring geo, replace
+
+/* Hours of English instruction */
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEng_b4 = e(estimates) \ 0
+matrix hrsEng_v4 = e(variances) \ 0
+
+mat rownames hrsEng_b4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEng_v4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* English speaking ability */
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix Eng_b4 = e(estimates) \ 0
+matrix Eng_v4 = e(variances) \ 0
+
+mat rownames Eng_b4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames Eng_v4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Log of wages */
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix wage_b4 = e(estimates) \ 0
+matrix wage_v4 = e(variances) \ 0
+
+mat rownames wage_b4= Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames wage_v4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working for pay */
+did_multiplegt paidw geo cohort had_policy, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix paidw_b4 = e(estimates) \ 0
+matrix paidw_v4 = e(variances) \ 0
+
+mat rownames paidw_b4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames paidw_v4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Hrs worked */
+did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix lhwork_b4 = e(estimates) \ 0
+matrix lhwork_v4 = e(variances) \ 0
+
+mat rownames lhwork_b4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames lhwork_v4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in formal sector */
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix formal_b4 = e(estimates) \ 0
+matrix formal_v4 = e(variances) \ 0
+
+mat rownames formal_b4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames formal_v4 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+*========================================================================*
+/* Sonora */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17" | state=="26"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+*replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring geo, replace
+
+/* Hours of English instruction */
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEng_b5 = e(estimates) \ 0
+matrix hrsEng_v5 = e(variances) \ 0
+
+mat rownames hrsEng_b5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEng_v5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* English speaking ability */
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix Eng_b5 = e(estimates) \ 0
+matrix Eng_v5 = e(variances) \ 0
+
+mat rownames Eng_b5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames Eng_v5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Log of wages */
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix wage_b5 = e(estimates) \ 0
+matrix wage_v5 = e(variances) \ 0
+
+mat rownames wage_b5= Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames wage_v5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working for pay */
+did_multiplegt paidw geo cohort had_policy, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix paidw_b5 = e(estimates) \ 0
+matrix paidw_v5 = e(variances) \ 0
+
+mat rownames paidw_b5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames paidw_v5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Hrs worked */
+did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix lhwork_b5 = e(estimates) \ 0
+matrix lhwork_v5 = e(variances) \ 0
+
+mat rownames lhwork_b5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames lhwork_v5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in formal sector */
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix formal_b5 = e(estimates) \ 0
+matrix formal_v5 = e(variances) \ 0
+
+mat rownames formal_b5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames formal_v5 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+*========================================================================*
+/* Tamaulipas */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17" | state=="28"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+*replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring geo, replace
+
+/* Hours of English instruction */
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEng_b6 = e(estimates) \ 0
+matrix hrsEng_v6 = e(variances) \ 0
+
+mat rownames hrsEng_b6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEng_v6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* English speaking ability */
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix Eng_b6 = e(estimates) \ 0
+matrix Eng_v6 = e(variances) \ 0
+
+mat rownames Eng_b6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames Eng_v6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Log of wages */
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix wage_b6 = e(estimates) \ 0
+matrix wage_v6 = e(variances) \ 0
+
+mat rownames wage_b6= Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames wage_v6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working for pay */
+did_multiplegt paidw geo cohort had_policy, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix paidw_b6 = e(estimates) \ 0
+matrix paidw_v6 = e(variances) \ 0
+
+mat rownames paidw_b6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames paidw_v6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Hrs worked */
+did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix lhwork_b6 = e(estimates) \ 0
+matrix lhwork_v6 = e(variances) \ 0
+
+mat rownames lhwork_b6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames lhwork_v6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in formal sector */
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix formal_b6 = e(estimates) \ 0
+matrix formal_v6 = e(variances) \ 0
+
+mat rownames formal_b6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames formal_v6 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+*========================================================================*
+/* FIGURE XX:  */
+*========================================================================*
+/* Hours of English instruction */
+event_plot hrsEng_b1#hrsEng_v1 hrsEng_b2#hrsEng_v2 hrsEng_b3#hrsEng_v3 hrsEng_b4#hrsEng_v4 hrsEng_b5#hrsEng_v5 hrsEng_b6#hrsEng_v6, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Excluding Aguascalientes" 4 "Excluding Durango" 6 "Excluding Nuevo Leon" 8 "Excluding Sinaloa" 10 "Excluding Sonora" 12 "Excluding Tamaulipas") pos(5) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick)) ///
+	lag_opt3(msize(small) msymbol(T) mfcolor(midblue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(midblue) lwidth(medthick)) ///
+	lag_opt4(msize(small) msymbol(D) mfcolor(dkgreen) mlcolor(dkgreen) mlwidth(thin)) lag_ci_opt4(color(dkgreen) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(+) mfcolor(midgreen) mlcolor(midgreen) mlwidth(thin)) lag_ci_opt5(color(midgreen) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(X) mfcolor(green) mlcolor(green) mlwidth(thin)) lag_ci_opt6(color(green) lwidth(medthick))
+graph export "$doc\PTA_hrsEngTStates.png", replace
+
+/* English speaking ability */
+event_plot Eng_b1#Eng_v1 Eng_b2#Eng_v2 Eng_b3#Eng_v3 Eng_b4#Eng_v4 Eng_b5#Eng_v5 Eng_b6#Eng_v6, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_# Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_# Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick)) ///
+	lag_opt3(msize(small) msymbol(T) mfcolor(midblue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(midblue) lwidth(medthick)) ///
+	lag_opt4(msize(small) msymbol(D) mfcolor(dkgreen) mlcolor(dkgreen) mlwidth(thin)) lag_ci_opt4(color(dkgreen) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(+) mfcolor(midgreen) mlcolor(midgreen) mlwidth(thin)) lag_ci_opt5(color(midgreen) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(X) mfcolor(green) mlcolor(green) mlwidth(thin)) lag_ci_opt6(color(green) lwidth(medthick))
+graph export "$doc\PTA_EngTStates.png", replace
+
+/* Log of wages */
+event_plot wage_b1#wage_v1 wage_b2#wage_v2 wage_b3#wage_v3 wage_b4#wage_v4 wage_b5#wage_v5 wage_b6#wage_v6, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_# Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_# Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of wages", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick)) ///
+	lag_opt3(msize(small) msymbol(T) mfcolor(midblue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(midblue) lwidth(medthick)) ///
+	lag_opt4(msize(small) msymbol(D) mfcolor(dkgreen) mlcolor(dkgreen) mlwidth(thin)) lag_ci_opt4(color(dkgreen) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(+) mfcolor(midgreen) mlcolor(midgreen) mlwidth(thin)) lag_ci_opt5(color(midgreen) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(X) mfcolor(green) mlcolor(green) mlwidth(thin)) lag_ci_opt6(color(green) lwidth(medthick))
+graph export "$doc\PTA_WageTStates.png", replace
+
+/* Likelihood of working for pay */
+event_plot paidw_b1#paidw_v1 paidw_b2#paidw_v2 paidw_b3#paidw_v3 paidw_b4#paidw_v4 paidw_b5#paidw_v5 paidw_b6#paidw_v6, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_# Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_# Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Likelihood of working for pay", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick)) ///
+	lag_opt3(msize(small) msymbol(T) mfcolor(midblue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(midblue) lwidth(medthick)) ///
+	lag_opt4(msize(small) msymbol(D) mfcolor(dkgreen) mlcolor(dkgreen) mlwidth(thin)) lag_ci_opt4(color(dkgreen) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(+) mfcolor(midgreen) mlcolor(midgreen) mlwidth(thin)) lag_ci_opt5(color(midgreen) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(X) mfcolor(green) mlcolor(green) mlwidth(thin)) lag_ci_opt6(color(green) lwidth(medthick))
+graph export "$doc\PTA_PaidTStates.png", replace
+
+/* Hrs worked */
+event_plot lhwork_b1#lhwork_v1 lhwork_b2#lhwork_v2 lhwork_b3#lhwork_v3 lhwork_b4#lhwork_v4 lhwork_b5#lhwork_v5 lhwork_b6#lhwork_v6, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_# Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_# Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of hours worked", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick)) ///
+	lag_opt3(msize(small) msymbol(T) mfcolor(midblue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(midblue) lwidth(medthick)) ///
+	lag_opt4(msize(small) msymbol(D) mfcolor(dkgreen) mlcolor(dkgreen) mlwidth(thin)) lag_ci_opt4(color(dkgreen) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(+) mfcolor(midgreen) mlcolor(midgreen) mlwidth(thin)) lag_ci_opt5(color(midgreen) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(X) mfcolor(green) mlcolor(green) mlwidth(thin)) lag_ci_opt6(color(green) lwidth(medthick))
+graph export "$doc\PTA_lsTStates.png", replace
+
+/* Likelihood of working in formal sector */
+event_plot formal_b1#formal_v1 formal_b2#formal_v2 formal_b3#formal_v3 formal_b4#formal_v4 formal_b5#formal_v5 formal_b6#formal_v6, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_# Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_# Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of hours worked", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick)) ///
+	lag_opt3(msize(small) msymbol(T) mfcolor(midblue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(midblue) lwidth(medthick)) ///
+	lag_opt4(msize(small) msymbol(D) mfcolor(dkgreen) mlcolor(dkgreen) mlwidth(thin)) lag_ci_opt4(color(dkgreen) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(+) mfcolor(midgreen) mlcolor(midgreen) mlwidth(thin)) lag_ci_opt5(color(midgreen) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(X) mfcolor(green) mlcolor(green) mlwidth(thin)) lag_ci_opt6(color(green) lwidth(medthick))
+graph export "$doc\PTA_FormalTStates.png", replace
+
+*========================================================================*
+/* FIGURE XXX: State trends */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+tab state, generate(dstate)
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
+25 26 27 28 29 {
+	foreach z in 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 ///
+	1995 1996 {
+gen c_state`z'_`x'=0
+replace c_state`z'_`x'=1 if dstate`x'==1 & cohort==`z'
+}
+}
+
+destring geo, replace
+
+/* Hours of English instruction */
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix hrsEng_b1 = e(estimates) \ 0
+matrix hrsEng_v1 = e(variances) \ 0
+
+mat rownames hrsEng_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEng_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu c_state*) 
+
+matrix hrsEng_b2 = e(estimates) \ 0
+matrix hrsEng_v2 = e(variances) \ 0
+
+mat rownames hrsEng_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames hrsEng_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* English speaking ability */
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix Eng_b1 = e(estimates) \ 0
+matrix Eng_v1 = e(variances) \ 0
+
+mat rownames Eng_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames Eng_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu c_state*) 
+
+matrix Eng_b2 = e(estimates) \ 0
+matrix Eng_v2 = e(variances) \ 0
+
+mat rownames Eng_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames Eng_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Log of wages */
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix wage_b1 = e(estimates) \ 0
+matrix wage_v1 = e(variances) \ 0
+
+mat rownames wage_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames wage_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu c_state*) 
+
+matrix wage_b2 = e(estimates) \ 0
+matrix wage_v2 = e(variances) \ 0
+
+mat rownames wage_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames wage_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working for pay */
+did_multiplegt paidw geo cohort had_policy, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix paidw_b1 = e(estimates) \ 0
+matrix paidw_v1 = e(variances) \ 0
+
+mat rownames paidw_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames paidw_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt paidw geo cohort had_policy, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu c_state*) 
+
+matrix paidw_b2 = e(estimates) \ 0
+matrix paidw_v2 = e(variances) \ 0
+
+mat rownames paidw_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames paidw_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Hrs worked */
+did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix lhwork_b1 = e(estimates) \ 0
+matrix lhwork_v1 = e(variances) \ 0
+
+mat rownames lhwork_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames lhwork_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt lhwork geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu c_state*) 
+
+matrix lhwork_b2 = e(estimates) \ 0
+matrix lhwork_v2 = e(variances) \ 0
+
+mat rownames lhwork_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames lhwork_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in formal sector */
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix formal_b1 = e(estimates) \ 0
+matrix formal_v1 = e(variances) \ 0
+
+mat rownames formal_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames formal_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt formal geo cohort had_policy if paidw==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu c_state*) 
+
+matrix formal_b2 = e(estimates) \ 0
+matrix formal_v2 = e(variances) \ 0
+
+mat rownames formal_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames formal_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Hours of English instruction */
+event_plot hrsEng_b1#hrsEng_v1 hrsEng_b2#hrsEng_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Original estimates" 4 "Including state by cohort FE") pos(5) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
+graph export "$doc\PTA_hrsEngFE.png", replace
+
+/* English speaking ability */
+event_plot Eng_b1#Eng_v1 Eng_b2#Eng_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
+graph export "$doc\PTA_EngFE.png", replace
+
+/* Log of wages */
+event_plot wage_b1#wage_v1 wage_b2#wage_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of wages", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick)) 
+graph export "$doc\PTA_WageFE.png", replace
+
+/* Likelihood of working for pay */
+event_plot paidw_b1#paidw_v1 paidw_b2#paidw_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Likelihood of working for pay", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
+graph export "$doc\PTA_PaidFE.png", replace
+
+/* Hrs worked */
+event_plot lhwork_b1#lhwork_v1 lhwork_b2#lhwork_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of hours worked", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
+graph export "$doc\PTA_lsFE.png", replace
+
+/* Likelihood of working in formal sector */
+event_plot formal_b1#formal_v1 formal_b2#formal_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of hours worked", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick)) 
+graph export "$doc\PTA_FormalFE.png", replace
 
 *========================================================================*
 /* Mechanisms */
