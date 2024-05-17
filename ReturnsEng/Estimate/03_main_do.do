@@ -2353,7 +2353,7 @@ event_plot wage_b1#wage_v1 wage_b2#wage_v2, ///
     stub_lag(Effect_# Effect_#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+	ylabel(-4(4)12, labs(medium) grid format(%5.0f)) ///
 	ytitle("Percentage change of wages", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -2389,7 +2389,7 @@ event_plot lhwork_b1#lhwork_v1 lhwork_b2#lhwork_v2, ///
     stub_lag(Effect_# Effect_#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ylabel(-2(2)6, labs(medium) grid format(%5.0f)) ///
 	ytitle("Percentage change of hours worked", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -2420,6 +2420,88 @@ graph export "$doc\PTA_FormalFE.png", replace
 
 *========================================================================*
 /* Mechanisms */
+*========================================================================*
+/* Figure X: Jobs requiring English skills */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+collapse eng [fw=weight], by(sinco2011)
+rename eng eng_ocupa
+label var eng_ocupa "Distribution of the proportion of English speakers"
+sum eng_ocupa, det
+
+graph twoway (hist eng_ocupa, frac ///
+xtitle("Distribution of the proportion of English speakers") ///
+xlabel(0(0.2)1, labs(medium) grid format(%5.1f)) ///
+ytitle("Fraction") ///
+ylabel(0(0.2)1, labs(medium) grid format(%5.1f))) ///
+(scatteri 0 .156 1 .156, c(l) m(i)), ///
+legend(off)
+graph export "$doc\histo_eng.png", replace
+
+save "$base/eng_ocupa.dta", replace
+*========================================================================*
+use "$data/eng_abil.dta", clear
+merge m:1 sinco2011 using "$base/eng_ocupa.dta", nogen
+keep if biare==1
+drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+destring geo, replace
+sum eng_ocupa, d
+return list
+gen high_eng=eng_ocupa>=r(p90)
+
+did_multiplegt high_eng geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+matrix heng_b1 = e(estimates) \ 0
+matrix heng_v1 = e(variances) \ 0
+
+mat rownames heng_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames heng_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt high_eng geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
+robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
+controls(female edu) 
+
+
+graph export "$doc\PTA_SDD_EngJobs.png", replace
+
+csdid high_eng female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
+estat event, window(-5 8) estore(high_eng_low)
+
+csdid high_eng female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
+estat event, window(-5 8) estore(high_eng_high)
+
+coefplot ///
+(high_eng_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
+(high_eng_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
+, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of working in jobs requiring English", size(medium) height(5)) ///
+ylabel(-1.5(.5)2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(vertical) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+ysc(r(-1.5 2)) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_SDD_EngJobs_Edu.png", replace
 *========================================================================*
 /* Figure 4: Effect of English instruction on occupational decisions */
 *========================================================================*
@@ -2746,96 +2828,3 @@ graph export "$doc\graph_enroll.png", replace
 graph combine "$doc\graphSDDenroll" "$doc\graph_enroll", ///
 graphregion(color(white) margin()) cols(2) imargin(1 1.2 1.2 1) scale(0.9)
 graph export "$doc\fig_edu_enroll.png", replace
-
-*========================================================================*
-/* Figure X: Jobs requiring English skills */
-*========================================================================*
-use "$data/eng_abil.dta", clear
-collapse eng [fw=weight], by(sinco2011)
-rename eng eng_ocupa
-label var eng_ocupa "Distribution of the proportion of English speakers"
-/*
-graph twoway (hist eng_ocupa, frac ///
-xtitle("Distribution of the proportion of English speakers") ///
-ytitle("Fraction")) ///
-(scatteri 0 .058 1 .058, c(l) m(i)), ///
-legend(off)
-graph export "$doc\histo_eng.png", replace
-*/
-save "$base/eng_ocupa.dta", replace
-*========================================================================*
-use "$data/eng_abil.dta", clear
-merge m:1 sinco2011 using "$base/eng_ocupa.dta", nogen
-
-grstyle init
-grstyle set plain, horizontal
-keep if biare==1
-drop if state=="05" | state=="17"
-sum hrs_exp, d
-return list
-gen engl=hrs_exp>=r(p90)
-keep if cohort>=1981 & cohort<=1996
-
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
-keep if cohort>=1981 & cohort<=1996
-
-destring geo, replace
-gen first_cohort=0
-replace first_cohort=1990 if state=="01" & engl==1
-replace first_cohort=1991 if state=="10" & engl==1
-replace first_cohort=1987 if state=="19" & engl==1
-replace first_cohort=1993 if state=="25" & engl==1
-replace first_cohort=1993 if state=="26" & engl==1
-replace first_cohort=1990 if state=="28" & engl==1
-
-foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23{
-gen educ`x'=edu==`x'
-}
-
-sum eng_ocupa, d
-return list
-gen high_eng=eng_ocupa>=r(p90)
-
-csdid high_eng female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
-estat event, window(-5 8) estore(high_eng)
-coefplot high_eng, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of working in jobs requiring English", size(medium) height(5)) ///
-ylabel(-1(0.5)1.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1.5)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_EngJobs.png", replace
-
-csdid high_eng female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-5 8) estore(high_eng_low)
-
-csdid high_eng female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-5 8) estore(high_eng_high)
-
-coefplot ///
-(high_eng_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(high_eng_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of working in jobs requiring English", size(medium) height(5)) ///
-ylabel(-1.5(.5)2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-1.5 2)) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_EngJobs_Edu.png", replace
