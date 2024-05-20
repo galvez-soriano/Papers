@@ -2475,33 +2475,79 @@ mat rownames heng_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Eff
 
 did_multiplegt high_eng geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
 robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
+controls(female edu)
 
+matrix heng_b2 = e(estimates) \ 0
+matrix heng_v2 = e(variances) \ 0
 
+mat rownames heng_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames heng_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in jobs requiring English skills */
+event_plot heng_b1#heng_v1 heng_b2#heng_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of working in jobs requiring English", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Low educational attainment" 4 "High educational attainment") pos(5) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
 graph export "$doc\PTA_SDD_EngJobs.png", replace
 
-csdid high_eng female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-5 8) estore(high_eng_low)
+tab state, generate(dstate)
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
+25 26 27 28 29 {
+	foreach z in 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 ///
+	1995 1996 {
+gen c_state`z'_`x'=0
+replace c_state`z'_`x'=1 if dstate`x'==1 & cohort==`z'
+}
+}
 
-csdid high_eng female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-5 8) estore(high_eng_high)
+did_multiplegt high_eng geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu c_state*) 
 
-coefplot ///
-(high_eng_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(high_eng_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of working in jobs requiring English", size(medium) height(5)) ///
-ylabel(-1.5(.5)2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-1.5 2)) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_EngJobs_Edu.png", replace
+matrix seng_b1 = e(estimates) \ 0
+matrix seng_v1 = e(variances) \ 0
+
+mat rownames seng_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames seng_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt high_eng geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu c_state*)
+
+matrix seng_b2 = e(estimates) \ 0
+matrix seng_v2 = e(variances) \ 0
+
+mat rownames seng_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames seng_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in jobs requiring English skills */
+event_plot seng_b1#seng_v1 seng_b2#seng_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of working in jobs requiring English", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Male" 4 "Female") pos(5) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_EngJobsS.png", replace
 *========================================================================*
 /* Figure 4: Effect of English instruction on occupational decisions */
 *========================================================================*
