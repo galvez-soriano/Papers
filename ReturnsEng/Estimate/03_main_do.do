@@ -2666,7 +2666,7 @@ event_plot spa_b1#spa_v1 spa_b2#spa_v2, ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
-graph export "$doc\PTA_SDD_JobsEduS.png", replace
+graph export "$doc\PTA_SDD_JobsS.png", replace
 
 /*
 graph twoway (hist pact, frac ///
@@ -2697,14 +2697,14 @@ matrix ca_v2 = e(variances) \ 0
 mat rownames ca_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 mat rownames ca_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 
-/* Likelihood of working in physically-intensive jobs */
+/* Likelihood of working in jobs requiring communication skills */
 event_plot ca_b1#ca_v1 ca_b2#ca_v2, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(Placebo_# Placebo_#) ///
     stub_lag(Effect_# Effect_#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.1f)) ///
+	ylabel(-4(2)4, labs(medium) grid format(%5.1f)) ///
 	ytitle("Likelihood of working in jobs requiring communication", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -2735,7 +2735,7 @@ matrix sca_v2 = e(variances) \ 0
 mat rownames sca_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 mat rownames sca_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 
-/* Likelihood of working in physically-intensive jobs */
+/* Likelihood of working in jobs requiring communication skills */
 event_plot sca_b1#sca_v1 sca_b2#sca_v2, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(Placebo_# Placebo_#) ///
@@ -2751,7 +2751,7 @@ event_plot sca_b1#sca_v1 sca_b2#sca_v2, ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
-graph export "$doc\PTA_SDD_JobsCEduS.png", replace
+graph export "$doc\PTA_SDD_JobsCS.png", replace
 
 /*
 graph twoway (hist communica, frac ///
@@ -2761,28 +2761,88 @@ ytitle("Fraction")) ///
 legend(off)
 graph export "$doc\histo_communica.png", replace
 */
-
-/* Increase in labor supply */
+*========================================================================*
+/* Effect on labor supply */
+*========================================================================*
 
 did_multiplegt work geo cohort had_policy if edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
 
+matrix we_b1 = e(estimates) \ 0
+matrix we_v1 = e(variances) \ 0
+
+mat rownames we_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames we_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
 did_multiplegt work geo cohort had_policy if edu>=12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
 
+matrix we_b2 = e(estimates) \ 0
+matrix we_v2 = e(variances) \ 0
+
+mat rownames we_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames we_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working */
+event_plot we_b1#we_v1 we_b2#we_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-3(3)6, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of working", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Low educational attainment" 4 "High educational attainment") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_WorkEdu.png", replace
 
 did_multiplegt work geo cohort had_policy if female==0, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* edu)
 
+matrix ws_b1 = e(estimates) \ 0
+matrix ws_v1 = e(variances) \ 0
+
+mat rownames ws_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames ws_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
 did_multiplegt work geo cohort had_policy if female==1, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* edu)
 
+matrix ws_b2 = e(estimates) \ 0
+matrix ws_v2 = e(variances) \ 0
 
+mat rownames ws_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames ws_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working */
+event_plot ws_b1#ws_v1 ws_b2#ws_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-3(3)6, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of working", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Men" 4 "Women") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_WorkS.png", replace
 *========================================================================*
 /* Figure 5: Effect of English instruction on subjective well-being */
 *========================================================================*
 use "$data/eng_abil.dta", clear
 keep if biare==1
 drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1996
 sum hrs_exp, d
 return list
 gen engl=hrs_exp>=r(p90)
+gen lhwork=log(hrs_work)
 
 gen had_policy=0 
 replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
@@ -2791,19 +2851,17 @@ replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
-keep if cohort>=1981 & cohort<=1996
 
 destring geo, replace
-gen first_cohort=0
-replace first_cohort=1990 if state=="01" & engl==1
-replace first_cohort=1991 if state=="10" & engl==1
-replace first_cohort=1987 if state=="19" & engl==1
-replace first_cohort=1993 if state=="25" & engl==1
-replace first_cohort=1993 if state=="26" & engl==1
-replace first_cohort=1990 if state=="28" & engl==1
 
-foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23{
-gen educ`x'=edu==`x'
+tab state, generate(dstate)
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
+25 26 27 28 29 {
+	foreach z in 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 ///
+	1995 1996 {
+gen c_state`z'_`x'=0
+replace c_state`z'_`x'=1 if dstate`x'==1 & cohort==`z'
+}
 }
 
 gen dsgral=sgral>=9
@@ -2814,82 +2872,317 @@ gen dsfp=sfuture_perspect>=9
 gen dsleissure=sleissure>=9
 gen dseact=secon_activity>=9
 
-csdid dssdl female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
-estat event, window(-5 8) estore(dssdl)
-coefplot dssdl, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
-ylabel(-1(0.5)1.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1.5)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisSDLiving.png", replace
+did_multiplegt dsfp geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
 
-csdid dssdl female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-5 8) estore(dssdl_low)
+matrix efp_b1 = e(estimates) \ 0
+matrix efp_v1 = e(variances) \ 0
 
-csdid dssdl female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-5 8) estore(dssdl_high)
+mat rownames efp_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames efp_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 
-coefplot ///
-(dssdl_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(dssdl_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
-ylabel(-1.5(.5)2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( off ) ///
-ysc(r(-1.5 2)) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisSDLiving_Educa.png", replace
+did_multiplegt dsfp geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
+robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix efp_b2 = e(estimates) \ 0
+matrix efp_v2 = e(variances) \ 0
+
+mat rownames efp_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames efp_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being satisfied with future perspective */
+event_plot efp_b1#efp_v1 efp_b2#efp_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being satisfied with future perspective", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Low educational attainment" 4 "High educational attainment") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_SatisFP_Educa.png", replace
 
 *========================================================================*
-csdid dsachiev female indigenous married educ*  if paidw==1 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot seed(6) vce(cluster geo) long2
-estat event, window(-5 8) estore(dsachiev)
-coefplot dsachiev, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
-ylabel(-1(0.5)1.5, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1.5)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_SDD_SatisAchiev.png", replace
+did_multiplegt dsfp geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
 
-csdid dsachiev female indigenous married educ* if paidw==1 & edu<12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-5 8) estore(dsachiev_low)
+matrix sfp_b1 = e(estimates) \ 0
+matrix sfp_v1 = e(variances) \ 0
 
-csdid dsachiev female indigenous married educ* if paidw==1 & edu>=12 [iw=weight], time(cohort) gvar(first_cohort) method(dripw) wboot vce(cluster geo) long2
-estat event, window(-5 8) estore(dsachiev_high)
+mat rownames sfp_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames sfp_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 
-coefplot ///
-(dsachiev_low, offset(0.05) label("Low educational attainment") connect(l) lc(gs14) msymbol(O) mcolor(gs14) ciopt(lc(gs14) recast(rcap connected))) ///
-(dsachiev_high, offset(-0.05) label("High educational attainment") connect(l) lc(dknavy) msymbol(O) mcolor(dknavy) ciopt(lc(dknavy) recast(rcap connected))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
-ylabel(-1.5(.5)2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend( pos(5) ring(0) col(1) region(lcolor(white)) size(medium) ) ///
-ysc(r(-1.5 2)) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+did_multiplegt dsfp geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix sfp_b2 = e(estimates) \ 0
+matrix sfp_v2 = e(variances) \ 0
+
+mat rownames sfp_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames sfp_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being satisfied with future perspective */
+event_plot sfp_b1#sfp_v1 sfp_b2#sfp_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being satisfied with future perspective", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Men" 4 "Women") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_SatisFP_Sex.png", replace
+
+*========================================================================*
+did_multiplegt dseact geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix eea_b1 = e(estimates) \ 0
+matrix eea_v1 = e(variances) \ 0
+
+mat rownames eea_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames eea_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt dseact geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix eea_b2 = e(estimates) \ 0
+matrix eea_v2 = e(variances) \ 0
+
+mat rownames eea_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames eea_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being satisfied with economic activity */
+event_plot eea_b1#eea_v1 eea_b2#eea_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being satisfied with future perspective", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Low educational attainment" 4 "High educational attainment") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_SatisEA_Educa.png", replace
+
+*========================================================================*
+did_multiplegt dseact geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix sea_b1 = e(estimates) \ 0
+matrix sea_v1 = e(variances) \ 0
+
+mat rownames sea_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames sea_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt dseact geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix sea_b2 = e(estimates) \ 0
+matrix sea_v2 = e(variances) \ 0
+
+mat rownames sea_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames sea_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being satisfied with economic activity */
+event_plot sea_b1#sea_v1 sea_b2#sea_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being satisfied with future perspective", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Men" 4 "Women") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_SatisEA_Sex.png", replace
+
+*========================================================================*
+did_multiplegt dssdl geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix esdl_b1 = e(estimates) \ 0
+matrix esdl_v1 = e(variances) \ 0
+
+mat rownames esdl_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames esdl_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt dssdl geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
+robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix esdl_b2 = e(estimates) \ 0
+matrix esdl_v2 = e(variances) \ 0
+
+mat rownames esdl_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames esdl_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being satisfied with standard of living */
+event_plot esdl_b1#esdl_v1 esdl_b2#esdl_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Low educational attainment" 4 "High educational attainment") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_SatisSDLiving_Educa.png", replace
+*========================================================================*
+
+did_multiplegt dssdl geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu c_state*)
+
+matrix ssdl_b1 = e(estimates) \ 0
+matrix ssdl_v1 = e(variances) \ 0
+
+mat rownames ssdl_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames ssdl_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt dssdl geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu c_state*)
+
+matrix ssdl_b2 = e(estimates) \ 0
+matrix ssdl_v2 = e(variances) \ 0
+
+mat rownames ssdl_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames ssdl_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being satisfied with standard of living */
+event_plot ssdl_b1#ssdl_v1 ssdl_b2#ssdl_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being satisfied with standard of living", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Men" 4 "Women") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_SatisSDLiving_Sex.png", replace
+*========================================================================*
+
+did_multiplegt dsachiev geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix each_b1 = e(estimates) \ 0
+matrix each_v1 = e(variances) \ 0
+
+mat rownames each_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames each_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt dsachiev geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
+robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
+controls(edu female c_state*)
+
+matrix each_b2 = e(estimates) \ 0
+matrix each_v2 = e(variances) \ 0
+
+mat rownames each_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames each_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being satisfied with achievements */
+event_plot each_b1#each_v1 each_b2#each_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Low educational attainment" 4 "High educational attainment") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
 graph export "$doc\PTA_SDD_SatisAchiev_Educa.png", replace
+
+*========================================================================*
+did_multiplegt dsachiev geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu c_state*)
+
+matrix sach_b1 = e(estimates) \ 0
+matrix sach_v1 = e(variances) \ 0
+
+mat rownames sach_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames sach_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt dsachiev geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
+robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
+controls(edu c_state*)
+
+matrix sach_b2 = e(estimates) \ 0
+matrix sach_v2 = e(variances) \ 0
+
+mat rownames sach_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames sach_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being satisfied with achievements */
+event_plot ssdl_b1#ssdl_v1 ssdl_b2#ssdl_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Men" 4 "Women") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_SatisAchiev_Sex.png", replace
+
 *========================================================================*
 /* Figure 6: School Enrollment */
 *========================================================================*
@@ -2964,3 +3257,160 @@ graph export "$doc\graph_enroll.png", replace
 graph combine "$doc\graphSDDenroll" "$doc\graph_enroll", ///
 graphregion(color(white) margin()) cols(2) imargin(1 1.2 1.2 1) scale(0.9)
 graph export "$doc\fig_edu_enroll.png", replace
+
+*========================================================================*
+/* Effect on industries */
+*========================================================================*
+destring scian, replace
+gen econ_act=.
+replace econ_act=1 if (scian>=1110 & scian<=1199)
+replace econ_act=2 if (scian>1199 & scian<=2399) | ///
+(scian>4699 & scian<=4930)
+replace econ_act=3 if scian>2399 & scian<=3399
+replace econ_act=4 if scian>3399 & scian<=4699
+replace econ_act=5 if (scian>5399 & scian<=5622) | ///
+(scian>7223 & scian<=8140) | (scian>5199 & scian<=5399)
+replace econ_act=6 if (scian>5622 & scian<=6299) | ///
+(scian>8140 & scian!=.)
+replace econ_act=7 if (scian>6299 & scian<=7223) | ///
+(scian>4930 & scian<=5199)
+
+label define econ_act 1 "Agriculture" 2 "Construction" 3 "Manufactures" 4 "Commerce" ///
+5 "Professionals" 6 "Government" 7 "Hospitality and Entertainment"
+label values econ_act econ_act
+
+gen ag_ea=econ_act==1 
+replace ag_ea=. if econ_act==.
+gen cons_ea=econ_act==2 
+replace cons_ea=. if econ_act==.
+gen manu_ea=econ_act==3 
+replace manu_ea=. if econ_act==.
+gen comm_ea=econ_act==4 
+replace comm_ea=. if econ_act==.
+gen pro_ea=econ_act==5 
+replace pro_ea=. if econ_act==.
+gen gov_ea=econ_act==6 
+replace gov_ea=. if econ_act==.
+gen hosp_ea=econ_act==7 
+replace hosp_ea=. if econ_act==.
+
+did_multiplegt ag_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix eag_b1 = e(estimates) \ 0
+matrix eag_v1 = e(variances) \ 0
+
+mat rownames eag_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames eag_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt ag_ea geo cohort had_policy if paidw==1 & edu>=12, weight(weight) robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix eag_b2 = e(estimates) \ 0
+matrix eag_v2 = e(variances) \ 0
+
+mat rownames eag_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames eag_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+/* Likelihood of working in agriculture */
+event_plot eag_b1#eag_v1 eag_b2#eag_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of working in agriculture", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Low educational attainment" 4 "High educational attainment") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_AgE.png", replace
+*========================================================================*
+did_multiplegt cons_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix econs_b1 = e(estimates) \ 0
+matrix econs_v1 = e(variances) \ 0
+
+mat rownames econs_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames econs_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt cons_ea geo cohort had_policy if paidw==1 & edu>=12, weight(weight) robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix econs_b2 = e(estimates) \ 0
+matrix econs_v2 = e(variances) \ 0
+
+mat rownames econs_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames econs_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in construction */
+event_plot econs_b1#econs_v1 econs_b2#econs_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of working in construction", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_ConsE.png", replace
+*========================================================================*
+did_multiplegt manu_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix emanu_b1 = e(estimates) \ 0
+matrix emanu_v1 = e(variances) \ 0
+
+mat rownames emanu_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames emanu_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt manu_ea geo cohort had_policy if paidw==1 & edu>=12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix emanu_b2 = e(estimates) \ 0
+matrix emanu_v2 = e(variances) \ 0
+
+mat rownames emanu_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames emanu_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of working in manufacturing */
+event_plot emanu_b1#emanu_v1 emanu_b2#emanu_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(2)4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of working in manufacturing", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_ManuE.png", replace
+*========================================================================*
+did_multiplegt comm_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+
+did_multiplegt comm_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+*========================================================================*
+did_multiplegt pro_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+
+did_multiplegt pro_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+*========================================================================*
+did_multiplegt gov_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+
+did_multiplegt gov_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+*========================================================================*
+did_multiplegt hosp_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+
+did_multiplegt hosp_ea geo cohort had_policy if paidw==1 & edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
