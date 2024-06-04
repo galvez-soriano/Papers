@@ -21,22 +21,22 @@ destring state, replace
 *========================================================================*
 eststo clear
 eststo: reg lwage eng [aw=weight] if paidw==1, vce(cluster geo)
-eststo: reg lwage eng i.cohort female indigenous [aw=weight] if age>=18 ///
-& age<=65 & paidw==1, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous [aw=weight] if ///
-paidw==1, absorb(cohort edu) vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1, absorb(cohort state edu) vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1, absorb(cohort geo edu) vce(cluster geo)
+eststo: reg lwage eng i.cohort female indigenous [aw=weight] if ///
+paidw==1, vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu [aw=weight] if ///
+paidw==1, absorb(cohort) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1, absorb(state) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if paidw==1 & edu<12, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & edu<12, absorb(cohort geo edu) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & edu<12, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if paidw==1 & edu>=12, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & edu>=12, absorb(cohort geo edu) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & edu>=12, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab2_A.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Returns to English abilities) keep(eng) ///
 stats(N r2, fmt(%9.0fc %9.3f)) replace
@@ -47,20 +47,20 @@ eststo clear
 eststo: reg lwage eng [aw=weight] if paidw==1 & female==0, vce(cluster geo)
 eststo: reg lwage eng i.cohort female indigenous [aw=weight] if ///
 paidw==1 & female==0, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous [aw=weight] if ///
-paidw==1 & female==0, absorb(cohort edu) vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & female==0, absorb(cohort state edu) vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & female==0, absorb(cohort geo edu) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu [aw=weight] if ///
+paidw==1 & female==0, absorb(cohort) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & female==0, absorb(state) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & female==0, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if paidw==1 & edu<12 & female==0, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & edu<12 & female==0, absorb(cohort geo edu) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & edu<12 & female==0, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if paidw==1 & edu>=12 & female==0, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & edu>=12 & female==0, absorb(cohort geo edu) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & edu>=12 & female==0, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab2_B.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Returns to English abilities) keep(eng) ///
 stats(N r2, fmt(%9.0fc %9.3f)) replace
@@ -71,20 +71,20 @@ eststo clear
 eststo: reg lwage eng [aw=weight] if paidw==1 & female==1, vce(cluster geo)
 eststo: reg lwage eng i.cohort female indigenous [aw=weight] if ///
 paidw==1 & female==1, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous [aw=weight] if ///
-paidw==1 & female==1, absorb(cohort edu) vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & female==1, absorb(cohort state edu) vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & female==1, absorb(cohort geo edu) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu [aw=weight] if ///
+paidw==1 & female==1, absorb(cohort) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & female==1, absorb(state) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & female==1, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if paidw==1 & edu<12 & female==1, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & edu<12 & female==1, absorb(cohort geo edu) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & edu<12 & female==1, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng [aw=weight] if paidw==1 & edu>=12 & female==1, vce(cluster geo)
-eststo: reghdfe lwage eng female indigenous married ///
-[aw=weight] if paidw==1 & edu>=12 & female==1, absorb(cohort geo edu) vce(cluster geo)
+eststo: areg lwage eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & edu>=12 & female==1, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab2_C.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Returns to English abilities) keep(eng) ///
 stats(N r2, fmt(%9.0fc %9.3f)) replace
@@ -97,24 +97,24 @@ eststo clear
 eststo: reg lwage eng_female eng female [aw=weight] if paidw==1, vce(cluster geo)
 eststo: reghdfe lwage eng_female eng female indigenous [aw=weight] if ///
 paidw==1, absorb(cohort) vce(cluster geo)
-eststo: reghdfe lwage eng_female eng female indigenous [aw=weight] if ///
-paidw==1, absorb(cohort edu) vce(cluster geo)
-eststo: reghdfe lwage eng_female eng female indigenous married ///
-[aw=weight] if paidw==1, absorb(cohort edu state) vce(cluster geo)
-eststo: reghdfe lwage eng_female eng female indigenous married ///
-[aw=weight] if paidw==1, absorb(cohort edu geo) vce(cluster geo)
+eststo: areg lwage eng_female eng female indigenous i.edu [aw=weight] if ///
+paidw==1, absorb(cohort) vce(cluster geo)
+eststo: areg lwage eng_female eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1, absorb(state) vce(cluster geo)
+eststo: areg lwage eng_female eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng_female eng female [aw=weight] if paidw==1 & edu<12, vce(cluster geo)
-eststo: reghdfe lwage eng_female eng female indigenous married ///
-[aw=weight] if paidw==1 & edu<12, absorb(cohort edu geo) vce(cluster geo)
+eststo: areg lwage eng_female eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & edu<12, absorb(geo) vce(cluster geo)
 *========================================================================*
 eststo: reg lwage eng_female eng female [aw=weight] if paidw==1 & edu>=12, vce(cluster geo)
-eststo: reghdfe lwage eng_female eng female indigenous married ///
-[aw=weight] if paidw==1 & edu>=12, absorb(cohort edu geo) vce(cluster geo)
+eststo: areg lwage eng_female eng female indigenous i.edu i.cohort married ///
+[aw=weight] if paidw==1 & edu>=12, absorb(geo) vce(cluster geo)
 esttab using "$doc\tab2_diff.tex", ar2 cells(b(star fmt(%9.3f)) p(par([ ]))) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Gender differences) keep(eng_female) replace
 /* Difference in estimate by education (female) */
-dis (0.840+0.379)/sqrt((0.741^2)+(0.329))
+dis (0.548+0.567)/sqrt((0.796^2)+(0.422^2))
 *========================================================================*
 /* TABLE 3. Effect of English programs on labor market outcomes */
 *========================================================================*
@@ -205,6 +205,10 @@ boottest had_policy, seed(6) noci
 esttab using "$doc\tab_SDDc.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(English abilities) keep(had_policy) ///
 stats(N ar2, fmt(%9.0fc %9.3f)) replace
+
+sum hrs_exp eng lwage lhwork formal [fw=weight] if cohort>=1984 & cohort<=1994 ///
+& paidw==1
+sum paidw [fw=weight] if cohort>=1984 & cohort<=1994
 *========================================================================*
 /* TABLE 4. English programs and robustness in the presence of heterogeneous 
 treatment effects */
