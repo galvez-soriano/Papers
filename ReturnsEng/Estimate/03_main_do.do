@@ -2836,6 +2836,80 @@ event_plot ws_b1#ws_v1 ws_b2#ws_v2, ///
     lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
 graph export "$doc\PTA_SDD_WorkS.png", replace
+
+
+*========================================================================*
+/* Effect on inactivity */
+*========================================================================*
+gen inactive=student==0 & work==0
+
+did_multiplegt inactive geo cohort had_policy if edu<12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix in_b1 = e(estimates) \ 0
+matrix in_v1 = e(variances) \ 0
+
+mat rownames in_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames in_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt inactive geo cohort had_policy if edu>=12, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix in_b2 = e(estimates) \ 0
+matrix in_v2 = e(variances) \ 0
+
+mat rownames in_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames in_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being inactive */
+event_plot in_b1#in_v1 in_b2#in_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-3(3)6, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being inactive", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Low educational attainment" 4 "High educational attainment") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_InactiveEdu.png", replace
+
+did_multiplegt inactive geo cohort had_policy if female==0, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix ins_b1 = e(estimates) \ 0
+matrix ins_v1 = e(variances) \ 0
+
+mat rownames ins_b1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames ins_v1 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+did_multiplegt inactive geo cohort had_policy if female==1, weight(weight) robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) controls(c_state* female edu)
+
+matrix ins_b2 = e(estimates) \ 0
+matrix ins_v2 = e(variances) \ 0
+
+mat rownames ins_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames ins_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+
+/* Likelihood of being inactive */
+event_plot ins_b1#ins_v1 ins_b2#ins_v2, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Placebo_# Placebo_#) ///
+    stub_lag(Effect_# Effect_#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-3(3)6, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of being inactive", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(order(2 "Men" 4 "Women") pos(11) ring(0) col(1)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt1(color(ltblue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(S) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt2(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_InactiveS.png", replace
 *========================================================================*
 /* Figure 5: Effect of English instruction on subjective well-being */
 *========================================================================*
@@ -3170,7 +3244,7 @@ mat rownames sach_b2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Eff
 mat rownames sach_v2 = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 
 /* Likelihood of being satisfied with achievements */
-event_plot ssdl_b1#ssdl_v1 ssdl_b2#ssdl_v2, ///
+event_plot sach_b1#sach_v1 sach_b2#sach_v2, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(Placebo_# Placebo_#) ///
     stub_lag(Effect_# Effect_#) ///
