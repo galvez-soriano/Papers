@@ -11,7 +11,7 @@ gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
 /*
 use "$data/Papers/main/EngMigration/Data/labor_census20_1.dta", clear
-foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 {
+foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 {
     append using "$data/Papers/main/EngMigration/Data/labor_census20_`x'.dta"
 }
 save "$base\labor_census20.dta", replace 
@@ -245,10 +245,6 @@ legend(pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
 ysc(r(-0.5 0.5)) recast(connected)
 graph export "$doc\PTA_SDD7.png", replace
 *========================================================================*
-/*gen sstates=state=="31" | state=="04" | state=="23" | state=="07" | ///
-state=="27" | state=="20" | state=="30" | state=="12" | state=="21" | ///
-state=="17" | state=="29" */
-
 reghdfe migrant treat* if cohort>=1984 & cohort<=1994 & dmigrant==0 ///
 [aw=factor], absorb(cohort geo) vce(cluster geo)
 estimates store migrant_ss
@@ -270,56 +266,10 @@ legend(off) ///
 ysc(r(-0.04 0.04)) recast(connected)
 graph export "$doc\PTA_SDD8.png", replace
 
-*========================================================================*
-/* Sun and Abraham (2021) */
-*========================================================================*
-gen first_cohort=0
-replace first_cohort=1990 if state=="01" & engl==1
-replace first_cohort=1991 if state=="10" & engl==1
-replace first_cohort=1987 if state=="19" & engl==1
-replace first_cohort=1993 if state=="25" & engl==1
-replace first_cohort=1993 if state=="26" & engl==1
-replace first_cohort=1990 if state=="28" & engl==1
-
-destring geo, replace
-
-gen tgroup=first_cohort
-replace tgroup=. if state!="01" & state!="10" & state!="19" & state!="25" ///
-& state!="26" & state!="28"
-gen cgroup=tgroup==.
-
-destring state, replace
-
-eventstudyinteract migrant had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 [aw=factor], absorb(geo cohort) ///
-cohort(tgroup) control_cohort(cgroup) covariates(female) ///
-vce(cluster geo)
-
-*========================================================================*
-/* Callaway and SantAnna (2021) */
-*========================================================================*
-csdid migrant female if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
-estat all
-
-*========================================================================*
-/* de Chaisemartin and D'Haultfoeuille (2020) */
-*========================================================================*
-did_multiplegt migrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(30) cluster(geo) ///
-controls(female)
-
-*========================================================================*
-/* Borusyak, Jaravel, and Spiess (2023) */
-*========================================================================*
-replace first_cohort=1997 if first_cohort==0
-did_imputation migrant geo cohort first_cohort if dmigrant==0 [aw=factor], ///
-controls(female) fe(geo cohort) cluster(geo) autos
 
 
-
-
+xtevent migrant if cohort>=1984 & cohort<=1994 & dmigrant==0 [aw=factor], ///
+policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) 
 
 
 
@@ -386,6 +336,68 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 legend(off) ///
 ysc(r(-30 30)) recast(connected)
 graph export "$doc\PTA_SDD11.png", replace
+
+*========================================================================*
+/* Sun and Abraham (2021) */
+*========================================================================*
+gen first_cohort=0
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
+
+destring geo, replace
+
+gen tgroup=first_cohort
+replace tgroup=. if state!="01" & state!="10" & state!="19" & state!="25" ///
+& state!="26" & state!="28"
+gen cgroup=tgroup==.
+
+destring state, replace
+
+eventstudyinteract migrant had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 [aw=factor], absorb(geo cohort) ///
+cohort(tgroup) control_cohort(cgroup) covariates(female) ///
+vce(cluster geo)
+
+*========================================================================*
+/* Callaway and SantAnna (2021) */
+*========================================================================*
+csdid migrant female if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 [iw=factor], time(cohort) gvar(first_cohort) vce(cluster geo) wboot seed(6)
+estat all
+
+*========================================================================*
+/* de Chaisemartin and D'Haultfoeuille (2020) */
+*========================================================================*
+did_multiplegt migrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0, weight(factor) ///
+robust_dynamic dynamic(6) placebo(5) breps(30) cluster(geo) ///
+controls(female)
+
+*========================================================================*
+/* Borusyak, Jaravel, and Spiess (2023) */
+*========================================================================*
+replace first_cohort=1997 if first_cohort==0
+did_imputation migrant geo cohort first_cohort if dmigrant==0 [aw=factor], ///
+controls(female) fe(geo cohort) cluster(geo) autos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 *========================================================================*
 /* Event study graphs: Callaway and SantAnna (2021) */ 
 *========================================================================*
