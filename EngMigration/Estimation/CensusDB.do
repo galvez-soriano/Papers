@@ -210,3 +210,14 @@ comparison states */
 *drop if state!=state5
 
 save "$base\labor_census20.dta", replace
+*========================================================================* 
+/* Exposure variable check */
+*========================================================================* 
+use "$base\labor_census20.dta", clear
+
+collapse hrs_exp, by(geo cohort)
+rename hrs_exp hrs_exp2
+merge 1:m geo cohort using "$base\labor_census20.dta", nogen
+
+order geo cohort hrs_exp hrs_exp2
+save "$base\labor_census20.dta", replace

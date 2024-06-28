@@ -219,13 +219,13 @@ eststo clear
 *========================================================================*
 /* Callaway and SantAnna (2021) */
 *========================================================================*
-csdid migra_ret female if cohort>=1984 & cohort<=1994 & dmigrant==0 [iw=factor], ///
+csdid migra_ret female if cohort>=1984 & cohort<=1994 & dmigrant==0 & migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 6) estore(csdid_rmigrant)
 *========================================================================*
 /* Sun and Abraham (2021) */
 *========================================================================*
-eventstudyinteract migra_ret L*event F*event if dmigrant==0 & cohort>=1984 & ///
+eventstudyinteract migra_ret L*event F*event if dmigrant==0 & migrant==1 & cohort>=1984 & ///
 cohort<=1994 [aw=factor], absorb(geo cohort) ///
 cohort(tgroup) control_cohort(cgroup) covariates(female) ///
 vce(cluster geo)
@@ -236,16 +236,16 @@ matrix sa_v = e(V_iw)
 /* Traditional staggered DiD using OLS */
 *========================================================================*
 reghdfe migra_ret F*event L*event female [aw=factor] ///
-if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
+if cohort>=1984 & cohort<=1994 & dmigrant==0 & migrant==1, absorb(cohort geo) vce(cluster geo)
 estimates store ols_rmigrant
 matrix ols_b = e(b)
 matrix ols_v = e(V_FE)
 *========================================================================*
 /* de Chaisemartin and D'Haultfoeuille (2020) */
 *========================================================================*
-did_multiplegt migra_ret geo cohort had_policy if dmigrant==0 & ///
+did_multiplegt migra_ret geo cohort had_policy if dmigrant==0 & migrant==1 & ///
 cohort>=1984 & cohort<=1994 , weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
+robust_dynamic dynamic(6) placebo(2) breps(50) cluster(geo) ///
 controls(female)
 
 matrix dcdh_b = e(estimates) 
@@ -254,8 +254,8 @@ matrix dcdh_v = e(variances)
 matrix dcdh_b = dcdh_b \ 0
 matrix dcdh_v=dcdh_v \ 0
 
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_1
+mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_1
 *========================================================================*
 /* All in one. Panel (c) */
 *========================================================================*
@@ -313,7 +313,7 @@ matrix ols_v = e(V_FE)
 *========================================================================*
 did_multiplegt dest_us geo cohort had_policy if dmigrant==0 & migrant==1 & ///
 cohort>=1984 & cohort<=1994 , weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
+robust_dynamic dynamic(6) placebo(2) breps(50) cluster(geo) ///
 controls(female)
 
 matrix dcdh_b = e(estimates) 
@@ -322,8 +322,8 @@ matrix dcdh_v = e(variances)
 matrix dcdh_b = dcdh_b \ 0
 matrix dcdh_v=dcdh_v \ 0
 
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_1
+mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_1
 *========================================================================*
 /* All in one. Panel (d) */
 *========================================================================*
@@ -381,7 +381,7 @@ matrix ols_v = e(V_FE)
 *========================================================================*
 did_multiplegt time_migra geo cohort had_policy if dmigrant==0 & migrant==1 & ///
 cohort>=1984 & cohort<=1994 , weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
+robust_dynamic dynamic(1) placebo(1) breps(50) cluster(geo) ///
 controls(female)
 
 matrix dcdh_b = e(estimates) 
@@ -390,12 +390,12 @@ matrix dcdh_v = e(variances)
 matrix dcdh_b = dcdh_b \ 0
 matrix dcdh_v=dcdh_v \ 0
 
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames dcdh_b = Effect_0 Effect_1 Average Placebo_2 Placebo_1
+mat rownames dcdh_v = Effect_0 Effect_1 Average Placebo_2 Placebo_1
 *========================================================================*
 /* All in one. Panel (e) */
 *========================================================================*
-event_plot ols_usmigrant sa_b#sa_v csdid_usmigrant dcdh_b#dcdh_v, ///
+event_plot ols_tmigrant sa_b#sa_v csdid_tmigrant dcdh_b#dcdh_v, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_#) ///
     stub_lag(L#event L#event Tp# Effect_#) ///
