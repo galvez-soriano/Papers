@@ -30,7 +30,7 @@ replace dmigrant=0 if migrant==1
 drop if imputed_state==1
 
 /*tabstat migrant [fw=factor], by(state)
-gen nmigra_states=state=="03" | state=="04" | state=="15" | state=="23" | state=="27"*/
+gen nmigra_states=state=="03" | state=="04" | state=="15" | state=="23" | state=="27"
 
 gen migra_states=0
 replace migra_states=1 if state=="01" | state=="08" | state=="10" ///
@@ -39,6 +39,26 @@ replace migra_states=1 if state=="01" | state=="08" | state=="10" ///
 
 gen spolicy=state=="01" | state=="10" | state=="19" | state=="25" ///
  | state=="26" | state=="28"
+*/
+
+sum hrs_exp2 if state=="01" & cohort>=1990 & cohort<=1996, d
+return list
+gen engl=hrs_exp2>=r(p50) & state=="01"
+sum hrs_exp2 if state=="10" & cohort>=1991 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="10"
+sum hrs_exp2 if state=="19" & cohort>=1987 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="19"
+sum hrs_exp2 if state=="25" & cohort>=1993 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="25"
+sum hrs_exp2 if state=="26" & cohort>=1993 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="26"
+sum hrs_exp2 if state=="28" & cohort>=1990 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="28"
 
 gen had_policy=0 
 replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
@@ -52,6 +72,160 @@ order geo cohort had_policy
 sort geo cohort
 keep if cohort>=1984 & cohort<=1996
 */
+*========================================================================*
+/* TABLE 1. Regression for main results: Domestic labor market */
+*========================================================================*
+/* Panel A: Full sample */
+*========================================================================*
+eststo clear
+eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1, absorb(cohort geo) vce(cluster geo)
+esttab using "$doc\tab1A.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+*========================================================================*
+/* Panel B: Men */
+*========================================================================*
+eststo clear
+eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1 & female==0, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1 & female==0, absorb(cohort geo) vce(cluster geo)
+esttab using "$doc\tab1B.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+*========================================================================*
+/* Panel C: Women */
+*========================================================================*
+eststo clear
+eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1 & female==1, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1 & female==1, absorb(cohort geo) vce(cluster geo)
+esttab using "$doc\tab1C.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+*========================================================================*
+/* Panel D: Low educational attainment */
+*========================================================================*
+eststo clear
+eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1 & edu<12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1 & edu<12, absorb(cohort geo) vce(cluster geo)
+esttab using "$doc\tab1D.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+*========================================================================*
+/* Panel E: High educational attainment */
+*========================================================================*
+eststo clear
+eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1 & edu>=12, absorb(cohort geo) vce(cluster geo)
+eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1 & edu>=12, absorb(cohort geo) vce(cluster geo)
+esttab using "$doc\tab1E.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+title(Census estimations) keep(had_policy) replace
+
+sum student formal_s informal_s inactive work [fw=factor] if cohort>=1981 & cohort<=1996
+sum wpaid lwage [fw=factor] if work==1 & cohort>=1981 & cohort<=1996
+sum lwage [fw=factor] if wpaid==1 & cohort>=1981 & cohort<=1996
+
+*========================================================================*
+/* TABLE 2. Regression for main results: Migration analysis */
+*========================================================================*
+replace time_migra=0 if time_migra==. & migra_ret==1
+*========================================================================*
+/* Panel A: Full sample */
+*========================================================================*
+
+did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994, ///
+weight(factor) robust_dynamic dynamic(6) placebo(5) breps(30) ///
+cluster(geo) controls(female)
+
+did_multiplegt migrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0, weight(factor) robust_dynamic dynamic(6) placebo(5) breps(30) ///
+cluster(geo) controls(female)
+
+did_multiplegt migra_ret geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 & migrant==1, weight(factor) robust_dynamic dynamic(6) placebo(3) breps(30) ///
+cluster(geo) controls(female)
+
+did_multiplegt dest_us geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 & migrant==1, weight(factor) robust_dynamic dynamic(6) placebo(3) breps(30) ///
+cluster(geo) controls(female)
+
+sum dmigrant [fw=factor] if cohort>=1984 & cohort<=1994
+sum migrant [fw=factor] if dmigrant==0 & cohort>=1984 & cohort<=1994
+sum migra_ret dest_us [fw=factor] if dmigrant==0 & migrant==1 & cohort>=1984 & cohort<=1994
+*========================================================================*
+/* Panel B: Men */
+*========================================================================*
+did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+female==0, weight(factor) robust_dynamic dynamic(6) placebo(5) breps(30) ///
+cluster(geo) 
+
+did_multiplegt migrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 & female==0, weight(factor) robust_dynamic dynamic(6) placebo(5) ///
+breps(30) cluster(geo) 
+
+did_multiplegt migra_ret geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 & migrant==1 & female==0, weight(factor) robust_dynamic dynamic(6) ///
+placebo(3) breps(30) cluster(geo) 
+
+did_multiplegt dest_us geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 & migrant==1 & female==0, weight(factor) robust_dynamic dynamic(6) ///
+placebo(3) breps(30) cluster(geo) 
+
+sum dmigrant if cohort>=1984 & cohort<=1994 & female==0
+sum migrant if dmigrant==0 & cohort>=1984 & cohort<=1994 & female==0
+sum migra_ret dest_us if dmigrant==0 & migrant==1 & cohort>=1984 & cohort<=1994 & female==0
+*========================================================================*
+/* Panel C: Women */
+*========================================================================*
+did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+female==1, weight(factor) robust_dynamic dynamic(6) placebo(5) breps(30) ///
+cluster(geo) 
+
+did_multiplegt migrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 & female==1, weight(factor) robust_dynamic dynamic(6) placebo(5) ///
+breps(30) cluster(geo) 
+
+did_multiplegt migra_ret geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 & migrant==1 & female==1, weight(factor) robust_dynamic dynamic(6) ///
+placebo(3) breps(30) cluster(geo) 
+
+did_multiplegt dest_us geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
+dmigrant==0 & migrant==1 & female==1, weight(factor) robust_dynamic dynamic(6) ///
+placebo(3) breps(30) cluster(geo) 
+
+sum dmigrant if cohort>=1984 & cohort<=1994 & female==1
+sum migrant if dmigrant==0 & cohort>=1984 & cohort<=1994 & female==1
+sum migra_ret dest_us if dmigrant==0 & migrant==1 & cohort>=1984 & cohort<=1994 & female==1
+
 *========================================================================*
 /* Figure 2. Even study graphs */
 *========================================================================*
@@ -226,7 +400,7 @@ graph export "$doc\PTA_SDD6.png", replace
 *========================================================================*
 /* Figure 3. Even study graphs */
 *========================================================================*
-replace time_migra=0 if time_migra==. & migra_ret==1
+*replace time_migra=0 if time_migra==. & migra_ret==1
 
 reghdfe dmigrant treat* if cohort>=1984 & cohort<=1994 ///
 [aw=factor], absorb(cohort geo) vce(cluster geo)
@@ -241,12 +415,12 @@ coefplot ///
 vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of being a domestic migrant", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 legend(pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-0.5 0.5)) recast(connected)
+ysc(r(-0.2 0.2)) recast(connected)
 graph export "$doc\PTA_SDD7.png", replace
 *========================================================================*
 reghdfe migrant treat* if cohort>=1984 & cohort<=1994 & dmigrant==0 ///
@@ -269,31 +443,6 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 legend(off) ///
 ysc(r(-0.04 0.04)) recast(connected)
 graph export "$doc\PTA_SDD8.png", replace
-
-destring geo, replace
-
-xtevent migrant if cohort>=1984 & cohort<=1994 & dmigrant==0 [aw=factor], ///
-repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange)
-
-xteventplot, ///
-    xtitle("Cohorts since policy intervention") ///
-    ytitle("Likelihood of being an international migrant") ///
-    ylabel(-0.005(0.0025)0.005) ///
-    xlabel(, angle(vertical)) ///
-    scatterplotopts(recast(connected) msymbol(circle))
-graph export "PTA_SDD8b.png", replace
-
-xtevent migrant if cohort>=1984 & cohort<=1994 & dmigrant==0 [aw=factor], ///
-repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange) trend(-5)
-
-xteventplot, ///
-    xtitle("Cohorts since policy intervention") ///
-    ytitle("Likelihood of being an international migrant") ///
-    ylabel(-0.005(0.0025)0.005) ///
-    xlabel(, angle(vertical)) ///
-    scatterplotopts(recast(connected) msymbol(circle))
-graph export "PTA_SDD8c.png", replace
-
 
 reghdfe migra_ret treat* if cohort>=1984 & cohort<=1994 & migrant==1 & dmigrant==0  ///
 [aw=factor], absorb(cohort geo) vce(cluster geo)
@@ -358,6 +507,81 @@ legend(off) ///
 ysc(r(-30 30)) recast(connected)
 graph export "$doc\PTA_SDD11.png", replace
 */
+*========================================================================*
+/* Freyaldenhoven, Hansen, and Shapiro (2019) */
+*========================================================================*
+
+destring geo, replace
+/*
+xtevent migrant if cohort>=1984 & cohort<=1994 & dmigrant==0 [aw=factor], ///
+repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange)
+
+xteventplot, ///
+    xtitle("Cohorts since policy intervention") ///
+    ytitle("Likelihood of being an international migrant") ///
+    ylabel(-0.005(0.0025)0.005) ///
+    xlabel(, angle(vertical)) ///
+    scatterplotopts(recast(connected) msymbol(circle))
+graph export "PTA_SDD8b.png", replace
+*/
+xtevent dmigrant if cohort>=1984 & cohort<=1994 [aw=factor], ///
+repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange) trend(-6)
+
+xteventplot, ///
+    xtitle("Cohorts since policy intervention") ///
+    ytitle("Likelihood of being a domestic migrant") ///
+    ylabel(-0.2(0.1)0.2) ///
+    xlabel(, angle(vertical)) ///
+    scatterplotopts(recast(connected) msymbol(circle))
+graph export "PTA_SDD7b.png", replace
+
+xtevent migrant if cohort>=1984 & cohort<=1994 & dmigrant==0 [aw=factor], ///
+repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange) trend(-6)
+
+xteventplot, ///
+    xtitle("Cohorts since policy intervention") ///
+    ytitle("Likelihood of being an international migrant") ///
+    ylabel(-0.005(0.0025)0.005) ///
+    xlabel(, angle(vertical)) ///
+    scatterplotopts(recast(connected) msymbol(circle))
+graph export "PTA_SDD8b.png", replace
+
+xtevent migra_ret if cohort>=1984 & cohort<=1994 & dmigrant==0 & migrant==1 [aw=factor], ///
+repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange) trend(-6)
+
+xteventplot, ///
+    xtitle("Cohorts since policy intervention") ///
+    ytitle("Likelihood of returning to Mexico after migration") ///
+    ylabel(-1(0.5)1) ///
+    xlabel(, angle(vertical)) ///
+    scatterplotopts(recast(connected) msymbol(circle))
+graph export "PTA_SDD9b.png", replace
+
+xtevent dest_us if cohort>=1984 & cohort<=1994 & dmigrant==0 & migrant==1 [aw=factor], ///
+repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange) trend(-6)
+
+xteventplot, ///
+    xtitle("Cohorts since policy intervention") ///
+    ytitle("LLikelihood of migrating to the US") ///
+    ylabel(-1(0.5)1) ///
+    xlabel(, angle(vertical)) ///
+    scatterplotopts(recast(connected) msymbol(circle))
+graph export "PTA_SDD10b.png", replace
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 *========================================================================*
 /* Sun and Abraham (2021) */
 *========================================================================*
@@ -526,159 +750,7 @@ Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_SDD6.png", replace
 
-*========================================================================*
-/* TABLE 1. Regression for main results: Domestic labor market */
-*========================================================================*
-/* Panel A: Full sample */
-*========================================================================*
-eststo clear
-eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1, absorb(cohort geo) vce(cluster geo)
-esttab using "$doc\tab1A.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(had_policy) replace
-*========================================================================*
-/* Panel B: Men */
-*========================================================================*
-eststo clear
-eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1 & female==0, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1 & female==0, absorb(cohort geo) vce(cluster geo)
-esttab using "$doc\tab1B.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(had_policy) replace
-*========================================================================*
-/* Panel C: Women */
-*========================================================================*
-eststo clear
-eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & female==1, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1 & female==1, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1 & female==1, absorb(cohort geo) vce(cluster geo)
-esttab using "$doc\tab1C.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(had_policy) replace
-*========================================================================*
-/* Panel D: Low educational attainment */
-*========================================================================*
-eststo clear
-eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu<12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1 & edu<12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1 & edu<12, absorb(cohort geo) vce(cluster geo)
-esttab using "$doc\tab1D.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(had_policy) replace
-*========================================================================*
-/* Panel E: High educational attainment */
-*========================================================================*
-eststo clear
-eststo: reghdfe student had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe formal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe informal_s had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe inactive had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe work had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe wpaid had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & edu>=12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & work==1 & edu>=12, absorb(cohort geo) vce(cluster geo)
-eststo: reghdfe lwage had_policy edu female migrant [aw=factor] if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1 & edu>=12, absorb(cohort geo) vce(cluster geo)
-esttab using "$doc\tab1E.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
-title(Census estimations) keep(had_policy) replace
 
-sum student formal_s informal_s inactive work [fw=factor] if cohort>=1981 & cohort<=1996
-sum wpaid lwage [fw=factor] if work==1 & cohort>=1981 & cohort<=1996
-sum lwage [fw=factor] if wpaid==1 & cohort>=1981 & cohort<=1996
-
-*========================================================================*
-/* TABLE 2. Regression for main results: Migration analysis */
-*========================================================================*
-replace time_migra=0 if time_migra==. & migra_ret==1
-*========================================================================*
-/* Panel A: Full sample */
-*========================================================================*
-
-did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994, ///
-weight(factor) robust_dynamic dynamic(6) placebo(5) breps(30) ///
-cluster(geo) controls(female)
-
-did_multiplegt migrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0, weight(factor) robust_dynamic dynamic(6) placebo(5) breps(30) ///
-cluster(geo) controls(female)
-
-did_multiplegt migra_ret geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 & migrant==1, weight(factor) robust_dynamic dynamic(6) placebo(3) breps(30) ///
-cluster(geo) controls(female)
-
-did_multiplegt dest_us geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 & migrant==1, weight(factor) robust_dynamic dynamic(6) placebo(3) breps(30) ///
-cluster(geo) controls(female)
-
-sum dmigrant [fw=factor] if cohort>=1984 & cohort<=1994
-sum migrant [fw=factor] if dmigrant==0 & cohort>=1984 & cohort<=1994
-sum migra_ret dest_us [fw=factor] if dmigrant==0 & migrant==1 & cohort>=1984 & cohort<=1994
-*========================================================================*
-/* Panel B: Men */
-*========================================================================*
-did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-female==0, weight(factor) robust_dynamic dynamic(6) placebo(5) breps(30) ///
-cluster(geo) 
-
-did_multiplegt migrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 & female==0, weight(factor) robust_dynamic dynamic(6) placebo(5) ///
-breps(30) cluster(geo) 
-
-did_multiplegt migra_ret geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 & migrant==1 & female==0, weight(factor) robust_dynamic dynamic(6) ///
-placebo(3) breps(30) cluster(geo) 
-
-did_multiplegt dest_us geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 & migrant==1 & female==0, weight(factor) robust_dynamic dynamic(6) ///
-placebo(3) breps(30) cluster(geo) 
-
-sum dmigrant if cohort>=1984 & cohort<=1994 & female==0
-sum migrant if dmigrant==0 & cohort>=1984 & cohort<=1994 & female==0
-sum migra_ret dest_us if dmigrant==0 & migrant==1 & cohort>=1984 & cohort<=1994 & female==0
-*========================================================================*
-/* Panel C: Women */
-*========================================================================*
-did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-female==1, weight(factor) robust_dynamic dynamic(6) placebo(5) breps(30) ///
-cluster(geo) 
-
-did_multiplegt migrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 & female==1, weight(factor) robust_dynamic dynamic(6) placebo(5) ///
-breps(30) cluster(geo) 
-
-did_multiplegt migra_ret geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 & migrant==1 & female==1, weight(factor) robust_dynamic dynamic(6) ///
-placebo(3) breps(30) cluster(geo) 
-
-did_multiplegt dest_us geo cohort had_policy if cohort>=1984 & cohort<=1994 & ///
-dmigrant==0 & migrant==1 & female==1, weight(factor) robust_dynamic dynamic(6) ///
-placebo(3) breps(30) cluster(geo) 
-
-sum dmigrant if cohort>=1984 & cohort<=1994 & female==1
-sum migrant if dmigrant==0 & cohort>=1984 & cohort<=1994 & female==1
-sum migra_ret dest_us if dmigrant==0 & migrant==1 & cohort>=1984 & cohort<=1994 & female==1
 
 
 

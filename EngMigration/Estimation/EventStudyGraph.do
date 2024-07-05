@@ -34,9 +34,29 @@ gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
 use "$base\labor_census20.dta", clear
 drop if state=="05" | state=="17"
-sum hrs_exp, d
+*sum hrs_exp, d
+*return list
+*gen engl=hrs_exp>=r(p90)
+
+sum hrs_exp2 if state=="01" & cohort>=1990 & cohort<=1996, d
 return list
-gen engl=hrs_exp>=r(p90)
+gen engl=hrs_exp2>=r(p50) & state=="01"
+sum hrs_exp2 if state=="10" & cohort>=1991 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="10"
+sum hrs_exp2 if state=="19" & cohort>=1987 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="19"
+sum hrs_exp2 if state=="25" & cohort>=1993 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="25"
+sum hrs_exp2 if state=="26" & cohort>=1993 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="26"
+sum hrs_exp2 if state=="28" & cohort>=1990 & cohort<=1996, d
+return list
+replace engl=1 if hrs_exp2>=r(p50) & state=="28"
+
 drop lwage
 gen lwage=log(wage+1)
 replace wpaid=. if work==0
@@ -127,9 +147,9 @@ event_plot ols_dmigrant sa_b#sa_v csdid_dmigrant dcdh_b#dcdh_v, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_#) ///
     stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend ///
+    together noautolegend perturb(-.16 -0.06 0.06 0.16) ///
 	graph_opt( ///
-	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.1f)) ///
 	ytitle("Likelihood of migrate domestically", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -195,7 +215,7 @@ event_plot ols_migrant sa_b#sa_v csdid_migrant dcdh_b#dcdh_v, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_#) ///
     stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend ///
+    together noautolegend perturb(-.16 -0.06 0.06 0.16) ///
 	graph_opt( ///
 	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
 	ytitle("Likelihood of migrating abroad", size(medium) height(5)) ///
@@ -263,7 +283,7 @@ event_plot ols_rmigrant sa_b#sa_v csdid_rmigrant dcdh_b#dcdh_v, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_#) ///
     stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend ///
+    together noautolegend perturb(-.16 -0.06 0.06 0.16) ///
 	graph_opt( ///
 	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 	ytitle("Likelihood of returning to Mexico after migration", size(medium) height(5)) ///
@@ -331,7 +351,7 @@ event_plot ols_usmigrant sa_b#sa_v csdid_usmigrant dcdh_b#dcdh_v, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_#) ///
     stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend ///
+    together noautolegend perturb(-.16 -0.06 0.06 0.16) ///
 	graph_opt( ///
 	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 	ytitle("Likelihood of migrating to the US", size(medium) height(5)) ///
@@ -399,7 +419,7 @@ event_plot ols_tmigrant sa_b#sa_v csdid_tmigrant dcdh_b#dcdh_v, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_#) ///
     stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend ///
+    together noautolegend perturb(-.16 -0.06 0.06 0.16) ///
 	graph_opt( ///
 	ylabel(-30(15)30, labs(medium) grid format(%5.1f)) ///
 	ytitle("Migration length (months)", size(medium) height(5)) ///
