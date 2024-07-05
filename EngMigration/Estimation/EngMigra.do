@@ -18,9 +18,9 @@ save "$base\labor_census20.dta", replace
 */
 use "$base\labor_census20.dta", clear
 drop if state=="05" | state=="17"
-sum hrs_exp2, d
-return list
-gen engl=hrs_exp2>=r(p90)
+*sum hrs_exp2, d
+*return list
+*gen engl=hrs_exp2>=r(p90)
 drop lwage
 gen lwage=log(wage+1)
 replace wpaid=. if work==0
@@ -524,16 +524,18 @@ xteventplot, ///
     scatterplotopts(recast(connected) msymbol(circle))
 graph export "PTA_SDD8b.png", replace
 */
-xtevent dmigrant if cohort>=1984 & cohort<=1994 [aw=factor], ///
-repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange) trend(-6)
+xtevent dmigrant female if cohort>=1984 & cohort<=1994 [aw=factor], ///
+repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(5) impute(nuchange)
 
 xteventplot, ///
     xtitle("Cohorts since policy intervention") ///
     ytitle("Likelihood of being a domestic migrant") ///
     ylabel(-0.2(0.1)0.2) ///
-    xlabel(, angle(vertical)) ///
-    scatterplotopts(recast(connected) msymbol(circle))
-graph export "PTA_SDD7b.png", replace
+    xlabel(-6(1)6, angle(vertical)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+    scatterplotopts(recast(connected) msymbol(O) mcolor(navy) lc(navy)) ///
+	ciplotopts(lc(navy) recast(rcap))
+graph export "$doc\PTA_SDD7b.png", replace
 
 xtevent migrant if cohort>=1984 & cohort<=1994 & dmigrant==0 [aw=factor], ///
 repeatedcs policyvar(had_policy) panelvar(geo) timevar(cohort) window(6) impute(nuchange) trend(-6)
