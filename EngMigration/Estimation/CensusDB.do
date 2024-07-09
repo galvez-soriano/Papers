@@ -82,17 +82,34 @@ rename escoacum edu
 replace edu=. if edu==99
 rename ent_pais_res_5a state5
 rename mun_res_5a mun5
-gen work=conact<=20
+gen work=conact<=30
 gen formal=.
-replace formal=0 if work==1
+replace formal=0 if work==1 & conact!=30
 replace formal=1 if (aguinaldo==1 | vacaciones==3 | servicio_medico==5 ///
 | incap_sueldo==1 | sar_afore==3 | credito_vivienda==5 | utilidades==7)
 drop vacaciones servicio_medico incap_sueldo sar_afore credito_vivienda utilidades
 replace formal=1 if actividades_c>=9311 & actividades_c<=9399
 replace formal=1 if actividades_c==2110 | actividades_c==2132
-replace formal=1 if actividades_c==2211
-replace formal=1 if actividades_c==4810 | actividades_c==4910 | actividades_c==4920
-replace formal=1 if actividades_c==5210
+replace formal=1 if actividades_c==2211 | actividades_c==2381
+replace formal=1 if actividades_c==3120 | actividades_c==3340 | actividades_c==3350 | actividades_c==3360
+replace formal=1 if actividades_c==4810 | actividades_c==4820 | actividades_c==4910 | actividades_c==4920
+replace formal=1 if actividades_c>=5110 & actividades_c<=5180
+replace formal=1 if actividades_c>=5210 & actividades_c<=5221 | (actividades_c>=5230 & actividades_c<=5250)
+replace formal=1 if actividades_c==5321 | actividades_c==5330
+replace formal=1 if actividades_c>=5411 & actividades_c<=5414
+replace formal=1 if actividades_c==5510
+replace formal=1 if actividades_c>=6111 & actividades_c<=6150
+replace formal=1 if actividades_c>=6211 & actividades_c<=6229 | (actividades_c>=6251 & actividades_c<=6252)
+replace formal=1 if actividades_c==7112 | actividades_c==7120
+
+replace formal=1 if ocupacion_c>=111 & ocupacion_c<=254
+replace formal=1 if ocupacion_c>=256 & ocupacion_c<=311
+replace formal=1 if ocupacion_c>=320 & ocupacion_c<=323
+replace formal=1 if ocupacion_c>=420 & ocupacion_c<=421
+replace formal=1 if ocupacion_c==510 | ocupacion_c==520 | ocupacion_c==530 | ocupacion_c==540 | ocupacion_c==541
+replace formal=1 if ocupacion_c>=820 & ocupacion_c<=833
+replace formal=1 if ocupacion_c==899
+
 gen indigenous=perte_indigena==1
 drop perte_indigena
 
@@ -133,8 +150,9 @@ gen ind_act=.
 replace ind_act=0 if work==0 & student==1 & migrant!=1
 replace ind_act=1 if work==1 & formal==1 & migrant!=1
 replace ind_act=2 if work==1 & formal==0 & migrant!=1
-replace ind_act=3 if work==0 & student==0 & migrant!=1
-replace ind_act=4 if migrant==1
+replace ind_act=3 if conact==30 & migrant!=1
+replace ind_act=4 if work==0 & student==0 & migrant!=1
+replace ind_act=5 if migrant==1
 
 gen wpaid=wage>0 & work==1 & wage!=.
 
@@ -151,7 +169,7 @@ replace geo=(state+mun) if geo=="" & migrant==1
 replace state5=migrant_state if state5=="" & migrant==1
 drop migrant_state 
 
-catplot ind_act cohort [fw=factor] if cohort>1980, percent(cohort) ///
+catplot ind_act cohort [fw=factor] if cohort>=1984 & cohort<=1994, percent(cohort) ///
 graphregion(fcolor(white)) scheme(s2mono) ///
 var1opts(label(labsize(small))) ///
 var2opts(label(labsize(small)) relabel(`r(relabel)')) ///
@@ -159,7 +177,7 @@ ytitle("Percentage of individuals by labor market status", size(small)) ///
 asyvars stack ///
 legend(rows(1) stack size(small) ///
 order(1 "Student" 2 "Formal worker" ///
-3 "Informal worker" 4 "Inactive" 5 "Migrant") ///
+3 "Informal worker" 4 "Looking for a job" 5 "Inactive" 6 "Intl. migrant") ///
 symplacement(center))
 graph export "$doc\econ_status.png", replace
 
@@ -194,10 +212,11 @@ drop _merge
 */
 
 replace student=0 if ind_act!=0
-replace work=0 if ind_act==0 | ind_act==3 | migrant==1
+replace work=0 if ind_act==0 | ind_act==4 | migrant==1
+replace work=. if conact==30
 gen formal_s=ind_act==1
 gen informal_s=ind_act==2
-gen inactive=ind_act==3
+gen inactive=ind_act==4
 gen labor=conact<=30
 
 gen dmigrant=geo!=geo_mun
