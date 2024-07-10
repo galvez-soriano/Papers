@@ -30,6 +30,8 @@ gl data= "https://raw.githubusercontent.com/galvez-soriano"
 gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
 gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
 *========================================================================*
+/* APPENDIX */
+*========================================================================*
 /* FIGURE A.3. Event-study graphs */
 *========================================================================*
 use "$base\labor_census20.dta", clear
@@ -457,7 +459,7 @@ event_plot ols_wage sa_b#sa_v csdid_wage dcdh_b#dcdh_v, ///
     stub_lag(L#event L#event Tp# Effect_#) ///
     together noautolegend perturb(-.16 -0.06 0.06 0.16) ///
 	graph_opt( ///
-	ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+	ylabel(-0.8(0.4)0.8, labs(medium) grid format(%5.2f)) ///
 	ytitle("Percentage change of wages (if works for pay)", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -737,7 +739,7 @@ event_plot ols_usmigrant sa_b#sa_v csdid_usmigrant dcdh_b#dcdh_v, ///
     lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
     lag_opt4(msize(small) msymbol(D) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt4(color(ebblue) lwidth(medthick))
 graph export "$doc\PTA_All_USmigrant.png", replace
-
+/*
 *========================================================================*
 /* Panel (e). Migration length (months) */
 *========================================================================*
@@ -804,4 +806,4 @@ event_plot ols_tmigrant sa_b#sa_v csdid_tmigrant dcdh_b#dcdh_v, ///
     lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
     lag_opt4(msize(small) msymbol(D) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt4(color(ebblue) lwidth(medthick))
-graph export "$doc\PTA_All_Tmigrant.png", replace
+graph export "$doc\PTA_All_Tmigrant.png", replace*/
