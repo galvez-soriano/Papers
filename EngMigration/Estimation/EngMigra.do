@@ -5,6 +5,7 @@
 *========================================================================*
 clear
 set more off
+set maxvar 120000
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
 gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Data"
 gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngMigration\Doc"
@@ -271,7 +272,7 @@ event_plot dcdh_b#dcdh_v, ///
     stub_lag(Effect_#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
 	ytitle("Likelihood of migrate domestically", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -304,7 +305,7 @@ event_plot dcdh_b#dcdh_v, ///
     stub_lag(Effect_#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+	ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.3f)) ///
 	ytitle("Likelihood of migrating abroad", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -385,13 +386,23 @@ graph export "$doc\PTA_dCDH_USmigrant.png", replace
 *========================================================================*
 /* Panel (a). Domestic migration */
 *========================================================================*
+tab state, generate(dstate)
+foreach x in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 ///
+25 26 27 28 29 {
+	foreach z in 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 ///
+	1995 1996 {
+gen c_state`z'_`x'=0
+replace c_state`z'_`x'=1 if dstate`x'==1 & cohort==`z'
+}
+}
+
 clear matrix
 clear mata
 eststo clear
 
 did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & female==0, weight(factor) ///
 robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(migrant)
+controls(migrant c_state*)
 
 matrix dcdh_m_b = e(estimates) 
 matrix dcdh_m_v = e(variances)
@@ -404,7 +415,7 @@ mat rownames dcdh_m_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Ef
 
 did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & female==1, weight(factor) ///
 robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(migrant)
+controls(migrant c_state*)
 
 matrix dcdh_w_b = e(estimates) 
 matrix dcdh_w_v = e(variances)
@@ -421,16 +432,16 @@ event_plot dcdh_m_b#dcdh_m_v dcdh_w_b#dcdh_w_v, ///
     stub_lag(Effect_# Effect_#) ///
     together noautolegend perturb(-0.06 0.06) ///
 	graph_opt( ///
-	ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.1f)) ///
+	ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
 	ytitle("Likelihood of migrate domestically", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(order(2 "Men" 4 "Women") pos(5) ring(0) col(1)) ///
+	legend(order(2 "Men" 4 "Women") pos(11) ring(0) col(1)) ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
-graph export "$doc\PTA_sex_dmigrant.png", replace
+graph export "$doc\PTA_sex_dmigrant2.png", replace
 
 *========================================================================*
 /* Panel (b). Likelihood of migrating abroad */
@@ -441,26 +452,26 @@ eststo clear
 
 did_multiplegt migrant geo cohort had_policy if dmigrant==0 & ///
 cohort>=1984 & cohort<=1994 & female==0, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo)
+robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(c_state*)
 
 matrix dcdh_m_b = e(estimates) 
 matrix dcdh_m_v = e(variances)
 
-matrix dcdh_m_b = dcdh_b \ 0
-matrix dcdh_m_v=dcdh_v \ 0
+matrix dcdh_m_b = dcdh_m_b \ 0
+matrix dcdh_m_v=dcdh_m_v \ 0
 
 mat rownames dcdh_m_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 mat rownames dcdh_m_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 
 did_multiplegt migrant geo cohort had_policy if dmigrant==0 & ///
 cohort>=1984 & cohort<=1994 & female==1, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo)
+robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) controls(c_state*)
 
 matrix dcdh_w_b = e(estimates) 
 matrix dcdh_w_v = e(variances)
 
-matrix dcdh_w_b = dcdh_b \ 0
-matrix dcdh_w_v=dcdh_v \ 0
+matrix dcdh_w_b = dcdh_w_b \ 0
+matrix dcdh_w_v=dcdh_w_v \ 0
 
 mat rownames dcdh_w_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
 mat rownames dcdh_w_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
@@ -471,7 +482,7 @@ event_plot dcdh_m_b#dcdh_m_v dcdh_w_b#dcdh_w_v, ///
     stub_lag(Effect_# Effect_#) ///
     together noautolegend perturb(-0.06 0.06) ///
 	graph_opt( ///
-	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+	ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.3f)) ///
 	ytitle("Likelihood of migrating abroad", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -480,37 +491,42 @@ event_plot dcdh_m_b#dcdh_m_v dcdh_w_b#dcdh_w_v, ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
-graph export "$doc\PTA_sex_migrant.png", replace
+graph export "$doc\PTA_sex_migrant2.png", replace
 
 *========================================================================*
 /* Panel (c). Likelihood of returning to Mexico after migration */
 *========================================================================*
+clear matrix
+clear mata
+eststo clear
+
 did_multiplegt migra_ret geo cohort had_policy if dmigrant==0 & migrant==1 & ///
-cohort>=1984 & cohort<=1994 , weight(factor) ///
-robust_dynamic dynamic(6) placebo(2) breps(50) cluster(geo) ///
-controls(female)
+cohort>=1984 & cohort<=1994 & female==0, weight(factor) ///
+robust_dynamic dynamic(4) placebo(2) breps(50) cluster(geo) ///
+controls(c_state*)
 
 matrix dcdh_m_b = e(estimates) 
 matrix dcdh_m_v = e(variances)
 
-matrix dcdh_m_b = dcdh_b \ 0
-matrix dcdh_m_v=dcdh_v \ 0
+matrix dcdh_m_b = dcdh_m_b \ 0
+matrix dcdh_m_v=dcdh_m_v \ 0
 
-mat rownames dcdh_m_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_m_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames dcdh_m_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_1
+mat rownames dcdh_m_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_1
 
-did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & female==1, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(migrant)
+did_multiplegt migra_ret geo cohort had_policy if dmigrant==0 & migrant==1 & ///
+cohort>=1984 & cohort<=1994 & female==1, weight(factor) ///
+robust_dynamic dynamic(6) placebo(2) breps(50) cluster(geo) ///
+controls(c_state*)
 
 matrix dcdh_w_b = e(estimates) 
 matrix dcdh_w_v = e(variances)
 
-matrix dcdh_w_b = dcdh_b \ 0
-matrix dcdh_w_v=dcdh_v \ 0
+matrix dcdh_w_b = dcdh_w_b \ 0
+matrix dcdh_w_v=dcdh_w_v \ 0
 
-mat rownames dcdh_w_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_w_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames dcdh_w_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_1
+mat rownames dcdh_w_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_1
 
 event_plot dcdh_m_b#dcdh_m_v dcdh_w_b#dcdh_w_v, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
@@ -518,48 +534,51 @@ event_plot dcdh_m_b#dcdh_m_v dcdh_w_b#dcdh_w_v, ///
     stub_lag(Effect_# Effect_#) ///
     together noautolegend perturb(-0.06 0.06) ///
 	graph_opt( ///
-	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ylabel(-3(1.5)3, labs(medium) grid format(%5.1f)) ///
 	ytitle("Likelihood of returning to Mexico after migration", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xlabel(-3(1)6) yline(0, lpattern(solid)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 	legend(off) ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
-    lag_opt4(msize(small) msymbol(D) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt4(color(ebblue) lwidth(medthick))
-graph export "$doc\PTA_All_rmigrant.png", replace
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
+graph export "$doc\PTA_sex_rmigrant.png", replace
 
 *========================================================================*
 /* Panel (d). Likelihood of migrating to the US */
 *========================================================================*
+clear matrix
+clear mata
+eststo clear
+
 did_multiplegt dest_us geo cohort had_policy if dmigrant==0 & migrant==1 & ///
-cohort>=1984 & cohort<=1994 , weight(factor) ///
-robust_dynamic dynamic(6) placebo(2) breps(50) cluster(geo) ///
-controls(female)
+cohort>=1984 & cohort<=1994 & female==0, weight(factor) ///
+robust_dynamic dynamic(4) placebo(2) breps(50) cluster(geo) ///
+controls(c_state*)
 
 matrix dcdh_m_b = e(estimates) 
 matrix dcdh_m_v = e(variances)
 
-matrix dcdh_m_b = dcdh_b \ 0
-matrix dcdh_m_v=dcdh_v \ 0
+matrix dcdh_m_b = dcdh_m_b \ 0
+matrix dcdh_m_v=dcdh_m_v \ 0
 
-mat rownames dcdh_m_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_m_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames dcdh_m_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_1
+mat rownames dcdh_m_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_1
 
-did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994 & female==1, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(migrant)
+did_multiplegt dest_us geo cohort had_policy if dmigrant==0 & migrant==1 & ///
+cohort>=1984 & cohort<=1994 & female==1, weight(factor) ///
+robust_dynamic dynamic(6) placebo(2) breps(50) cluster(geo) ///
+controls(c_state*)
 
 matrix dcdh_w_b = e(estimates) 
 matrix dcdh_w_v = e(variances)
 
-matrix dcdh_w_b = dcdh_b \ 0
-matrix dcdh_w_v=dcdh_v \ 0
+matrix dcdh_w_b = dcdh_w_b \ 0
+matrix dcdh_w_v=dcdh_w_v \ 0
 
-mat rownames dcdh_w_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_w_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
+mat rownames dcdh_w_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_1
+mat rownames dcdh_w_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_1
 
 event_plot dcdh_m_b#dcdh_m_v dcdh_w_b#dcdh_w_v, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
@@ -567,18 +586,16 @@ event_plot dcdh_m_b#dcdh_m_v dcdh_w_b#dcdh_w_v, ///
     stub_lag(Effect_# Effect_#) ///
     together noautolegend perturb(-0.06 0.06) ///
 	graph_opt( ///
-	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.1f)) ///
 	ytitle("Likelihood of migrating to the US", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xlabel(-3(1)6) yline(0, lpattern(solid)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 	legend(off) ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
-    lag_opt4(msize(small) msymbol(D) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt4(color(ebblue) lwidth(medthick))
-graph export "$doc\PTA_All_USmigrant.png", replace
+    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
+graph export "$doc\PTA_sex_USmigrant.png", replace
 
 
 
