@@ -336,11 +336,8 @@ save "$bases\ic_asalud20.dta", replace;
 use "$data\trabajos.dta", clear;
 
 keep if id_trabajo=="1";
-gen formal=pres_26==" ";
-replace formal=0 if (pres_7=="1" | pres_9=="1" | pres_12=="1" | pres_13=="1"
-| pres_16=="1" | pres_19=="1" | pres_21=="1" | pres_22=="1" | pres_25=="1") 
-& (pres_1!="1" & pres_2!="1" & pres_3!="1" & pres_4!="1" & pres_5!="1" & 
-pres_6!="1" & pres_14!="1");
+gen formal=pres_20==" ";
+replace formal=0 if contrato=="2";
 
 keep folioviv foliohog numren formal htrab sinco scian;
 sort folioviv foliohog numren;
@@ -1526,7 +1523,7 @@ label var upm "Main sampling unit";
 label var ubica_geo "Municipality";
 
 gen year=2020;
-label var year "Year"
+label var year "Year";
 
 label var folioviv "House ID";
 label var foliohog "Household ID";
