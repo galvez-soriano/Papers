@@ -43,7 +43,7 @@ replace anac_e=2016-edad if edad!=.;
 label var edad "Edad reportada al momento de la entrevista";
 label var anac_e "Año de nacimiento";
 
-*Inasistencia escolar (se reporta para personas de 3 años o más);
+*Asistencia escolar (se reporta para personas de 3 años o más);
 gen student=asis_esc=="1";
 
 label var student "Enrolled in school";
@@ -120,6 +120,7 @@ replace time_leisure=0 if time_leisure==.;
 keep folioviv foliohog numren edad anac_e student niv_ed  
 parentesco hli educ time_work time_study time_repair time_leisure;
 sort folioviv foliohog numren;
+
 save "$bases\ic_rezedu16.dta", replace;
 
 ***********************************************************************;
@@ -468,7 +469,6 @@ label var ing_pam "Income from PAM";
 sort  folioviv foliohog numren;
 save "$bases\pensiones16.dta", replace;
 
-
 *Construcción del indicador;
 use "$data\poblacion.dta", clear;
 
@@ -511,7 +511,6 @@ label define tipo_trab 1"Depende de un patrón, jefe o superior"
                        2 "No depende de un jefe y recibe o tiene asignado un sueldo"
                        3 "No depende de un jefe y no recibe o no tiene asignado un sueldo";
 label value tipo_trab1 tipo_trab;
-
 
 *Ocupación secundaria;
 replace tipo_trab2=tipo_trab2 if pea==1;
@@ -653,11 +652,6 @@ label value cony_ss cuenta;
 label var hijo_ss "Acceso directo a la seguridad social de hijos(as) de la jefatura del hogar";
 label value hijo_ss cuenta;
 
-*Otros núcleos familiares: se identifica a la población con acceso a la seguridad
-social mediante otros núcleos familiares a través de la afiliación
-o inscripción a servicios de salud por algún familiar dentro o 
-fuera del hogar, muerte del asegurado o por contratación propia;
-
 gen s_salud=.;
 replace s_salud=1 if atemed=="1" & (inst_1=="1" | inst_2=="2" | inst_3=="3" |
 					 inst_4=="4") & (inscr_3=="3" | inscr_4=="4" | inscr_6=="6" 
@@ -669,10 +663,6 @@ label var s_salud "Servicios médicos por otros núcleos familiares o por contra
 label value s_salud cuenta;
 
 *Programas sociales de pensiones para adultos mayores;
-
-*Se identifica a las personas de 65 años o más que reciben un programa para adultos mayores
-si el monto recibido es mayor o igual al promedio de la línea de pobreza extrema 
-por ingresos rural y urbana; 
 
 *Valor monetario de las líneas de pobreza extrema por ingresos rural y urbana;
 scalar lp1_urb = 1351.24;
@@ -746,11 +736,6 @@ sort  folioviv foliohog numren;
 drop if (clave=="P009" & aguinaldo1!=1);
 drop if (clave=="P016" & aguinaldo2!=1);
 
-*Una vez realizado lo anterior, se procede a deflactar el ingreso recibido
-por los hogares a precios de agosto de 2016. Para ello, se utilizan las 
-variables meses, las cuales toman los valores 2 a 10 e indican el mes en
-que se recibió el ingreso respectivo;
-
 *Definición de los deflactores 2016 ;
 
 scalar	dic15	=	0.9915096155	;
@@ -798,26 +783,13 @@ replace ing_1=ing_1/ago16 if mes_1==8;
 replace ing_1=ing_1/sep16 if mes_1==9;
 replace ing_1=ing_1/oct16 if mes_1==10;
 
-*Se deflactan las claves P008 y P015 (Reparto de utilidades) 
-y, P009 y P016 (aguinaldo)
-con los deflactores de mayo a agosto 2016 
-y de diciembre de 2015 a agosto 2016, 
-respectivamente, y se obtiene el promedio mensual.;
-
 replace ing_1=(ing_1/may16)/12 if clave=="P008" | clave=="P015";
 replace ing_1=(ing_1/dic15)/12 if clave=="P009" | clave=="P016";
 
 recode ing_2 ing_3 ing_4 ing_5 ing_6 (0=.) if clave=="P008" | clave=="P009" |
 											  clave=="P015" | clave=="P016";
 
-*Una vez deflactado, se procede a obtener el 
-ingreso mensual promedio en los últimos seis meses para 
-cada persona y tipo de ingreso con base en la clave del mismo;
-
 egen double ing_mens=rmean(ing_1 ing_2 ing_3 ing_4 ing_5 ing_6);
-
-*Para obtener el ingreso corriente monetario, se seleccionan 
-las claves de ingreso correspondientes;
 
 gen double ing_mon=ing_mens if (clave>="P001" & clave<="P009") | (clave>="P011" & clave<="P016") 
                              | (clave>="P018" & clave<="P048") | (clave>="P067" & clave<="P081");
@@ -859,12 +831,6 @@ label var base "Origen del monto";
 label define base 1 "Monto del hogar"
                   2 "Monto de personas";
 label value base base;
-
-*En el caso de la información de gasto no monetario, para 
-deflactar se utiliza la decena de levantamiento de la 
-encuesta, la cual se encuentra en la octava posición del 
-folio de la vivienda. En primer lugar se obtiene una variable que 
-identifique la decena de levantamiento;
 
 gen decena=real(substr(folioviv,8,1));
 
@@ -967,7 +933,6 @@ scalar dINPCs02=	0.9973343817	;
 scalar dINPCs03=	0.9973929361	;
 scalar dINPCs04=	0.9982238506	;
 scalar dINPCs05=	1.0006008794	;
-
 
 *Una vez definidos los deflactores, se seleccionan los rubros;
 
@@ -1121,7 +1086,6 @@ replace tpub_nm=tpub_nm/d611w10 if decena==7;
 replace tpub_nm=tpub_nm/d611w10 if decena==8;
 replace tpub_nm=tpub_nm/d611w10 if decena==9;
 replace tpub_nm=tpub_nm/d611w11 if decena==0;
-
 
 *Gasto no monetario en Transporte foráneo deflactado (semestral);
 
@@ -1500,7 +1464,6 @@ gen ent=real(substr(folioviv,1,2));
 
 recode ing_* (.=0) if ictpc!=0 | ing_mon==.;
 
-label var ent "Identificador de la entidad federativa";
 label define ent 
 1	"Aguascalientes"
 2	"Baja California"
