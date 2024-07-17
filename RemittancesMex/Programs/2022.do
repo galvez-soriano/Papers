@@ -1537,11 +1537,11 @@ label define loc_size 1 "More than 100,000 inhabitants"
                       2 "Between 15,000 and 99,999 inhabitants"
                       3 "Between 2,500 and 14,999 inhabitants"
                       4 "Less than 2,500 inhabitants";
-label value loc_size loc_size;
+label value loc_size geo;
 label var rururb "Rural";
 rename ent state;
 label var state "ID state";
-rename ubica_geo locality_id;
+rename ubica_geo geo;
 rename edad age;
 label var age "Age (years)";
 rename sexo female;

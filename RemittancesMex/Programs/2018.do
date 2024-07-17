@@ -1541,7 +1541,7 @@ label value loc_size loc_size;
 label var rururb "Rural";
 rename ent state;
 label var state "ID state";
-rename ubica_geo locality_id;
+rename ubica_geo geo;
 rename edad age;
 label var age "Age (years)";
 rename sexo female;

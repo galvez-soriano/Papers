@@ -10,6 +10,7 @@
    2_2018.do
    3_2020.do
    4_2020.do
+   5_treatment_migrant.do
    
    These programs stored data sets (20XX.dta) in four different folders:
    "C:\Users\Documents\Remittances\Data\2008\Bases"
@@ -32,6 +33,12 @@ use "$data\2016\Bases\2016.dta", clear
 append using "$data\2018\Bases\2018.dta", force
 append using "$data\2020\Bases\2020.dta", force
 append using "$data\2022\Bases\2022.dta", force
+
+merge m:1 geo using "$data\migrants.dta"
+drop if _merge==2
+drop _merge
+
+merge m:1 geo using "$data\mremit.dta", nogen
 
 save "$data\dbaseRemitt.dta", replace
 *=====================================================================*
