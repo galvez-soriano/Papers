@@ -184,7 +184,6 @@ replace biare=0 if biare==.
 
 label var eng "English (speaking ability)"
 label var edu "Education (years)"
-label var expe "Experience (years)"
 label var age "Age (years)"
 label var female "Female (\%)"
 label var married "Married (\%)"
@@ -232,3 +231,11 @@ drop if _merge==2
 drop _merge
 keep if age>=18 & age<=65
 save "$base\eng_abil.dta", replace
+*========================================================================*
+use "$base\eng_abil.dta", clear
+
+collapse hrs_exp, by(geo cohort)
+rename hrs_exp hrs_exp2
+merge 1:m geo cohort using "$base\eng_abil.dta", nogen
+
+order state* geo id* cohort hrs_exp hrs_exp2 eng
