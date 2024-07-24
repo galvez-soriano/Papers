@@ -75,91 +75,7 @@ star(* 0.10 ** 0.05 *** 0.01) title(Descriptive statistics) keep(eng) replace
 *========================================================================*
 /* Appendix*/ 
 *========================================================================*
-
-*========================================================================*
-/* FIGURE A.1. Exposure to English instruction and English abilities in 
-Mexican states */
-*========================================================================*
-use "$base/eng_abil.dta", clear
-
-destring state, replace
-gen eng_r=eng if rural==1
-gen eng_u=eng if rural==0
-gen hrs_exp_r=hrs_exp if rural==1
-gen hrs_exp_u=hrs_exp if rural==0
-replace hrs_exp_u=hrs_exp_u/2 if state==17
-replace hrs_exp_r=hrs_exp_r/2 if state==17
-keep if age>=18 & age<=65
-keep if biare==1 // I restrict the sample to only those who were survey in BIARE
-collapse (mean) eng* hrs_exp* [fw=weight], by(state)
-
-merge m:m state using "$data/data/main/Maps/MexStates/mex_map_state.dta"
-drop if _merge!=3
-drop _merge
-replace eng_u=.2 if state==23
-
-format eng* hrs_exp_u* %12.2f
-/* Panel (a). Exposure in urban states */
-spmap hrs_exp_u using "$base2\mxcoord.dta", id(id) ///
-clmethod(eqint) clnumber(5) eirange(0 0.2) legend(size(*3))
-graph export "$doc\fig1_A.png", replace
-/* Panel (b). Exposure in rural states */
-spmap hrs_exp_r using "$base2\mxcoord.dta", id(id) ///
-clmethod(eqint) clnumber(5) eirange(0 0.2) legend(off) 
-graph export "$doc\fig1_B.png", replace
-/* Panel (c). English abilities (urban) */
-spmap eng_u using "$base2\mxcoord.dta", id(id) ///
-clmethod(eqint) clnumber(5) eirange(0 0.2) legend(size(*3))
-graph export "$doc\fig1_C.png", replace
-/* Panel (d). English abilities (rural) */
-spmap eng_r using "$base2\mxcoord.dta", id(id) ///
-clmethod(eqint) clnumber(5) eirange(0 0.2) legend(off)
-graph export "$doc\fig1_D.png", replace
-*========================================================================*
-/* FIGURE A.2: English abilities, wages and education by occupations */
-*========================================================================*
-use "$base/eng_abil.dta", clear
-keep if biare==1 
-destring sinco, replace
-gen occup=.
-replace occup=1 if (sinco>6101 & sinco<=6131) | (sinco>6201 & sinco<=6231) ///
-| sinco==6999
-replace occup=2 if (sinco>=9111 & sinco<=9899) 
-replace occup=3 if sinco==6311 | (sinco>=8111 & sinco<=8199) | (sinco>=8211 ///
-& sinco<=8212) | (sinco>=8311 & sinco<=8999)
-replace occup=4 if (sinco>=7111 & sinco<=7135) | (sinco>=7211 & sinco<=7223) ///
-| (sinco>=7311 & sinco<=7353) | (sinco>=7411 & sinco<=7412) | (sinco>=7511 & ///
-sinco<=7517) | (sinco>=7611 & sinco<=7999)
-replace occup=5 if (sinco>=5111 & sinco<=5116) | (sinco>=5211 & sinco<=5254) ///
-| (sinco>=5311 & sinco<=5314) | (sinco>=5411 & sinco<=5999)
-replace occup=6 if sinco==4111 | (sinco>=4211 & sinco<=4999)
-replace occup=7 if (sinco>=3111 & sinco<=3142) | (sinco>=3211 & sinco<=3999)
-replace occup=8 if (sinco>=2111 & sinco<=2625) | (sinco>=2631 & sinco<=2639) ///
-| (sinco>=2641 & sinco<=2992)
-replace occup=9 if (sinco>=1111 & sinco<=1999) | sinco==2630 ///
-| sinco==2630 | sinco==2640 | sinco==3101 | sinco==3201 | sinco==4201 ///
-| sinco==5101 | sinco==5201 | sinco==5301 | sinco==5401 | sinco==6101 ///
-| sinco==6201 | sinco==7101 | sinco==7201 | sinco==7301 | sinco==7401 ///
-| sinco==7501 | sinco==7601 | sinco==8101 | sinco==8201 | sinco==8301
-replace occup=10 if sinco==980
-
-label define occup 1 "Farming" 2 "Elem occupations" 3 "Machine operators" ///
-4 "Crafts" 5 "Customer service" 6 "Sales" 7 "Clerical support" ///
-8 "Pro/Tech" 9 "Managerial" 10 "Abroad" 
-label values occup occup
-/* Panel (a). Proportion of female and English speakers */
-graph hbar (mean) eng female [fw=weight] if age>=18 & age<=65, ///
-yline(0.0699, lstyle(grid) lpattern(dash) lcolor(red)) ///
-over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
-ylabel(, grid format(%5.2f)) legend( label(1 "Speak English") label(2 "Female"))
-graph export "$doc\occup_EngFem.png", replace
-/* Pane (b). Wages and education */
-graph hbar (mean) lwage edu [fw=weight] if age>=18 & age<=65, ///
-over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
-ylabel(, grid format(%5.0f)) legend( label(1 "ln(wage)") label(2 "Education"))
-graph export "$doc\occup_WageEdu.png", replace
-*========================================================================*
-/* FIGURE A.3: Mexican states with English programs */
+/* FIGURE A.1: Mexican states with English programs */
 *========================================================================*
 use "$base/sum_Eng_state_1.dta", clear
 append using "$base/sum_Eng_state_2.dta"
@@ -286,6 +202,91 @@ xline(2001, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
 || line hours_year_ruralTAM year || line hours_year_urbanTAM year, ///
 legend(label(1 "Tamaulipas") label(2 "Rural") label(3 "Urban"))
 graph export "$doc\graphTAM.png", replace
+
+*========================================================================*
+/* FIGURE A.2. Exposure to English instruction and English abilities in 
+Mexican states */
+*========================================================================*
+use "$base/eng_abil.dta", clear
+
+destring state, replace
+gen eng_r=eng if rural==1
+gen eng_u=eng if rural==0
+gen hrs_exp_r=hrs_exp if rural==1
+gen hrs_exp_u=hrs_exp if rural==0
+replace hrs_exp_u=hrs_exp_u/2 if state==17
+replace hrs_exp_r=hrs_exp_r/2 if state==17
+keep if age>=18 & age<=65
+keep if biare==1 // I restrict the sample to only those who were survey in BIARE
+collapse (mean) eng* hrs_exp* [fw=weight], by(state)
+
+merge m:m state using "$data/data/main/Maps/MexStates/mex_map_state.dta"
+drop if _merge!=3
+drop _merge
+replace eng_u=.2 if state==23
+
+format eng* hrs_exp_u* %12.2f
+/* Panel (a). Exposure in urban states */
+spmap hrs_exp_u using "$base2\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 0.2) legend(size(*3))
+graph export "$doc\fig1_A.png", replace
+/* Panel (b). Exposure in rural states */
+spmap hrs_exp_r using "$base2\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 0.2) legend(off) 
+graph export "$doc\fig1_B.png", replace
+/* Panel (c). English abilities (urban) */
+spmap eng_u using "$base2\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 0.2) legend(size(*3))
+graph export "$doc\fig1_C.png", replace
+/* Panel (d). English abilities (rural) */
+spmap eng_r using "$base2\mxcoord.dta", id(id) ///
+clmethod(eqint) clnumber(5) eirange(0 0.2) legend(off)
+graph export "$doc\fig1_D.png", replace
+
+*========================================================================*
+/* FIGURE A.3: English abilities, wages and education by occupations */
+*========================================================================*
+use "$base/eng_abil.dta", clear
+keep if biare==1 
+destring sinco, replace
+gen occup=.
+replace occup=1 if (sinco>6101 & sinco<=6131) | (sinco>6201 & sinco<=6231) ///
+| sinco==6999
+replace occup=2 if (sinco>=9111 & sinco<=9899) 
+replace occup=3 if sinco==6311 | (sinco>=8111 & sinco<=8199) | (sinco>=8211 ///
+& sinco<=8212) | (sinco>=8311 & sinco<=8999)
+replace occup=4 if (sinco>=7111 & sinco<=7135) | (sinco>=7211 & sinco<=7223) ///
+| (sinco>=7311 & sinco<=7353) | (sinco>=7411 & sinco<=7412) | (sinco>=7511 & ///
+sinco<=7517) | (sinco>=7611 & sinco<=7999)
+replace occup=5 if (sinco>=5111 & sinco<=5116) | (sinco>=5211 & sinco<=5254) ///
+| (sinco>=5311 & sinco<=5314) | (sinco>=5411 & sinco<=5999)
+replace occup=6 if sinco==4111 | (sinco>=4211 & sinco<=4999)
+replace occup=7 if (sinco>=3111 & sinco<=3142) | (sinco>=3211 & sinco<=3999)
+replace occup=8 if (sinco>=2111 & sinco<=2625) | (sinco>=2631 & sinco<=2639) ///
+| (sinco>=2641 & sinco<=2992)
+replace occup=9 if (sinco>=1111 & sinco<=1999) | sinco==2630 ///
+| sinco==2630 | sinco==2640 | sinco==3101 | sinco==3201 | sinco==4201 ///
+| sinco==5101 | sinco==5201 | sinco==5301 | sinco==5401 | sinco==6101 ///
+| sinco==6201 | sinco==7101 | sinco==7201 | sinco==7301 | sinco==7401 ///
+| sinco==7501 | sinco==7601 | sinco==8101 | sinco==8201 | sinco==8301
+replace occup=10 if sinco==980
+
+label define occup 1 "Farming" 2 "Elem occupations" 3 "Machine operators" ///
+4 "Crafts" 5 "Customer service" 6 "Sales" 7 "Clerical support" ///
+8 "Pro/Tech" 9 "Managerial" 10 "Abroad" 
+label values occup occup
+/* Panel (a). Proportion of female and English speakers */
+graph hbar (mean) eng female [fw=weight] if age>=18 & age<=65, ///
+yline(0.0699, lstyle(grid) lpattern(dash) lcolor(red)) ///
+over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
+ylabel(, grid format(%5.2f)) legend( label(1 "Speak English") label(2 "Female"))
+graph export "$doc\occup_EngFem.png", replace
+/* Pane (b). Wages and education */
+graph hbar (mean) lwage edu [fw=weight] if age>=18 & age<=65, ///
+over(occup, gap(*0.5)) graphregion(color(white)) scheme(s2mono) ///
+ylabel(, grid format(%5.0f)) legend( label(1 "ln(wage)") label(2 "Education"))
+graph export "$doc\occup_WageEdu.png", replace
+
 *========================================================================*
 /* FIGURE A.4. Event-study graphs from TWFE specification */
 *========================================================================*
@@ -348,7 +349,7 @@ reghdfe hrs_exp treat* if paidw==1 ///
 [aw=weight], absorb(cohort geo) vce(cluster geo)
 estimates store hexp_ss
 reghdfe hrs_exp treat* edu female if paidw==1 ///
-[aw=weight], absorb(cohort geo) vce(cluster geo)
+[aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
 estimates store hexp_ssc
 
 coefplot ///
@@ -357,19 +358,19 @@ coefplot ///
 vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.1f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 legend(pos(5) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-ysc(r(-0.5 0.5)) recast(connected)
+ysc(r(-1 1)) recast(connected)
 graph export "$doc\PTA_StagDD1.png", replace
 
 reghdfe eng treat* if paidw==1 ///
 [aw=weight], absorb(cohort geo) vce(cluster geo)
 estimates store eng_ss
 reghdfe eng treat* edu female if paidw==1 ///
-[aw=weight], absorb(cohort geo) vce(cluster geo)
+[aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
 estimates store eng_ssc
 
 coefplot ///
@@ -390,7 +391,7 @@ reghdfe paidw treat* ///
 [aw=weight], absorb(cohort geo) vce(cluster geo)
 estimates store paid_ss
 reghdfe paidw treat* edu female ///
-[aw=weight], absorb(cohort geo) vce(cluster geo)
+[aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
 estimates store paid_ssc
 
 coefplot ///
@@ -411,7 +412,7 @@ reghdfe lwage treat* if paidw==1 ///
 [aw=weight], absorb(cohort geo) vce(cluster geo)
 estimates store wage_ss
 reghdfe lwage treat* edu female if paidw==1 ///
-[aw=weight], absorb(cohort geo) vce(cluster geo)
+[aw=weight], absorb(cohort geo state#cohort) vce(cluster geo)
 estimates store wage_ssc
 
 coefplot ///
@@ -420,59 +421,18 @@ coefplot ///
 vertical keep(treat*) yline(0) omitted baselevels ///
 xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Percentage change of wages", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(vertical) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 legend(off) ///
-ysc(r(-4 4)) recast(connected)
+ysc(r(-10 10)) recast(connected)
 graph export "$doc\PTA_StagDD4.png", replace
 
-reghdfe lhwork treat* if paidw==1 ///
-[aw=weight], absorb(cohort geo) vce(cluster geo)
-estimates store ls_ss
-reghdfe lhwork treat* edu female if paidw==1 ///
-[aw=weight], absorb(cohort geo) vce(cluster geo)
-estimates store ls_ssc
-
-coefplot ///
-(ls_ss, label(Sample without controls) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)) ///
-(ls_ssc, offset(-0.1) label(Sample with controls) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
-vertical keep(treat*) yline(0) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Percentage change of hours worked", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend(off) ///
-ysc(r(-1 1)) recast(connected)
-graph export "$doc\PTA_StagDD5.png", replace
-
-reghdfe formal treat* if paidw==1 ///
-[aw=weight], absorb(cohort geo) vce(cluster geo)
-estimates store formal_ss
-reghdfe formal treat* edu female if paidw==1 ///
-[aw=weight], absorb(cohort geo) vce(cluster geo)
-estimates store formal_ssc
-
-coefplot ///
-(formal_ss, label(Sample without controls) msymbol(O) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)) ///
-(formal_ssc, offset(-0.1) label(Sample with controls) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
-vertical keep(treat*) yline(0) omitted baselevels ///
-xline(6.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of working in formal sector", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(vertical) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-legend(off) ///
-ysc(r(-1 1)) recast(connected)
-graph export "$doc\PTA_StagDD6.png", replace
 *========================================================================*
-/* FIGURE A.5. Effect of English programs on labor market outcomes */
+/* Heterogeneous effects */
 *========================================================================*
-/* de Chaisemartin and D'Haultfoeuille (2020) */
+/* Borusyak, Jaravel, and Spiess (2024) */
 *========================================================================*
 clear
 clear matrix
@@ -481,13 +441,10 @@ set maxvar 120000
 use "$base/eng_abil.dta", clear
 keep if biare==1
 drop if state=="05" | state=="17"
-keep if cohort>=1984 & cohort<=1996
-
+keep if cohort>=1984 & cohort<=1994
 sum hrs_exp, d
 return list
 gen engl=hrs_exp>=r(p90)
-
-gen lhwork=log(hrs_work)
 
 gen had_policy=0 
 replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
@@ -497,39 +454,65 @@ replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
 replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
 
-destring geo, replace
+gen first_cohort=1997
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
+
+destring geo state, replace
+*========================================================================*
+/* FIGURE A.5. Effect of English programs on labor market outcomes */
 *========================================================================*
 /* Gender heterogeneous effects */
 *========================================================================*
-did_multiplegt hrs_exp geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
-robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
-controls(female edu) 
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 & female==0  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrs_m
+did_imputation eng geo cohort first_cohort if paidw==1 & female==0  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_Eng_m
+did_imputation lwage geo cohort first_cohort if paidw==1 & female==0  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_wage_m
+did_imputation paidw geo cohort first_cohort [aw=weight] if female==0 , ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_paid_m
 
-matrix hrsEngMen_b = e(estimates) \ 0
-matrix hrsEngMen_v = e(variances) \ 0
-
-mat rownames hrsEngMen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
-mat rownames hrsEngMen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
-
-did_multiplegt hrs_exp geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
-robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix hrsEngWomen_b = e(estimates) \ 0
-matrix hrsEngWomen_v = e(variances) \ 0
-
-mat rownames hrsEngWomen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
-mat rownames hrsEngWomen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
-/* Graph */
-event_plot hrsEngMen_b#hrsEngMen_v hrsEngWomen_b#hrsEngWomen_v, ///
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 & female==1  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrs_w
+did_imputation eng geo cohort first_cohort if paidw==1 & female==1  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_Eng_w
+did_imputation lwage geo cohort first_cohort if paidw==1 & female==1  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_wage_w
+did_imputation paidw geo cohort first_cohort [aw=weight] if female==1 , ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_paid_w
+*========================================================================*
+/* Panel (a) */
+*========================================================================*
+event_plot bjs_hrs_m bjs_hrs_w, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre# pre#) ///
+    stub_lag(tau# tau#) ///
     together noautolegend ///
 	graph_opt( ///
 	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 	ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-	xlabel(-4(1)4) yline(0, lpattern(solid)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 	legend(order(2 "Men" 4 "Women") pos(5) ring(0) col(1)) ///
@@ -538,35 +521,17 @@ event_plot hrsEngMen_b#hrsEngMen_v hrsEngWomen_b#hrsEngWomen_v, ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
 graph export "$doc\PTA_hrsEngSex.png", replace
 *========================================================================*
-did_multiplegt eng geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
-robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix EngMen_b = e(estimates) \ 0
-matrix EngMen_v = e(variances) \ 0
-
-mat rownames EngMen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
-mat rownames EngMen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
-
-did_multiplegt eng geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
-robust_dynamic dynamic(4) placebo(3) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix EngWomen_b = e(estimates) \ 0
-matrix EngWomen_v = e(variances) \ 0
-
-mat rownames EngWomen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
-mat rownames EngWomen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Average Placebo_2 Placebo_3 Placebo_4 Placebo_1
-/* Graph */
-event_plot EngMen_b#EngMen_v EngWomen_b#EngWomen_v, ///
+/* Panel (b) */
+*========================================================================*
+event_plot bjs_Eng_m bjs_Eng_w, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre# pre#) ///
+    stub_lag(tau# tau#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-1.5(0.5)1.5, labs(medium) grid format(%5.1f)) ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
 	ytitle("Likelihood of speaking English", size(medium) height(5)) ///
-	xlabel(-4(1)4) yline(0, lpattern(solid)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 	legend(off) ///
@@ -575,33 +540,15 @@ event_plot EngMen_b#EngMen_v EngWomen_b#EngWomen_v, ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
 graph export "$doc\PTA_EngSex.png", replace
 *========================================================================*
-did_multiplegt lwage geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix WageMen_b = e(estimates) \ 0
-matrix WageMen_v = e(variances) \ 0
-
-mat rownames WageMen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames WageMen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt lwage geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix WageWomen_b = e(estimates) \ 0
-matrix WageWomen_v = e(variances) \ 0
-
-mat rownames WageWomen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames WageWomen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-/* Graph */
-event_plot WageMen_b#WageMen_v WageWomen_b#WageWomen_v, ///
+/* Panel (c) */
+*========================================================================*
+event_plot bjs_wage_m bjs_wage_w, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre# pre#) ///
+    stub_lag(tau# tau#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-6(3)6, labs(medium) grid format(%5.0f)) ///
+	ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
 	ytitle("Percentage change of wages", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -612,30 +559,12 @@ event_plot WageMen_b#WageMen_v WageWomen_b#WageWomen_v, ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
 graph export "$doc\PTA_WageSex.png", replace
 *========================================================================*
-did_multiplegt paidw geo cohort had_policy if female==0, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix WorkMen_b = e(estimates) \ 0
-matrix WorkMen_v = e(variances) \ 0
-
-mat rownames WorkMen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames WorkMen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt paidw geo cohort had_policy if female==1, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix WorkWomen_b = e(estimates) \ 0
-matrix WorkWomen_v = e(variances) \ 0
-
-mat rownames WorkWomen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames WorkWomen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-/* Graph */
-event_plot WorkMen_b#WorkMen_v WorkWomen_b#WorkWomen_v, ///
+/* Panel (d) */
+*========================================================================*
+event_plot bjs_paid_m bjs_paid_w, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre# pre#) ///
+    stub_lag(tau# tau#) ///
     together noautolegend ///
 	graph_opt( ///
 	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
@@ -647,135 +576,52 @@ event_plot WorkMen_b#WorkMen_v WorkWomen_b#WorkWomen_v, ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
-graph export "$doc\PTA_WorkSex.png", replace
-*========================================================================*
-did_multiplegt lhwork geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix lsMen_b = e(estimates) \ 0
-matrix lsMen_v = e(variances) \ 0
-
-mat rownames lsMen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames lsMen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt lhwork geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
-robust_dynamic dynamic(3) placebo(2) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix lsWomen_b = e(estimates) \ 0
-matrix lsWomen_v = e(variances) \ 0
-
-mat rownames lsWomen_b = Effect_0 Effect_1 Effect_2 Effect_3 Average Placebo_2 Placebo_3 Placebo_1
-mat rownames lsWomen_v = Effect_0 Effect_1 Effect_2 Effect_3 Average Placebo_2 Placebo_3 Placebo_1
-/* Graph */
-event_plot lsMen_b#lsMen_v lsWomen_b#lsWomen_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
-	ytitle("Percentage change of hours worked", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
-graph export "$doc\PTA_lsSex.png", replace
-*========================================================================*
-did_multiplegt formal geo cohort had_policy if paidw==1 & female==0, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix formalMen_b = e(estimates) \ 0
-matrix formalMen_v = e(variances) \ 0
-
-mat rownames formalMen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames formalMen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt formal geo cohort had_policy if paidw==1 & female==1, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix formalWomen_b = e(estimates) \ 0
-matrix formalWomen_v = e(variances) \ 0
-
-mat rownames formalWomen_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames formalWomen_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-/* Graph */
-event_plot formalMen_b#formalMen_v formalWomen_b#formalWomen_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
-	ytitle("Likelihood of working in formal sector", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
-graph export "$doc\PTA_formalSex.png", replace
+graph export "$doc\PTA_PaidSex.png", replace
 *========================================================================*
 /* FIGURE A.6. Effect of English programs on labor market outcomes */
 *========================================================================*
-/* de Chaisemartin and D'Haultfoeuille (2020) */
+/* Educational heterogeneous effects */
 *========================================================================*
-clear
-clear matrix
-clear mata
-set maxvar 120000
-use "$base/eng_abil.dta", clear
-keep if biare==1
-drop if state=="05" | state=="17"
-keep if cohort>=1984 & cohort<=1996
-sum hrs_exp, d
-return list
-gen engl=hrs_exp>=r(p90)
-gen lhwork=log(hrs_work)
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 & edu<12  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrs_l
+did_imputation eng geo cohort first_cohort if paidw==1 & edu<12  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_Eng_l
+did_imputation lwage geo cohort first_cohort if paidw==1 & edu<12  [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_wage_l
+did_imputation paidw geo cohort first_cohort [aw=weight] if edu<12 , ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_paid_l
 
-gen had_policy=0 
-replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
-replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
-
-destring geo, replace
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 & edu>=12 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrs_h
+did_imputation eng geo cohort first_cohort if paidw==1 & edu>=12 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_Eng_h
+did_imputation lwage geo cohort first_cohort if paidw==1 & edu>=12 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_wage_h
+did_imputation paidw geo cohort first_cohort [aw=weight] if edu>=12, ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_paid_h
 *========================================================================*
-/* Educational attaintment heterogeneous effects */
+/* Panel (a) */
 *========================================================================*
-did_multiplegt hrs_exp geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix hrsEngLow_b = e(estimates) \ 0
-matrix hrsEngLow_v = e(variances) \ 0
-
-mat rownames hrsEngLow_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames hrsEngLow_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt hrs_exp geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
-robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix hrsEngHigh_b = e(estimates) \ 0
-matrix hrsEngHigh_v = e(variances) \ 0
-
-mat rownames hrsEngHigh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_1
-mat rownames hrsEngHigh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_1
-/* Graph */
-event_plot hrsEngLow_b#hrsEngLow_v hrsEngHigh_b#hrsEngHigh_v, ///
+event_plot bjs_hrs_l bjs_hrs_h, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre# pre#) ///
+    stub_lag(tau# tau#) ///
     together noautolegend ///
 	graph_opt( ///
 	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
@@ -783,36 +629,18 @@ event_plot hrsEngLow_b#hrsEngLow_v hrsEngHigh_b#hrsEngHigh_v, ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	legend(order(2 "Low educational attaintment" 4 "High educational attaintment") pos(5) ring(0) col(1)) ///
+	legend(order(2 "High educational attainment" 4 "Low educational attainment") pos(5) ring(0) col(1)) ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
 graph export "$doc\PTA_hrsEngEdu.png", replace
 *========================================================================*
-did_multiplegt eng geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix EngLow_b = e(estimates) \ 0
-matrix EngLow_v = e(variances) \ 0
-
-mat rownames EngLow_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames EngLow_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt eng geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
-robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix EngHigh_b = e(estimates) \ 0
-matrix EngHigh_v = e(variances) \ 0
-
-mat rownames EngHigh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_1
-mat rownames EngHigh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_1
-/* Graph */
-event_plot EngLow_b#EngLow_v EngHigh_b#EngHigh_v, ///
+/* Panel (b) */
+*========================================================================*
+event_plot bjs_Eng_l bjs_Eng_h, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre# pre#) ///
+    stub_lag(tau# tau#) ///
     together noautolegend ///
 	graph_opt( ///
 	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
@@ -826,33 +654,15 @@ event_plot EngLow_b#EngLow_v EngHigh_b#EngHigh_v, ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
 graph export "$doc\PTA_EngEdu.png", replace
 *========================================================================*
-did_multiplegt lwage geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix WageLow_b = e(estimates) \ 0
-matrix WageLow_v = e(variances) \ 0
-
-mat rownames WageLow_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames WageLow_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt lwage geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
-robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix WageHigh_b = e(estimates) \ 0
-matrix WageHigh_v = e(variances) \ 0
-
-mat rownames WageHigh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_1
-mat rownames WageHigh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_1
-/* Graph */
-event_plot WageLow_b#WageLow_v WageHigh_b#WageHigh_v, ///
+/* Panel (c) */
+*========================================================================*
+event_plot bjs_wage_l bjs_wage_h, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre# pre#) ///
+    stub_lag(tau# tau#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-6(3)6, labs(medium) grid format(%5.0f)) ///
+	ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
 	ytitle("Percentage change of wages", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -863,30 +673,12 @@ event_plot WageLow_b#WageLow_v WageHigh_b#WageHigh_v, ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
 graph export "$doc\PTA_WageEdu.png", replace
 *========================================================================*
-did_multiplegt paidw geo cohort had_policy if edu<12, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix WorkLow_b = e(estimates) \ 0
-matrix WorkLow_v = e(variances) \ 0
-
-mat rownames WorkLow_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames WorkLow_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt paidw geo cohort had_policy if edu>=12, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix WorkHigh_b = e(estimates) \ 0
-matrix WorkHigh_v = e(variances) \ 0
-
-mat rownames WorkHigh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames WorkHigh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-/* Graph */
-event_plot WorkLow_b#WorkLow_v WorkHigh_b#WorkHigh_v, ///
+/* Panel (d) */
+*========================================================================*
+event_plot bjs_paid_l bjs_paid_h, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre# pre#) ///
+    stub_lag(tau# tau#) ///
     together noautolegend ///
 	graph_opt( ///
 	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
@@ -898,89 +690,223 @@ event_plot WorkLow_b#WorkLow_v WorkHigh_b#WorkHigh_v, ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
-graph export "$doc\PTA_WorkEdu.png", replace
+graph export "$doc\PTA_PaidEdu.png", replace
 *========================================================================*
-did_multiplegt lhwork geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
+/* Robustness Checks */
+*========================================================================*
+/* FIGURE A.7. Excluded states: Coahuila and Morelos */
+*========================================================================*
+clear
+clear matrix
+clear mata
+use "$base/eng_abil.dta", clear
+keep if biare==1
+*drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1994
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
 
-matrix lsLow_b = e(estimates) \ 0
-matrix lsLow_v = e(variances) \ 0
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
 
-mat rownames lsLow_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames lsLow_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt lhwork geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
-robust_dynamic dynamic(3) placebo(2) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix lsHigh_b = e(estimates) \ 0
-matrix lsHigh_v = e(variances) \ 0
-
-mat rownames lsHigh_b = Effect_0 Effect_1 Effect_2 Effect_3 Average Placebo_2 Placebo_3 Placebo_1
-mat rownames lsHigh_v = Effect_0 Effect_1 Effect_2 Effect_3 Average Placebo_2 Placebo_3 Placebo_1
-/* Graph */
-event_plot lsLow_b#lsLow_v lsHigh_b#lsHigh_v, ///
+gen first_cohort=1997
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
+destring geo state, replace
+*========================================================================*
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrs
+did_imputation eng geo cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_Eng
+did_imputation lwage geo cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_wage
+did_imputation paidw geo cohort first_cohort [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_paid
+*========================================================================*
+/* Panel (a) */
+*========================================================================*
+event_plot bjs_hrs, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
-	ytitle("Percentage change of hours worked", size(medium) height(5)) ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 	legend(off) ///
 	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
-graph export "$doc\PTA_lsEdu.png", replace
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_hrsEngStates.png", replace
 *========================================================================*
-did_multiplegt formal geo cohort had_policy if paidw==1 & edu<12, weight(weight) ///
-robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix formalLow_b = e(estimates) \ 0
-matrix formalLow_v = e(variances) \ 0
-
-mat rownames formalLow_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames formalLow_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-did_multiplegt formal geo cohort had_policy if paidw==1 & edu>=12, weight(weight) ///
-robust_dynamic dynamic(5) placebo(5) breps(100) cluster(geo) ///
-controls(female edu) 
-
-matrix formalHigh_b = e(estimates) \ 0
-matrix formalHigh_v = e(variances) \ 0
-
-mat rownames formalHigh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_1
-mat rownames formalHigh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_1
-/* Graph */
-event_plot formalLow_b#formalLow_v formalHigh_b#formalHigh_v, ///
+/* Panel (b) */
+*========================================================================*
+event_plot bjs_Eng, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_# Placebo_#) ///
-    stub_lag(Effect_# Effect_#) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
     together noautolegend ///
 	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
-	ytitle("Likelihood of working in formal sector", size(medium) height(5)) ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of speaking English", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 	legend(off) ///
 	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt2(color(blue) lwidth(medthick))
-graph export "$doc\PTA_formalEdu.png", replace
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
+graph export "$doc\PTA_EngStates.png", replace
 *========================================================================*
-/* TABLE A.1. Policy changes in Mexican states */
+/* Panel (c) */
 *========================================================================*
- /* I created this table manually with information about the state English
-  programs and the means reported in school census */
+event_plot bjs_wage, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of wages", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_WageStates.png", replace
+*========================================================================*
+/* Panel (d) */
+*========================================================================*
+event_plot bjs_paid, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Likelihood of working for pay", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_PaidStates.png", replace
+*========================================================================*
+/* FIGURE A.8. No state-trends */
+*========================================================================*
+drop if state==5 | state==17
 
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrs
+did_imputation eng geo cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_Eng
+did_imputation lwage geo cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_wage
+did_imputation paidw geo cohort first_cohort [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort) cluster(geo) autos minn(0)
+estimates store bjs_paid
 *========================================================================*
-/* TABLE A.2. Adult English speaking ability in Mexico */
+/* Panel (a) */
+*========================================================================*
+event_plot bjs_hrs, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_hrsEngTStates.png", replace
+*========================================================================*
+/* Panel (b) */
+*========================================================================*
+event_plot bjs_Eng, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
+graph export "$doc\PTA_EngTStates.png", replace
+*========================================================================*
+/* Panel (c) */
+*========================================================================*
+event_plot bjs_wage, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of wages", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_WageTStates.png", replace
+*========================================================================*
+/* Panel (d) */
+*========================================================================*
+event_plot bjs_paid, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Likelihood of working for pay", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_PaidTStates.png", replace
+*========================================================================*
+/* TABLE A.1. Adult English speaking ability in Mexico */
 *========================================================================*
 use "$base/eng_abil.dta", clear
 gen eng_states=1 if state=="01" | state=="10" | state=="19" | state=="25" ///
@@ -1151,3 +1077,109 @@ reg eng female [aw=weight] if age>=18 & age<=65, vce(robust)
 * Ethnicity-English gap
 reg eng indigenous [aw=weight] if age>=18 & age<=65, vce(robust)
 */
+*========================================================================*
+/* TABLE A.2. Policy changes in Mexican states */
+*========================================================================*
+ /* I created this table manually with information about the state English
+  programs and the means reported in school census */
+  
+*========================================================================*
+/* Heterogeneous effects */
+*========================================================================*
+/* Borusyak, Jaravel, and Spiess (2024) */
+*========================================================================*
+clear
+clear matrix
+clear mata
+set maxvar 120000
+use "$base/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1994
+
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+
+gen lhwork=log(hrs_work)
+
+gen had_policy=0 
+replace had_policy=1 if state=="01" & (cohort>=1990 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="10" & (cohort>=1991 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="19" & (cohort>=1987 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="25" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="26" & (cohort>=1993 & cohort<=1996) & engl==1
+replace had_policy=1 if state=="28" & (cohort>=1990 & cohort<=1996) & engl==1
+
+gen first_cohort=1997
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
+
+destring geo state, replace
+*========================================================================*
+/* TABLE A.3. Effect of English programs and heterogeneity by sex and 
+education */
+*========================================================================*
+/* Panel A. Men */
+*========================================================================*
+eststo clear
+eststo: did_imputation hrs_exp geo cohort first_cohort if paidw==1 & female==0 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation eng geo cohort first_cohort if paidw==1 & female==0 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation lwage geo cohort first_cohort if paidw==1 & female==0 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation paidw geo cohort first_cohort [aw=weight] if female==0, ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+esttab using "$doc\tabA3_A.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Panel B. Women */
+*========================================================================*
+eststo clear
+eststo: did_imputation hrs_exp geo cohort first_cohort if paidw==1 & female==1 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation eng geo cohort first_cohort if paidw==1 & female==1 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation lwage geo cohort first_cohort if paidw==1 & female==1 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation paidw geo cohort first_cohort [aw=weight] if female==1, ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+esttab using "$doc\tabA3_B.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Panel C. Low educational attainment */
+*========================================================================*
+eststo clear
+eststo: did_imputation hrs_exp geo cohort first_cohort if paidw==1 & edu<12 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation eng geo cohort first_cohort if paidw==1 & edu<12 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation lwage geo cohort first_cohort if paidw==1 & edu<12 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation paidw geo cohort first_cohort [aw=weight] if edu<12, ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+esttab using "$doc\tabA3_C.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+*========================================================================*
+/* Panel D. High educational attainment */
+*========================================================================*
+eststo clear
+eststo: did_imputation hrs_exp geo cohort first_cohort if paidw==1 & edu>=12 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation eng geo cohort first_cohort if paidw==1 & edu>=12 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation lwage geo cohort first_cohort if paidw==1 & edu>=12 [aw=weight], ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+eststo: did_imputation paidw geo cohort first_cohort [aw=weight] if edu>=12, ///
+controls(edu) fe(geo cohort) cluster(geo) autos 
+esttab using "$doc\tabA3_D.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
