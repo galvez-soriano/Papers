@@ -65,8 +65,18 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2))
 
+areg labor treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
 
-areg remit treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood belonging to labor force", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2))
+
+
+areg remit treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo) 
 
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -76,4 +86,4 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-3 3)) 
 
-
+/* Other controls: i.loc_size age female */
