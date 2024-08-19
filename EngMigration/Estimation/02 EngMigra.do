@@ -18,7 +18,7 @@ foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
 save "$base\labor_census20.dta", replace 
 */
 *========================================================================*
-/* FIGURE 2. Event-study graphs: de Chaisemartin and D'Haultfoeuille (2020) */
+/* FIGURE 3. Event-study graphs: de Chaisemartin and D'Haultfoeuille (2020) */
 *========================================================================*
 use "$base\labor_census20.dta", clear
 drop if state=="05" | state=="17"
@@ -69,217 +69,24 @@ keep if cohort>=1984 & cohort<=1994
 
 destring geo, replace
 *========================================================================*
-/* Panel (a). Work */
+/* Panel (a). Domestic migration */
 *========================================================================*
-csdid work edu female migrant if dmigrant==0 [iw=factor], ///
+csdid dmigrant female migrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_work)
+estat event, window(-5 7) estore(csdid_dmigrant)
 
-coefplot dest_us, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
-ytitle("Likelihood of working", size(medium) height(5)) ///
-ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+coefplot csdid_dmigrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of migrate domestically", size(medium) height(5)) ///
+ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) recast(connected) ///
+ysc(r(-0.1 0.1)) recast(connected) ///
 coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_work.png", replace
-
-*========================================================================*
-/* Panel (b). Does not work */
-*========================================================================*
-did_multiplegt formal_s geo cohort had_policy if cohort>=1984 & cohort<=1994 & dmigrant==0, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(edu female migrant)
-
-matrix dcdh_b = e(estimates) 
-matrix dcdh_v = e(variances)
-
-matrix dcdh_b = dcdh_b \ 0
-matrix dcdh_v=dcdh_v \ 0
-
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-event_plot dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_#) ///
-    stub_lag(Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-	ytitle("Likelihood of having a formal job", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
-graph export "$doc\PTA_dCDH_formal.png", replace
-*========================================================================*
-/* Panel (c). Informal job */
-*========================================================================*
-did_multiplegt informal_s geo cohort had_policy if cohort>=1984 & cohort<=1994 & dmigrant==0, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(edu female migrant)
-
-matrix dcdh_b = e(estimates) 
-matrix dcdh_v = e(variances)
-
-matrix dcdh_b = dcdh_b \ 0
-matrix dcdh_v=dcdh_v \ 0
-
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-event_plot dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_#) ///
-    stub_lag(Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-	ytitle("Likelihood of having an informal job", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
-graph export "$doc\PTA_dCDH_informal.png", replace
-
-*========================================================================*
-/* Panel (d). Inactive */
-*========================================================================*
-did_multiplegt inactive geo cohort had_policy if cohort>=1984 & cohort<=1994 & dmigrant==0, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(edu female migrant)
-
-matrix dcdh_b = e(estimates) 
-matrix dcdh_v = e(variances)
-
-matrix dcdh_b = dcdh_b \ 0
-matrix dcdh_v=dcdh_v \ 0
-
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-event_plot dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_#) ///
-    stub_lag(Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-	ytitle("Likelihood of being inactive", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
-graph export "$doc\PTA_dCDH_inact.png", replace
-
-*========================================================================*
-/* Panel (e). Labor force participation */
-*========================================================================*
-did_multiplegt labor geo cohort had_policy if cohort>=1984 & cohort<=1994 & dmigrant==0, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(edu female migrant)
-
-matrix dcdh_b = e(estimates) 
-matrix dcdh_v = e(variances)
-
-matrix dcdh_b = dcdh_b \ 0
-matrix dcdh_v=dcdh_v \ 0
-
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-event_plot dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_#) ///
-    stub_lag(Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-	ytitle("Likelihood of participating in labor force", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
-graph export "$doc\PTA_dCDH_lf.png", replace
-
-*========================================================================*
-/* Panel (f). Wages */
-*========================================================================*
-did_multiplegt lwage geo cohort had_policy if cohort>=1984 & cohort<=1994 & dmigrant==0 & wpaid==1, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(edu female migrant)
-
-matrix dcdh_b = e(estimates) 
-matrix dcdh_v = e(variances)
-
-matrix dcdh_b = dcdh_b \ 0
-matrix dcdh_v=dcdh_v \ 0
-
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-event_plot dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_#) ///
-    stub_lag(Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
-	ytitle("Percentage change of wages (if works for pay)", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
-graph export "$doc\PTA_dCDH_wage.png", replace
-
-*========================================================================*
-/* FIGURE 3. Event-study graphs: de Chaisemartin and D'Haultfoeuille (2020) */
-*========================================================================*
-/* Panel (a). Domestic migration */
-*========================================================================*
-did_multiplegt dmigrant geo cohort had_policy if cohort>=1984 & cohort<=1994, weight(factor) ///
-robust_dynamic dynamic(6) placebo(5) breps(50) cluster(geo) ///
-controls(female migrant)
-
-matrix dcdh_b = e(estimates) 
-matrix dcdh_v = e(variances)
-
-matrix dcdh_b = dcdh_b \ 0
-matrix dcdh_v=dcdh_v \ 0
-
-mat rownames dcdh_b = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effect_6 Average Placebo_2 Placebo_3 Placebo_4 Placebo_5 Placebo_6 Placebo_1
-
-event_plot dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(Placebo_#) ///
-    stub_lag(Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-	ytitle("Likelihood of migrate domestically", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
-graph export "$doc\PTA_dCDH_dmigrant.png", replace
+graph export "$doc\PTA_CS_dmigrant.png", replace
 
 *========================================================================*
 /* Panel (b). Likelihood of migrating abroad */
@@ -379,6 +186,47 @@ event_plot dcdh_b#dcdh_v, ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
 graph export "$doc\PTA_dCDH_USmigrant.png", replace
+*========================================================================*
+/* FIGURE 3. Event-study graphs: Callaway and SantAnna (2021) */
+*========================================================================*
+/* Panel (a). Work */
+*========================================================================*
+csdid work edu female migrant if dmigrant==0 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_work)
+
+coefplot csdid_work, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Likelihood of working", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_work.png", replace
+
+*========================================================================*
+/* Panel (b). Wages */
+*========================================================================*
+csdid lwage edu female migrant if dmigrant==0 & work==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_wage)
+
+coefplot csdid_wage, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+ytitle("Percentage change of wages (if works)", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_wage.png", replace
 
 *========================================================================*
 /* FIGURE XX. Event-study graphs: de Chaisemartin and D'Haultfoeuille (2020) */
