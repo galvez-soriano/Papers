@@ -76,7 +76,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-5 7) estore(csdid_dmigrant)
 
 coefplot csdid_dmigrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of migrating domestically", size(medium) height(5)) ///
 ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -96,7 +96,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-5 7) estore(csdid_migrant)
 
 coefplot csdid_migrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of migrating abroad", size(medium) height(5)) ///
 ylabel(-0.04(0.02)0.04, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -116,7 +116,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-5 7) estore(csdid_rmigrant)
 
 coefplot csdid_rmigrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of returning to Mexico after migration", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -136,7 +136,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-5 7) estore(csdid_USmigrant)
 
 coefplot csdid_USmigrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of migrating to the US", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -159,7 +159,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-5 7) estore(csdid_CANmigrant)
 
 coefplot csdid_CANmigrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of migrating to Canada", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -213,7 +213,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-5 7) estore(csdid_work)
 
 coefplot csdid_work, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of working", size(medium) height(5)) ///
 ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -233,7 +233,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-5 7) estore(csdid_wage)
 
 coefplot csdid_wage, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(ltblue)) ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Percentage change of wages (if works)", size(medium) height(5)) ///
 ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -358,10 +358,141 @@ replace prof_o=0 if occup!=7 & occup!=.
 *========================================================================*
 gen uilanguage=hlengua==1 | elengua==1
 
-areg indigenous had_policy rural female migrant edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & dmigrant==0, absorb(geo) vce(cluster geo)
-areg hlengua had_policy rural female migrant edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & dmigrant==0, absorb(geo) vce(cluster geo)
-areg elengua had_policy rural female migrant edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & dmigrant==0, absorb(geo) vce(cluster geo)
-areg uilanguage had_policy rural female migrant edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & dmigrant==0, absorb(geo) vce(cluster geo)
+areg indigenous had_policy rural female migrant edu i.cohort [aw=factor] if dmigrant==0, absorb(geo) vce(cluster geo)
+areg hlengua had_policy rural female migrant edu i.cohort [aw=factor] if dmigrant==0, absorb(geo) vce(cluster geo)
+areg elengua had_policy rural female migrant edu i.cohort [aw=factor] if dmigrant==0, absorb(geo) vce(cluster geo)
+areg uilanguage had_policy rural female migrant edu i.cohort [aw=factor] if dmigrant==0, absorb(geo) vce(cluster geo)
 
-areg hlengua had_policy rural female migrant edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & dmigrant==0 & female==0, absorb(geo) vce(cluster geo)
-areg hlengua had_policy rural female migrant edu i.cohort [aw=factor] if cohort>=1981 & cohort<=1996 & dmigrant==0 & female==1, absorb(geo) vce(cluster geo)
+areg hlengua had_policy rural female migrant edu i.cohort [aw=factor] if dmigrant==0 & female==0, absorb(geo) vce(cluster geo)
+areg hlengua had_policy rural female migrant edu i.cohort [aw=factor] if dmigrant==0 & female==1, absorb(geo) vce(cluster geo)
+
+
+csdid hlengua edu rural female migrant if dmigrant==0 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_speaksInd)
+
+coefplot csdid_speaksInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking an indigenous language", size(medium) height(5)) ///
+ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.1 0.1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_speaksInd.png", replace
+
+
+
+csdid elengua edu rural female migrant if dmigrant==0 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_understInd)
+
+coefplot csdid_understInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of understanding an indigenous language", size(medium) height(5)) ///
+ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.1 0.1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_understInd.png", replace
+
+
+
+csdid elengua edu rural migrant if dmigrant==0 & female==0 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_understIndM)
+
+csdid elengua edu rural migrant if dmigrant==0 & female==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_understIndW)
+
+coefplot ///
+(csdid_understIndM, label(Men) msymbol(O) mcolor(blue) ciopt(lc(blue) recast(blue)) lc(blue)) ///
+(csdid_understIndW, offset(-0.1) label(Women) msymbol(T) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)), ///
+vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of understanding an indigenous language", size(medium) height(5)) ///
+ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+legend(pos(5) ring(0) col(1)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.1 0.1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_understIndSex.png", replace
+
+
+csdid elengua edu female migrant if dmigrant==0 & rural==0 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_understIndU)
+
+csdid elengua edu female migrant if dmigrant==0 & rural==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_understIndR)
+
+coefplot ///
+(csdid_understIndU, label(Urban) msymbol(O) mcolor(blue) ciopt(lc(blue) recast(blue)) lc(blue)) ///
+(csdid_understIndR, offset(-0.1) label(Rural) msymbol(T) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)), ///
+vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of understanding an indigenous language", size(medium) height(5)) ///
+ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+legend(pos(5) ring(0) col(1)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.1 0.1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_understIndGC.png", replace
+
+
+*========================================================================*
+tostring state, replace format(%02.0f) force
+gen tgroup=first_cohort
+replace tgroup=. if state!="01" & state!="10" & state!="19" & state!="25" ///
+& state!="26" & state!="28"
+gen cgroup=tgroup==.
+
+gen K = cohort-first_cohort
+
+sum first_cohort
+gen lastcohort = first_cohort==r(max) // dummy for the latest- or never-treated cohort
+forvalues l = 0/7 {
+	gen L`l'event = K==`l'
+}
+forvalues l = 1/6 {
+	gen F`l'event = K==-`l'
+}
+replace F1event=0 // normalize K=-1 to zero
+destring state, replace
+
+eventstudyinteract hlengua L*event F*event if dmigrant==0 [aw=factor], ///
+absorb(geo cohort) cohort(tgroup) control_cohort(cgroup) ///
+covariates(edu female rural migrant) vce(cluster geo)
+
+*========================================================================*
+reghdfe hlengua F*event L*event edu female rural migrant [aw=factor] ///
+if dmigrant==0, absorb(cohort geo) vce(cluster geo)
+
+*========================================================================*
+did_multiplegt hlengua geo cohort had_policy if dmigrant==0, weight(factor) ///
+robust_dynamic dynamic(7) placebo(5) breps(50) cluster(geo) ///
+controls(edu female migrant rural)
+
+*========================================================================*
+replace first_cohort=1997 if first_cohort==0
+
+did_imputation hlengua geo cohort first_cohort if dmigrant==0 ///
+[aw=factor], horizons(0/6) pretrend(6) ///
+controls(edu female migrant rural) cluster(geo) fe(geo cohort) autos minn(0)
