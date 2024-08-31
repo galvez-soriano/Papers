@@ -54,6 +54,9 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
 
+*=====================================================================*
+
+
 
 areg formal treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
 
