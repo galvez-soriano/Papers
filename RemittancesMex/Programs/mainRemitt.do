@@ -17,14 +17,11 @@ save "$base\dbaseRemitt.dta", replace
 *=====================================================================*
 use "$base\dbaseRemitt.dta", clear
 
-gen treat=mc==1
+bysort folioviv foliohog: gen hhsize=_N
+
 gen after=year>=2020
 gen treat_after=treat*after
 replace remit=remit/1000
-
-reg poor treat_after treat after [aw=weight], vce(cluster geo)
-
-drop treat_after
 
 foreach x in 16 18 20 22{
 gen treat_20`x'=0
@@ -33,7 +30,7 @@ label var treat_20`x' "20`x'"
 }
 replace treat_2018=0
 
-areg poor treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
+areg poor treat_20* i.year i.loc_size hhsize age female if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
 
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -44,7 +41,7 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
 
 
-areg epoor treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
+areg epoor treat_20* i.year i.loc_size hhsize age female if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
 
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -58,7 +55,7 @@ ysc(r(-0.2 0.2))
 
 
 
-areg formal treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
+areg formal treat_20* i.year i.loc_size hhsize age female if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
 
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -68,7 +65,7 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2))
 
-areg labor treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
+areg labor treat_20* i.year i.loc_size hhsize age female if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo)
 
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -79,14 +76,14 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2))
 
 
-areg remit treat_20* i.year if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo) 
+areg remit treat_20* i.year i.loc_size hhsize age female if age>=18 & age<=65 [aw=weight], absorb(geo) vce(cluster geo) 
 
 coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Remittances in thousands of pesos", size(medium) height(5)) ///
-ylabel(-3(1.5)3, labs(medium) grid format(%5.2f)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-3 3)) 
+ysc(r(-1 1)) 
 
 /* Other controls: i.loc_size age female */

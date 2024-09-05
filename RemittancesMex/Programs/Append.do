@@ -33,12 +33,16 @@ use "$data\2016\Bases\2016.dta", clear
 append using "$data\2018\Bases\2018.dta", force
 append using "$data\2020\Bases\2020.dta", force
 append using "$data\2022\Bases\2022.dta", force
-
+/*
 merge m:1 geo using "$data\migrants.dta"
 drop if _merge==2
 drop _merge
 
 merge m:1 geo using "$data\mremit.dta", nogen
+*/
+merge m:m geo using "$data\RemitDensity.dta"
+drop if _merge!=3
+drop _merge
 
 save "$data\dbaseRemitt.dta", replace
 *=====================================================================*
@@ -48,10 +52,10 @@ local end=0
 foreach x in 1 2 3 4 5 6 7 8 {
 	use "$data\dbaseRemitt.dta", clear
 	local start=`end'+1
-	local end=127986*`x'
+	local end=127584*`x'
 	keep in `start'/`end'
 	save "$data\dbaseRemitt_`x'.dta", replace
 }
 use "$data\dbaseRemitt.dta", clear
-keep in 1023889/l
+keep in 1020673/l
 save "$data\dbaseRemitt_9.dta", replace
