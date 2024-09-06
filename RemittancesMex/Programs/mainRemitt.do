@@ -9,15 +9,13 @@ gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\Remittances\Doc"
 *=====================================================================*
 /*
 use "$data/Papers/main/RemittancesMex/Data/dbaseRemitt_1.dta", clear
-foreach x in 2 3 4 5 6 7 8 9 {
+foreach x in 2 3 4 5 6 7 8 9 10 11 {
     append using "$data/Papers/main/RemittancesMex/Data/dbaseRemitt_`x'.dta"
 }
 save "$base\dbaseRemitt.dta", replace 
 */
 *=====================================================================*
 use "$base\dbaseRemitt.dta", clear
-
-bysort folioviv foliohog: gen hhsize=_N
 
 gen after=year>=2020
 gen treat_after=treat*after

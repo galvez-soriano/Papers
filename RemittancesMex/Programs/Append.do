@@ -49,13 +49,13 @@ save "$data\dbaseRemitt.dta", replace
 use "$data\dbaseRemitt.dta", clear
 local start=0
 local end=0
-foreach x in 1 2 3 4 5 6 7 8 {
+foreach x in 1 2 3 4 5 6 7 8 9 10 {
 	use "$data\dbaseRemitt.dta", clear
 	local start=`end'+1
-	local end=127584*`x'
+	local end=104387*`x'
 	keep in `start'/`end'
 	save "$data\dbaseRemitt_`x'.dta", replace
 }
 use "$data\dbaseRemitt.dta", clear
-keep in 1020673/l
-save "$data\dbaseRemitt_9.dta", replace
+keep in 1043871/l
+save "$data\dbaseRemitt_11.dta", replace

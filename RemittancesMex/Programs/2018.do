@@ -804,6 +804,9 @@ gen double ing_ren=ing_mens if (clave>="P023" & clave<="P031");
 las claves de ingreso correspondientes;
 gen double ing_tra=ing_mens if (clave>="P032" & clave<="P048");
 							 
+/* ========== Income at the individual level ========== */;
+save "$bases\income_indiv.dta", replace;
+
 *Se estima el total de ingresos de cada hogar;
 collapse (sum) ing_mon ing_lab ing_ren ing_tra, by( folioviv foliohog);
 
@@ -814,6 +817,16 @@ label var ing_tra "Ingreso corriente monetario por transferencias";
 							 
 sort folioviv foliohog;
 save "$bases\ingreso_deflactado18.dta", replace;
+
+/* ========== Income at the individual level - renaming variables ========== */;
+use "$bases\income_indiv.dta", clear;
+rename ing_mon mon_inc;
+rename ing_lab lab_inc;
+rename ing_ren rent_inc;
+rename ing_mens month_inc;
+sort folioviv foliohog numren;
+keep folioviv foliohog numren mon_inc lab_inc rent_inc month_inc;
+save "$bases\income_indiv.dta", replace;
 
 *No Monetario;
 
@@ -1454,6 +1467,11 @@ sort folioviv foliohog;
 merge folioviv foliohog using "$bases\p_ingresos18.dta";
 tab _merge;
 drop _merge;
+sort folioviv foliohog numren;
+
+merge folioviv foliohog numren using "$bases\income_indiv.dta";
+drop _merge;
+sort folioviv foliohog numren;
 
 duplicates drop folioviv foliohog numren, force;
 
@@ -1499,23 +1517,57 @@ label value ent ent;
 keep 	folioviv foliohog numren est_dis upm 
 		factor tam_loc rururb ent ubica_geo edad sexo parentesco educ
 		time_work time_study time_repair time_leisure
-		formal htrab sinco scian remesas
+		formal htrab tipo_trab* sinco scian remesas
 		anac_e student 
 		pea pam ing_pam
 		plp_e plp 
-		tamhogesc ictpc ict
-		hli;
+		ictpc ict mon_inc lab_inc rent_inc month_inc
+		hli tamhogesc;
 		
 order 	folioviv foliohog numren est_dis upm 
 		factor tam_loc rururb ent ubica_geo edad sexo parentesco educ
 		time_work time_study time_repair time_leisure
-		formal htrab sinco scian remesas
+		formal htrab tipo_trab* sinco scian remesas
 		anac_e student 
 		pea pam ing_pam
 		plp_e plp 
-		tamhogesc ictpc ict
-		hli;
-			
+		ictpc ict mon_inc lab_inc rent_inc month_inc
+		hli tamhogesc;
+		
+*Extreme poverty (individual income);
+gen epoori=1 if month_inc<lp1_urb & rururb==0;
+replace epoori=0 if month_inc>=lp1_urb & rururb==0 & ictpc!=.;
+replace epoori=1 if month_inc<lp1_rur & rururb==1;
+replace epoori=0 if month_inc>=lp1_rur & rururb==1 & ictpc!=.;
+
+label define epoori   0 "Not extreme poor" 1 "Extreme poor";
+label value epoori epoori;
+
+*Poverty (individual income);
+gen poori=1 if (month_inc<lp2_urb & rururb==0);
+replace poori=0 if (month_inc>=lp2_urb & rururb==0) & ictpc!=.;
+replace poori=1 if (month_inc<lp2_rur & rururb==1);
+replace poori=0 if (month_inc>=lp2_rur & rururb==1) & ictpc!=.;
+
+label define poori   0 "Not poor" 1 "Poor";
+label value poori poori;
+
+bysort folioviv foliohog: gen hhsize=_N;
+label var hhsize "Household size";
+
+rename tipo_trab1 main_jobt;
+label var main_jobt "Main job type";
+label define main_jobt   1 "Employee" 2 "Paid self-employed" 3 "Unpaid self-employed";
+label value main_jobt main_jobt;
+rename tipo_trab2 second_jobt;
+label var second_jobt "Secondary job type";
+label define second_jobt   1 "Employee" 2 "Paid self-employed" 3 "Unpaid self-employed";
+label value second_jobt second_jobt;
+
+label var mon_inc "Monetary income";
+label var lab_inc "Labor income";
+label var rent_inc "Income from rents";
+label var month_inc "Monthly income";
 label var sexo "Female";
 label var parentesco "Relatives";
 label var est_dis "Sample design";
