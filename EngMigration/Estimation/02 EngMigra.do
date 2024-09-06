@@ -148,107 +148,8 @@ Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_USmigrant.png", replace
 
-
-
 *========================================================================*
-/* FIGURE A.1. Event-study graphs */
-*========================================================================*
-/* Panel (a). Diversification */
-*========================================================================*
-gen dest_amer=.
-replace dest_amer=0 if destination_c!=.
-replace dest_amer=1 if destination_c>=200 & destination_c<300
-replace dest_amer=0 if destination_c==221
-replace dest_amer=. if destination_c==999
-
-gen dest_asia=.
-replace dest_asia=0 if destination_c!=.
-replace dest_asia=1 if (destination_c>=300 & destination_c<400) | ///
-(destination_c>=100 & destination_c<200) | (destination_c>=500 & destination_c<600)
-replace dest_asia=. if destination_c==999
-
-gen dest_euro=.
-replace dest_euro=0 if destination_c!=.
-replace dest_euro=1 if (destination_c>=400 & destination_c<500)
-replace dest_euro=. if destination_c==999
-
-
-csdid dest_amer female if dmigrant==0 & migrant==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_AMERmigrant)
-
-csdid dest_euro female if dmigrant==0 & migrant==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_EUROmigrant)
-
-csdid dest_asia female if dmigrant==0 & migrant==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_ASIAmigrant)
-
-
-
-coefplot ///
-(csdid_EUROmigrant, offset(-0.1) label(Europe) msize(small) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)) ///
-(csdid_AMERmigrant, label(Americas (except US)) msize(small) msymbol(O) mcolor(navy) ciopt(lc(navy) recast(navy)) lc(navy)) ///
-(csdid_ASIAmigrant, offset(0.1) label(Rest of the world) msize(small) msymbol(S) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)), ///
-vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of migrating to destiny", size(medium) height(5)) ///
-ylabel(-0.6(0.3)0.6, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-legend(pos(5) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.6 0.6)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_DESTmigrant.png", replace
-
-*========================================================================*
-/* Panel (d). Likelihood of migrating to Hispanic countries */
-*========================================================================*
-gen dest_spanish=.
-replace dest_spanish=0 if destination_c!=.
-replace dest_spanish=1 if (destination_c>=200 & destination_c<=210) | ///
-destination_c==212 | (destination_c>=214 & destination_c<=220) | ///
-destination_c==222 | (destination_c>=225 & destination_c<=252) | ///
-destination_c==415
-replace dest_spanish=0 if destination_c==226 | destination_c==244
-replace dest_spanish=. if destination_c==999
-
-gen dest_no_spanish=.
-replace dest_no_spanish=0 if dest_spanish==1
-replace dest_no_spanish=1 if dest_spanish==0
-replace dest_no_spanish=0 if destination_c==221
-
-csdid dest_spanish female if dmigrant==0 & migrant==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_SPANISHmigrant)
-
-csdid dest_no_spanish female if dmigrant==0 & migrant==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_NoSPANISHmigrant)
-
-coefplot ///
-(csdid_SPANISHmigrant, label(Hispanic countries) msize(small) msymbol(O) mcolor(navy) ciopt(lc(navy) recast(navy)) lc(navy)) /// 
-(csdid_NoSPANISHmigrant, offset(-0.1) label(Non-Hispanic countries (except US)) msize(small) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
-vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of migrating to countries by speaking language", size(medium) height(5)) ///
-ylabel(-0.8(0.4)0.8, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-legend(pos(5) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.8 0.8)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_SPANISHmigrant.png", replace
-
-
-*========================================================================*
+/*
 replace time_migra=0 if time_migra==. & migra_ret==1
 replace time_migra=100 if time_migra==. & migrant==1
 
@@ -268,7 +169,7 @@ coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_Tmigra.png", replace
-
+*/
 *========================================================================*
 /* FIGURE 3. Event-study graphs: Callaway and SantAnna (2021) */
 *========================================================================*
@@ -311,9 +212,111 @@ Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_wage.png", replace
 
+*========================================================================*
+/* Appendix */
+*========================================================================*
+/* FIGURE A.1. Event-study graphs */
+*========================================================================*
+/* Panel (a). Diversification */
+*========================================================================*
+gen dest_amer=.
+replace dest_amer=0 if destination_c!=.
+replace dest_amer=1 if destination_c>=200 & destination_c<300
+replace dest_amer=0 if destination_c==221
+replace dest_amer=. if destination_c==999
+
+gen dest_asia=.
+replace dest_asia=0 if destination_c!=.
+replace dest_asia=1 if (destination_c>=300 & destination_c<400) | ///
+(destination_c>=100 & destination_c<200) | (destination_c>=500 & destination_c<600)
+replace dest_asia=. if destination_c==999
+
+gen dest_euro=.
+replace dest_euro=0 if destination_c!=.
+replace dest_euro=1 if (destination_c>=400 & destination_c<500)
+replace dest_euro=. if destination_c==999
+
+
+csdid dest_amer female if dmigrant==0 & migrant==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_AMERmigrant)
+
+csdid dest_euro female if dmigrant==0 & migrant==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_EUROmigrant)
+
+csdid dest_asia female if dmigrant==0 & migrant==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_ASIAmigrant)
+
+coefplot ///
+(csdid_EUROmigrant, offset(-0.1) label(Europe) msize(small) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)) ///
+(csdid_AMERmigrant, label(Americas (except US)) msize(small) msymbol(O) mcolor(navy) ciopt(lc(navy) recast(navy)) lc(navy)) ///
+(csdid_ASIAmigrant, offset(0.1) label(Rest of the world) msize(small) msymbol(S) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)), ///
+vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of migrating to destiny", size(medium) height(5)) ///
+ylabel(-0.6(0.3)0.6, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+legend(pos(5) ring(0) col(1)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.6 0.6)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_DESTmigrant.png", replace
+
+*========================================================================*
+/* Panel (b). Likelihood of migrating to Hispanic countries */
+*========================================================================*
+gen dest_spanish=.
+replace dest_spanish=0 if destination_c!=.
+replace dest_spanish=1 if (destination_c>=200 & destination_c<=210) | ///
+destination_c==212 | (destination_c>=214 & destination_c<=220) | ///
+destination_c==222 | (destination_c>=225 & destination_c<=252) | ///
+destination_c==415
+replace dest_spanish=0 if destination_c==226 | destination_c==244
+replace dest_spanish=. if destination_c==999
+
+gen dest_no_spanish=.
+replace dest_no_spanish=0 if dest_spanish==1
+replace dest_no_spanish=1 if dest_spanish==0
+replace dest_no_spanish=0 if destination_c==221
+
+csdid dest_spanish female if dmigrant==0 & migrant==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_SPANISHmigrant)
+
+csdid dest_no_spanish female if dmigrant==0 & migrant==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_NoSPANISHmigrant)
+
+coefplot ///
+(csdid_SPANISHmigrant, label(Hispanic countries) msize(small) msymbol(O) mcolor(navy) ciopt(lc(navy) recast(navy)) lc(navy)) /// 
+(csdid_NoSPANISHmigrant, offset(-0.1) label(Non-Hispanic countries (except US)) msize(small) msymbol(T) mcolor(blue) ciopt(lc(blue) recast(rcap)) lc(blue)), ///
+vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of migrating to countries by speaking language", size(medium) height(5)) ///
+ylabel(-0.8(0.4)0.8, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+legend(pos(5) ring(0) col(1)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.8 0.8)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_SPANISHmigrant.png", replace
 
 
 
+
+
+
+*========================================================================*
+/* END of do file */
+*========================================================================*
 
 
 
