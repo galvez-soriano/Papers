@@ -74,11 +74,11 @@ estat event, window(-5 7) estore(csdid_speaksInd)
 coefplot csdid_speaksInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of speaking an indigenous language", size(medium) height(5)) ///
-ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.1 0.1)) recast(connected) ///
+ysc(r(-0.05 0.05)) recast(connected) ///
 coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
@@ -93,11 +93,11 @@ estat event, window(-5 7) estore(csdid_understInd)
 coefplot csdid_understInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of understanding an indigenous language", size(medium) height(5)) ///
-ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.1 0.1)) recast(connected) ///
+ysc(r(-0.05 0.05)) recast(connected) ///
 coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
@@ -124,7 +124,43 @@ graph export "$doc\PTA_CS_speaksSpa.png", replace
 
 
 
+csdid indigenous edu rural female migrant if dmigrant==0 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-5 7) estore(csdid_indig)
 
+coefplot csdid_indig, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of self-identifying as Indigenous", size(medium) height(5)) ///
+ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.1 0.1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_indig.png", replace
+
+
+
+*========================================================================*
+/* End of do-file */
+*========================================================================*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*========================================================================*
 
 csdid elengua edu rural migrant if dmigrant==0 & female==0 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
