@@ -26,7 +26,7 @@ drop lwage
 gen lwage=log(wage+1)
 replace wpaid=. if work==0
 gen migra_ret=migrant==1 & conact!=.
-replace dmigrant=0 if migrant==1
+*replace dmigrant=0 if migrant==1
 
 drop if imputed_state==1
 
@@ -91,7 +91,7 @@ graph export "$doc\PTA_CS_dmigrant.png", replace
 *========================================================================*
 /* Panel (b). Likelihood of migrating abroad */
 *========================================================================*
-csdid migrant female if dmigrant==0 [iw=factor], ///
+csdid migrant female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_migrant)
 
@@ -111,7 +111,7 @@ graph export "$doc\PTA_CS_migrant.png", replace
 *========================================================================*
 /* Panel (c). Likelihood of returning to Mexico after migration */
 *========================================================================*
-csdid migra_ret female if dmigrant==0 & migrant==1 [iw=factor], ///
+csdid migra_ret female dmigrant if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_rmigrant)
 
@@ -131,7 +131,7 @@ graph export "$doc\PTA_CS_rmigrant.png", replace
 *========================================================================*
 /* Panel (d). Likelihood of migrating to the US */
 *========================================================================*
-csdid dest_us female if dmigrant==0 & migrant==1 [iw=factor], ///
+csdid dest_us female dmigrant if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_USmigrant)
 
@@ -175,7 +175,7 @@ graph export "$doc\PTA_CS_Tmigra.png", replace
 *========================================================================*
 /* Panel (a). Work */
 *========================================================================*
-csdid work edu female migrant if dmigrant==0 [iw=factor], ///
+csdid work edu female migrant dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_work)
 
@@ -195,7 +195,7 @@ graph export "$doc\PTA_CS_work.png", replace
 *========================================================================*
 /* Panel (b). Wages */
 *========================================================================*
-csdid lwage edu female migrant if dmigrant==0 & work==1 [iw=factor], ///
+csdid lwage edu female migrant dmigrant if work==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_wage)
 
@@ -237,15 +237,15 @@ replace dest_euro=1 if (destination_c>=400 & destination_c<500)
 replace dest_euro=. if destination_c==999
 
 
-csdid dest_amer female if dmigrant==0 & migrant==1 [iw=factor], ///
+csdid dest_amer female dmigrant if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_AMERmigrant)
 
-csdid dest_euro female if dmigrant==0 & migrant==1 [iw=factor], ///
+csdid dest_euro female dmigrant if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_EUROmigrant)
 
-csdid dest_asia female if dmigrant==0 & migrant==1 [iw=factor], ///
+csdid dest_asia female dmigrant if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_ASIAmigrant)
 
@@ -284,11 +284,11 @@ replace dest_no_spanish=0 if dest_spanish==1
 replace dest_no_spanish=1 if dest_spanish==0
 replace dest_no_spanish=0 if destination_c==221
 
-csdid dest_spanish female if dmigrant==0 & migrant==1 [iw=factor], ///
+csdid dest_spanish female dmigrant if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_SPANISHmigrant)
 
-csdid dest_no_spanish female if dmigrant==0 & migrant==1 [iw=factor], ///
+csdid dest_no_spanish female dmigrant if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_NoSPANISHmigrant)
 
