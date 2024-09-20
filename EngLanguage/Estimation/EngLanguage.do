@@ -5,7 +5,6 @@
 *========================================================================*
 clear
 set more off
-set maxvar 120000
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
 gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngLanguage\Data"
 gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngLanguage\Doc"
@@ -67,9 +66,9 @@ destring geo, replace
 *========================================================================*
 /* Indigenous regressions */
 *========================================================================*
-csdid hlengua edu rural female migrant if dmigrant==0 [iw=factor], ///
+csdid hlengua edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_speaksInd)
+estat event, window(-4 6) estore(csdid_speaksInd)
 
 coefplot csdid_speaksInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -86,9 +85,9 @@ graph export "$doc\PTA_CS_speaksInd.png", replace
 
 
 
-csdid elengua edu rural female migrant if dmigrant==0 [iw=factor], ///
+csdid elengua edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_understInd)
+estat event, window(-4 6) estore(csdid_understInd)
 
 coefplot csdid_understInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -105,9 +104,9 @@ graph export "$doc\PTA_CS_understInd.png", replace
 
 
 
-csdid hespanol edu rural female migrant if dmigrant==0 [iw=factor], ///
+csdid hespanol edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_speaksSpa)
+estat event, window(-4 6) estore(csdid_speaksSpa)
 
 coefplot csdid_speaksSpa, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -124,9 +123,9 @@ graph export "$doc\PTA_CS_speaksSpa.png", replace
 
 
 
-csdid indigenous edu rural female migrant if dmigrant==0 [iw=factor], ///
+csdid indigenous edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_indig)
+estat event, window(-4 6) estore(csdid_indig)
 
 coefplot csdid_indig, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
