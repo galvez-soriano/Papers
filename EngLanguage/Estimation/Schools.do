@@ -179,12 +179,12 @@ drop same_school
 
 csdid total_stud shift total_groups school_supp_exp uniform_exp tuition fts if public==1, ///
 time(year) gvar(first_treat) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 7) estore(csdid_nstud)
+estat event, window(-4 6) estore(csdid_nstud)
 
 coefplot csdid_nstud, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Number of students enrolled in school", size(medium) height(5)) ///
-ylabel(-140(70)140, labs(medium) grid format(%5.0f)) ///
+ylabel(-180(90)180, labs(medium) grid format(%5.0f)) ///
 xtitle("Years since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
@@ -197,7 +197,7 @@ graph export "$doc\PTA_CS_nstud.png", replace
 
 csdid indig_stud shift total_groups total_stud school_supp_exp uniform_exp tuition fts if public==1, ///
 time(year) gvar(first_treat) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 7) estore(csdid_istud)
+estat event, window(-4 6) estore(csdid_istud)
 
 coefplot csdid_istud, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -214,19 +214,20 @@ graph export "$doc\PTA_CS_istud.png", replace
 
 
 gen ind_share=indig_stud/total_stud
+replace ind_share=0 if indig_stud==.
 
 csdid ind_share shift total_groups school_supp_exp uniform_exp tuition fts if public==1, ///
 time(year) gvar(first_treat) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 7) estore(csdid_ishare)
+estat event, window(-4 6) estore(csdid_ishare)
 
 coefplot csdid_ishare, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Number of Indigenous students enrolled in school", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.0f)) ///
+ytitle("Share of Indigenous students enrolled in school", size(medium) height(5)) ///
+ylabel(-.01(0.005).01, labs(medium) grid format(%5.3f)) ///
 xtitle("Years since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.5 0.5)) recast(connected) ///
+ysc(r(-0.01 0.01)) recast(connected) ///
 coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
