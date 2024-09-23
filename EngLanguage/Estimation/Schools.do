@@ -232,3 +232,8 @@ coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_ishare.png", replace
+
+
+/* Hours of Eng instruction by state */
+
+tabstat hours_eng, by(state)
