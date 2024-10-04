@@ -71,8 +71,8 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-4 6) estore(csdid_speaksInd)
 
 coefplot csdid_speaksInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of speaking an indigenous language", size(medium) height(5)) ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking an Indigenous language", size(medium) height(5)) ///
 ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
@@ -84,14 +84,14 @@ Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_speaksInd.png", replace
 
 
-
+replace elengua=1 if hlengua==1
 csdid elengua edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_understInd)
 
 coefplot csdid_understInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of understanding an indigenous language", size(medium) height(5)) ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of understanding an Indigenous language", size(medium) height(5)) ///
 ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
@@ -109,7 +109,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-4 6) estore(csdid_speaksSpa)
 
 coefplot csdid_speaksSpa, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of speaking Spanish language", size(medium) height(5)) ///
 ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
@@ -128,7 +128,7 @@ time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(
 estat event, window(-4 6) estore(csdid_indig)
 
 coefplot csdid_indig, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of self-identifying as Indigenous", size(medium) height(5)) ///
 ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohorts since policy intervention", size(medium) height(5)) ///

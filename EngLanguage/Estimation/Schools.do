@@ -101,6 +101,11 @@ sort state id_mun id_loc cct shift year
 save "$base\d_schools.dta", replace
 *========================================================================*
 use "$base\d_schools.dta", clear
+
+gen cctPB=substr(cct,4,2)
+gen indig_school=cctPB=="PB"
+drop cctPB
+
 sort cct year
 /* Generating treatment variable */
 drop if year>2006
@@ -151,38 +156,58 @@ replace first_treat=2007 if first_treat==0 // assigning the value of 2007 to nev
 drop ncount ftreat
 /* Creatig time-relative variable */
 gen K=year-first_treat
-
+save "$base\dbs.dta", replace
 *========================================================================*
-
-label var year "Year"
-bysort year: egen indig_year=mean(indig_stud)
-label var indig_year "Number of Indigenous students"
-
-bysort year: egen stud_year=mean(total_stud) 
-label var stud_year "Number of total students"
-
-set scheme s1color
-twoway line indig_year year, msymbol(diamond) xlabel(1997(1)2006, angle(vertical)) ///
-ytitle(Number of students) ylabel(,nogrid) ///
-graphregion(fcolor(white)) bgcolor(white) ///
-legend(pos(9) ring(0) col(1)) ///
-xline(2009 2011, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
-|| line stud_year year, ///
-legend(label(1 "Indigenous") label(2 "Total"))
-*graph export "$doc\graph01.png", replace
-
+/*  Treatment at municipality level to explore effects on enrollment in 
+Indigenous schools */
+*========================================================================*
+use "$base\dbs.dta", clear
 bysort cct: gen same_school=_N
 keep if same_school==10
 drop same_school
 
+gen str geo=state+id_mun
+collapse h_group, by(geo year)
+
+sum h_group, d
+gen treat_mun=h_group>=r(p90)
+
+gen ftreat=.
+bysort geo: gen ncount=_n if treat_mun!=0
+bysort geo: replace ftreat=year if ncount[_n-1]==. & ncount[_n+1]>ncount & ncount!=. // this identifies the first treated year but exclude never treated
+bysort geo: egen first_treat = total(ftreat) // assigning the value of the first treat year to all observation within a school
 
 
+replace treat=0 if first_treat>2006
+sum h_group if first_treat>2006, d
+replace treat=1 if h_group>=r(p90) & first_treat>2006
+drop ftreat ncount first_treat
+
+sort geo year
+
+gen ftreat=.
+bysort geo: gen ncount=_n if treat!=0
+bysort geo: replace ftreat=year if ncount[_n-1]==. & ncount[_n+1]>ncount & ncount!=.
+bysort geo: egen first_treat = total(ftreat)
+rename first_treat first_treat_mun
+drop h_group ftreat ncount
+
+save "$base\dbs_mun.dta", replace
+*========================================================================*
+/* Treatment at the school level */
+*========================================================================*
+use "$base\dbs.dta", clear
+bysort cct: gen same_school=_N
+keep if same_school==10
+drop same_school
+
+/* Public, non-indigenous schools */
 csdid total_stud shift total_groups school_supp_exp uniform_exp tuition fts if public==1, ///
 time(year) gvar(first_treat) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_nstud)
 
 coefplot csdid_nstud, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Number of students enrolled in school", size(medium) height(5)) ///
 ylabel(-180(90)180, labs(medium) grid format(%5.0f)) ///
 xtitle("Years since policy intervention", size(medium) height(5)) ///
@@ -194,13 +219,13 @@ Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_nstud.png", replace
 
-
+/* Public, non-indigenous schools */
 csdid indig_stud shift total_groups total_stud school_supp_exp uniform_exp tuition fts if public==1, ///
 time(year) gvar(first_treat) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_istud)
 
 coefplot csdid_istud, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Number of Indigenous students enrolled in school", size(medium) height(5)) ///
 ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
 xtitle("Years since policy intervention", size(medium) height(5)) ///
@@ -212,28 +237,72 @@ Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_istud.png", replace
 
+*========================================================================*
+/* Treatment at the municipality level */
+*========================================================================*
+/*use "$base\dbs.dta", clear
+bysort cct: gen same_school=_N
+keep if same_school==10
+drop same_school
 
-gen ind_share=indig_stud/total_stud
-replace ind_share=0 if indig_stud==.
+gen str geo=state+id_mun
+merge m:1 year geo using "$base\dbs_mun.dta", nogen
 
-csdid ind_share shift total_groups school_supp_exp uniform_exp tuition fts if public==1, ///
-time(year) gvar(first_treat) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_ishare)
+/* Indigenous schools */
+csdid total_stud shift total_groups if indig_school==1, ///
+time(year) gvar(first_treat_mun) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-4 6) estore(csdid_nstud_ind)
 
-coefplot csdid_ishare, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Share of Indigenous students enrolled in school", size(medium) height(5)) ///
-ylabel(-.01(0.005).01, labs(medium) grid format(%5.3f)) ///
+coefplot csdid_nstud_ind, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Number of students enrolled in indigenous schools", size(medium) height(5)) ///
+ylabel(-180(90)180, labs(medium) grid format(%5.0f)) ///
 xtitle("Years since policy intervention", size(medium) height(5)) ///
 xlabel(, angle(horizontal) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.01 0.01)) recast(connected) ///
+ysc(r(-0.5 0.5)) recast(connected) ///
 coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_ishare.png", replace
+graph export "$doc\PTA_CS_nstud_ind.png", replace
 
+/* Public, non-indigenous schools */
+csdid total_stud shift total_groups school_supp_exp uniform_exp tuition fts if public==1, ///
+time(year) gvar(first_treat_mun) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-4 6) estore(csdid_nstud_m)
+
+coefplot csdid_nstud_m, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Number of students enrolled in school", size(medium) height(5)) ///
+ylabel(-180(90)180, labs(medium) grid format(%5.0f)) ///
+xtitle("Years since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) recast(connected) ///
+coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_nstud_m.png", replace
+
+/* Public, non-indigenous schools */
+csdid indig_stud shift total_groups total_stud school_supp_exp uniform_exp tuition fts if public==1, ///
+time(year) gvar(first_treat_mun) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-4 6) estore(csdid_istud_m)
+
+coefplot csdid_istud_m, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Number of Indigenous students enrolled in school", size(medium) height(5)) ///
+ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+xtitle("Years since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) recast(connected) ///
+coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_istud_m.png", replace
 
 /* Hours of Eng instruction by state */
 
 tabstat hours_eng, by(state)
+*/
