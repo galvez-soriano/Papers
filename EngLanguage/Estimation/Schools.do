@@ -201,6 +201,9 @@ bysort cct: gen same_school=_N
 keep if same_school==10
 drop same_school
 
+*========================================================================*
+/* FIGURE 4. Mechanisms: school enrollment */
+*========================================================================*
 /* Public, non-indigenous schools */
 csdid total_stud shift total_groups school_supp_exp uniform_exp tuition fts if public==1, ///
 time(year) gvar(first_treat) method(dripw) vce(cluster geo) long2 wboot seed(6)
@@ -238,9 +241,9 @@ Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_istud.png", replace
 
 *========================================================================*
-/* Treatment at the municipality level */
+/* Treatment at the municipality level for Indigenous schools */
 *========================================================================*
-/*use "$base\dbs.dta", clear
+use "$base\dbs.dta", clear
 bysort cct: gen same_school=_N
 keep if same_school==10
 drop same_school
@@ -265,7 +268,7 @@ coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_nstud_ind.png", replace
-
+/*
 /* Public, non-indigenous schools */
 csdid total_stud shift total_groups school_supp_exp uniform_exp tuition fts if public==1, ///
 time(year) gvar(first_treat_mun) method(dripw) vce(cluster geo) long2 wboot seed(6)

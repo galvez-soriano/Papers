@@ -17,8 +17,6 @@ foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
 save "$base\labor_census20.dta", replace 
 */
 *========================================================================*
-/* FIGURE 3. Event-study graphs: de Chaisemartin and D'Haultfoeuille (2020) */
-*========================================================================*
 use "$base\labor_census20.dta", clear
 drop if state=="05" | state=="17"
 keep if migrant==0
@@ -62,9 +60,8 @@ replace first_cohort=1990 if state=="28" & engl==1
 keep if cohort>=1984 & cohort<=1994
 
 destring geo, replace
-
 *========================================================================*
-/* Indigenous regressions */
+/* FIGURE 1. Language abilities */
 *========================================================================*
 csdid hlengua edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
@@ -82,6 +79,90 @@ coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
 Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_speaksInd.png", replace
+
+replace elengua=1 if hlengua==1
+csdid elengua edu rural female dmigrant [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-4 6) estore(csdid_understInd)
+
+coefplot csdid_understInd, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of understanding an Indigenous language", size(medium) height(5)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.05 0.05)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_understInd.png", replace
+
+csdid hespanol edu rural female dmigrant [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-4 6) estore(csdid_speaksSpa)
+
+coefplot csdid_speaksSpa, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking Spanish language", size(medium) height(5)) ///
+ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.1 0.1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_speaksSpa.png", replace
+
+*========================================================================*
+/* FIGURE 2. Indigenous identity */
+*========================================================================*
+csdid indigenous edu rural female dmigrant [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-4 6) estore(csdid_indig)
+
+coefplot csdid_indig, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of self-identifying as Indigenous", size(medium) height(5)) ///
+ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.1 0.1)) recast(connected) ///
+coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_indig.png", replace
+
+*========================================================================*
+/* FIGURE 3. Heterogeneous effects */
+*========================================================================*
+/* By sex */
+csdid hlengua edu rural dmigrant if female==0 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-4 6) estore(csdid_speaksInd_men)
+
+csdid hlengua edu rural dmigrant if female==1 [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat event, window(-4 6) estore(csdid_speaksInd_women)
+
+coefplot ///
+(csdid_speaksInd_men, label("Men") connect(l) lpatt(solid) lcol(navy) msymbol(O) mcolor(navy) ciopt(lc(navy) recast(rcap)) offset(0.1)) ///
+(csdid_speaksInd_women, label("Women") connect(l) lpatt(solid) lcol(blue) msymbol(S) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
+, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
+xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking an Indigenous language)", size(medium) height(5)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
+xtitle("Years since policy intervention", size(medium) height(5)) ///
+xlabel(, angle(horizontal) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.05 0.05)) recast(connected) ///
+legend(pos(11) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
+Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
+Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+graph export "$doc\PTA_CS_speaksInd_Sex.png", replace
 
 
 replace elengua=1 if hlengua==1
@@ -102,8 +183,6 @@ Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
 Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_understInd.png", replace
 
-
-
 csdid hespanol edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_speaksSpa)
@@ -122,23 +201,6 @@ Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
 graph export "$doc\PTA_CS_speaksSpa.png", replace
 
 
-
-csdid indigenous edu rural female dmigrant [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_indig)
-
-coefplot csdid_indig, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of self-identifying as Indigenous", size(medium) height(5)) ///
-ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.1 0.1)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_indig.png", replace
 
 
 
@@ -159,58 +221,7 @@ graph export "$doc\PTA_CS_indig.png", replace
 
 
 
-*========================================================================*
 
-csdid elengua edu rural migrant if dmigrant==0 & female==0 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_understIndM)
-
-csdid elengua edu rural migrant if dmigrant==0 & female==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_understIndW)
-
-coefplot ///
-(csdid_understIndM, label(Men) msymbol(O) mcolor(blue) ciopt(lc(blue) recast(blue)) lc(blue)) ///
-(csdid_understIndW, offset(-0.1) label(Women) msymbol(T) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)), ///
-vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of understanding an indigenous language", size(medium) height(5)) ///
-ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-legend(pos(5) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.1 0.1)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_understIndSex.png", replace
-
-
-csdid elengua edu female migrant if dmigrant==0 & rural==0 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_understIndU)
-
-csdid elengua edu female migrant if dmigrant==0 & rural==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_understIndR)
-
-coefplot ///
-(csdid_understIndU, label(Urban) msymbol(O) mcolor(blue) ciopt(lc(blue) recast(blue)) lc(blue)) ///
-(csdid_understIndR, offset(-0.1) label(Rural) msymbol(T) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap)) lc(ltblue)), ///
-vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of understanding an indigenous language", size(medium) height(5)) ///
-ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-legend(pos(5) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.1 0.1)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_understIndGC.png", replace
 
 
 *========================================================================*
