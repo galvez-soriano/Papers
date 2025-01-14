@@ -443,26 +443,25 @@ csdid hlengua edu rural female dmigrant if state!="28" [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_speaksIndTAM)
 
-coefplot ///
-(csdid_speaksIndAGS, label("Without Aguascalientes") connect(l) lpatt(solid) lcol(navy) msymbol(O) mcolor(navy) ciopt(lc(navy) recast(rcap)) offset(0.1)) ///
-(csdid_speaksIndDGO, label("Without Durango") connect(l) lpatt(solid) lcol(blue) msymbol(S) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(csdid_speaksIndNL, label("Without Nuevo Leon") connect(l) lpatt(solid) lcol(midblue) msymbol(T) mcolor(midblue) ciopt(lc(midblue) recast(rcap))) ///
-(csdid_speaksIndSIN, label("Without Sinaloa") connect(l) lpatt(solid) lcol(ltblue) msymbol(D) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
-(csdid_speaksIndSON, label("Without Sonora") connect(l) lpatt(solid) lcol(ebblue) msymbol(X) mcolor(ebblue) ciopt(lc(ebblue) recast(rcap))) ///
-(csdid_speaksIndTAM, label("Without Tamaulipas") connect(l) lpatt(solid) lcol(emidblue) msymbol(Oh) mcolor(emidblue) ciopt(lc(emidblue) recast(rcap))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-perturb(-0.25 -.15 -0.05 0.05 0.15 0.25) ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of speaking an Indigenous language", size(medium) height(5)) ///
-ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.3f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.05 0.05)) recast(connected) ///
-legend(pos(11) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+event_plot csdid_speaksIndAGS csdid_speaksIndDGO csdid_speaksIndNL csdid_speaksIndSIN csdid_speaksIndSON csdid_speaksIndTAM, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Tm# Tm# Tm# Tm# Tm# Tm#) ///
+    stub_lag(Tp# Tp# Tp# Tp# Tp# Tp#) ///
+    together noautolegend perturb(-.20 -0.10 0 0.10 0.20) ///
+	graph_opt( ///
+	ylabel(-0.06(0.03)0.06, labs(medium) grid format(%5.2f)) ///
+	ytitle("Likelihood of speaking an Indigenous language", size(medium) height(5)) ///
+	xlabel(-5(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
+    lag_opt4(msize(small) msymbol(D) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt4(color(ltblue) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(X) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt5(color(ebblue) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(Oh) mfcolor(emidblue) mlcolor(emidblue) mlwidth(thin)) lag_ci_opt6(color(emidblue) lwidth(medthick)) 
 graph export "$doc\PTA_CS_speaksIndStates.png", replace
 
 
@@ -490,113 +489,113 @@ csdid elengua edu rural female dmigrant if state!="28" [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_understIndTAM)
 
-coefplot ///
-(csdid_understIndAGS, label("Without Aguascalientes") connect(l) lpatt(solid) lcol(navy) msymbol(O) mcolor(navy) ciopt(lc(navy) recast(rcap)) offset(0.1)) ///
-(csdid_understIndDGO, label("Without Durango") connect(l) lpatt(solid) lcol(blue) msymbol(S) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(csdid_understIndNL, label("Without Nuevo Leon") connect(l) lpatt(solid) lcol(midblue) msymbol(T) mcolor(midblue) ciopt(lc(midblue) recast(rcap))) ///
-(csdid_understIndSIN, label("Without Sinaloa") connect(l) lpatt(solid) lcol(ltblue) msymbol(D) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
-(csdid_understIndSON, label("Without Sonora") connect(l) lpatt(solid) lcol(ebblue) msymbol(X) mcolor(ebblue) ciopt(lc(ebblue) recast(rcap))) ///
-(csdid_understIndTAM, label("Without Tamaulipas") connect(l) lpatt(solid) lcol(emidblue) msymbol(Oh) mcolor(emidblue) ciopt(lc(emidblue) recast(rcap))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of understanding an Indigenous language", size(medium) height(5)) ///
-ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.3f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.05 0.05)) recast(connected) ///
-legend(pos(11) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+event_plot csdid_understIndAGS csdid_understIndDGO csdid_understIndNL csdid_understIndSIN csdid_understIndSON csdid_understIndTAM, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Tm# Tm# Tm# Tm# Tm# Tm#) ///
+    stub_lag(Tp# Tp# Tp# Tp# Tp# Tp#) ///
+    together noautolegend perturb(-.20 -0.10 0 0.10 0.20) ///
+	graph_opt( ///
+	ylabel(-0.06(0.03)0.06, labs(medium) grid format(%5.2f)) ///
+	ytitle("Likelihood of understanding an Indigenous language", size(medium) height(5)) ///
+	xlabel(-5(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	legend(order(2 "AGS" 4 "DGO" 6 "NL" 8 "SIN" 10 "SON" 12 "TAM") pos(11) ring(0) col(2)) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
+    lag_opt4(msize(small) msymbol(D) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt4(color(ltblue) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(X) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt5(color(ebblue) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(Oh) mfcolor(emidblue) mlcolor(emidblue) mlwidth(thin)) lag_ci_opt6(color(emidblue) lwidth(medthick)) 
 graph export "$doc\PTA_CS_understIndStates.png", replace
 
 
-csdid indigenous edu rural female dmigrant [iw=factor], ///
+csdid indigenous edu rural female dmigrant if state!="01" [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_indigAGS)
 
-csdid indigenous edu rural female dmigrant [iw=factor], ///
+csdid indigenous edu rural female dmigrant if state!="10" [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_indigDGO)
 
-csdid indigenous edu rural female dmigrant [iw=factor], ///
+csdid indigenous edu rural female dmigrant if state!="19" [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_indigNL)
 
-csdid indigenous edu rural female dmigrant [iw=factor], ///
+csdid indigenous edu rural female dmigrant if state!="25" [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_indigSIN)
 
-csdid indigenous edu rural female dmigrant [iw=factor], ///
+csdid indigenous edu rural female dmigrant if state!="26" [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_indigSON)
 
-csdid indigenous edu rural female dmigrant [iw=factor], ///
+csdid indigenous edu rural female dmigrant if state!="28" [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-4 6) estore(csdid_indigTAM)
 
-coefplot ///
-(csdid_indigAGS, label("Without Aguascalientes") connect(l) lpatt(solid) lcol(navy) msymbol(O) mcolor(navy) ciopt(lc(navy) recast(rcap)) offset(0.1)) ///
-(csdid_indigDGO, label("Without Durango") connect(l) lpatt(solid) lcol(blue) msymbol(S) mcolor(blue) ciopt(lc(blue) recast(rcap))) ///
-(csdid_indigNL, label("Without Nuevo Leon") connect(l) lpatt(solid) lcol(midblue) msymbol(T) mcolor(midblue) ciopt(lc(midblue) recast(rcap))) ///
-(csdid_indigSIN, label("Without Sinaloa") connect(l) lpatt(solid) lcol(ltblue) msymbol(D) mcolor(ltblue) ciopt(lc(ltblue) recast(rcap))) ///
-(csdid_indigSON, label("Without Sonora") connect(l) lpatt(solid) lcol(ebblue) msymbol(X) mcolor(ebblue) ciopt(lc(ebblue) recast(rcap))) ///
-(csdid_indigTAM, label("Without Tamaulipas") connect(l) lpatt(solid) lcol(emidblue) msymbol(Oh) mcolor(emidblue) ciopt(lc(emidblue) recast(rcap))) ///
-, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(4.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of self-identifying as Indigenous", size(medium) height(5)) ///
-ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.05 0.05)) recast(connected) ///
-legend(pos(11) ring(0) col(1) region(lcolor(white)) size(medium)) ///
-coeflabels(Tm9 = "-9" Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
+event_plot csdid_indigAGS csdid_indigDGO csdid_indigNL csdid_indigSIN csdid_indigSON csdid_indigTAM, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(Tm# Tm# Tm# Tm# Tm# Tm#) ///
+    stub_lag(Tp# Tp# Tp# Tp# Tp# Tp#) ///
+    together noautolegend perturb(-.20 -0.10 0 0.10 0.20) ///
+	graph_opt( ///
+	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+	ytitle("Likelihood of self-identifying as Indigenous", size(medium) height(5)) ///
+	xlabel(-5(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
+    lag_opt4(msize(small) msymbol(D) mfcolor(ltblue) mlcolor(ltblue) mlwidth(thin)) lag_ci_opt4(color(ltblue) lwidth(medthick)) ///
+	lag_opt5(msize(small) msymbol(X) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt5(color(ebblue) lwidth(medthick)) ///
+	lag_opt6(msize(small) msymbol(Oh) mfcolor(emidblue) mlcolor(emidblue) mlwidth(thin)) lag_ci_opt6(color(emidblue) lwidth(medthick)) 
 graph export "$doc\PTA_CS_indigStates.png", replace
 
 *========================================================================*
 /* FIGURE X. Different controls */
 *========================================================================*
-csdid hlengua [iw=factor], ///
+csdid elengua if edu!=. [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_speaks1)
-
-csdid hlengua edu female [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_speaks2)
-
-csdid hlengua edu rural female dmigrant [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_speaks3)
-
-
-csdid elengua [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_underst1)
+estat all, window(-4 6) estore(csdid_underst1)
 
 csdid elengua edu female [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_underst2)
+estat all, window(-4 6) estore(csdid_underst2)
 
 csdid elengua edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_underst3)
+estat all, window(-4 6) estore(csdid_underst3)
 
 
-csdid indigenous [iw=factor], ///
+csdid hlengua if edu!=. [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_indig1)
+estat all, window(-4 6) estore(csdid_speaks1)
+
+csdid hlengua edu female [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat all, window(-4 6) estore(csdid_speaks2)
+
+csdid hlengua edu rural female dmigrant [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat all, window(-4 6) estore(csdid_speaks3)
+
+
+csdid indigenous if edu!=. [iw=factor], ///
+time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
+estat all, window(-4 6) estore(csdid_indig1)
 
 csdid indigenous edu female [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_indig2)
+estat all, window(-4 6) estore(csdid_indig2)
 
 csdid indigenous edu rural female dmigrant [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-4 6) estore(csdid_indig3)
+estat all, window(-4 6) estore(csdid_indig3)
 
 esttab csdid_speaks1 csdid_speaks2 csdid_speaks3 csdid_underst1 csdid_underst2 ///
 csdid_underst3 csdid_indig1 csdid_indig2 csdid_indig3
@@ -604,7 +603,7 @@ csdid_underst3 csdid_indig1 csdid_indig2 csdid_indig3
 esttab csdid_speaks1 csdid_speaks2 csdid_speaks3 csdid_underst1 csdid_underst2 ///
 csdid_underst3 csdid_indig1 csdid_indig2 csdid_indig3 using "$doc\tab1.tex", ///
 cells(b(star fmt(%9.3f)) se(par)) star(* 0.10 ** 0.05 *** 0.01) ///
-title(Robustness: different controls) keep(eng) ///
+title(Robustness: different controls) keep(ATT) ///
 stats(N r2, fmt(%9.0fc %9.3f)) replace
 
 
