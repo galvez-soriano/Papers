@@ -24,7 +24,7 @@ use "$base\labor_census20.dta", clear
 *========================================================================*
 /* Panel (a). Domestic migration */
 *========================================================================*
-csdid dmigrant [iw=factor], ///
+csdid dmigrant female rural [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_dmigrant)
 
@@ -44,7 +44,7 @@ graph export "$doc\PTA_CS_dmigrant.png", replace
 *========================================================================*
 /* Panel (b). Likelihood of migrating abroad */
 *========================================================================*
-csdid migrant [iw=factor], ///
+csdid migrant female rural [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_migrant)
 
@@ -64,7 +64,7 @@ graph export "$doc\PTA_CS_migrant.png", replace
 *========================================================================*
 /* Panel (c). Likelihood of returning to Mexico after migration */
 *========================================================================*
-csdid migra_ret if migrant==1 [iw=factor], ///
+csdid migra_ret female rural if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_rmigrant)
 
@@ -84,7 +84,7 @@ graph export "$doc\PTA_CS_rmigrant.png", replace
 *========================================================================*
 /* Panel (d). Likelihood of migrating to the US */
 *========================================================================*
-csdid dest_us if migrant==1 [iw=factor], ///
+csdid dest_us female rural if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_USmigrant)
 
@@ -106,7 +106,7 @@ graph export "$doc\PTA_CS_USmigrant.png", replace
 *========================================================================*
 /* Panel (a). Work */
 *========================================================================*
-csdid work [iw=factor], ///
+csdid work female rural [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_work)
 
@@ -126,7 +126,7 @@ graph export "$doc\PTA_CS_work.png", replace
 *========================================================================*
 /* Panel (b). Wages */
 *========================================================================*
-csdid lwage if work==1 [iw=factor], ///
+csdid lwage female rural edu if work==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_wage)
 
@@ -168,15 +168,15 @@ replace dest_euro=1 if (destination_c>=400 & destination_c<500)
 replace dest_euro=. if destination_c==999
 
 
-csdid dest_amer if migrant==1 [iw=factor], ///
+csdid dest_amer female rural if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_AMERmigrant)
 
-csdid dest_euro if migrant==1 [iw=factor], ///
+csdid dest_euro female rural if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_EUROmigrant)
 
-csdid dest_asia if migrant==1 [iw=factor], ///
+csdid dest_asia female rural if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_ASIAmigrant)
 
@@ -215,11 +215,11 @@ replace dest_no_spanish=0 if dest_spanish==1
 replace dest_no_spanish=1 if dest_spanish==0
 replace dest_no_spanish=0 if destination_c==221
 
-csdid dest_spanish if migrant==1 [iw=factor], ///
+csdid dest_spanish female rural if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_SPANISHmigrant)
 
-csdid dest_no_spanish if migrant==1 [iw=factor], ///
+csdid dest_no_spanish female rural if migrant==1 [iw=factor], ///
 time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
 estat event, window(-5 7) estore(csdid_NoSPANISHmigrant)
 
@@ -252,10 +252,16 @@ graph export "$doc\PTA_CS_SPANISHmigrant.png", replace
 *========================================================================*
 /* Robustness */
 *========================================================================*
+gen regions=state=="02" | state=="03" | state=="05" | state=="08" | ///
+state=="19" | state=="25" | state=="26" | state=="28"
+replace regions=2 if state=="01" | state=="06" | state=="10" | state=="11" ///
+| state=="14" | state=="16" | state=="18" | state=="24" | state=="32"
+replace regions=3 if state=="09" | state=="12" | state=="13" | state=="15" ///
+| state=="17" | state=="20" | state=="21" | state=="22" | state=="29"
+
 /* Panel (a). Domestic migration */
 did_imputation dmigrant geo cohort first_cohort [aw=factor], horizons(0/6) ///
 pretrend(6) cluster(geo) fe(geo cohort) autos minn(0)
-
 estimates store bjs_dmigra
 
 event_plot bjs_dmigra, ///
@@ -274,98 +280,110 @@ event_plot bjs_dmigra, ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
 graph export "$doc\PTA_BJS_dmigra.png", replace
 
-
 /* Panel (b). Likelihood of migrating abroad */
-csdid migrant [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_migrant)
+did_imputation migrant geo cohort first_cohort [aw=factor], horizons(0/6) ///
+pretrend(6) cluster(geo) fe(geo cohort regions#cohort) autos minn(0)
+estimates store bjs_migra
 
-coefplot csdid_migrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of migrating abroad", size(medium) height(5)) ///
-ylabel(-0.04(0.02)0.04, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.04 0.04)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_migrant.png", replace
+event_plot bjs_migra, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-0.02(0.01)0.02, labs(medium) grid format(%5.2f)) ///
+	ytitle("Likelihood of migrating abroad", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
+graph export "$doc\PTA_BJS_migra.png", replace
 
 /* Panel (c). Likelihood of returning to Mexico after migration */
-csdid migra_ret if migrant==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_rmigrant)
+did_imputation migra_ret geo cohort first_cohort [aw=factor] if migrant==1, ///
+horizons(0/6) pretrend(6) cluster(geo) fe(geo cohort) autos minn(0)
+estimates store bjs_rmigra
 
-coefplot csdid_rmigrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of returning to Mexico after migration", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_rmigrant.png", replace
+event_plot bjs_rmigra, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+	ytitle("Likelihood of returning to Mexico after migration", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
+graph export "$doc\PTA_BJS_rmigra.png", replace
 
 /* Panel (d). Likelihood of migrating to the US */
-csdid dest_us if migrant==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_USmigrant)
+did_imputation dest_us geo cohort first_cohort [aw=factor] if migrant==1, ///
+horizons(0/6) pretrend(6) cluster(geo) fe(geo cohort) autos minn(0)
+estimates store bjs_USmigra
 
-coefplot csdid_USmigrant, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of migrating to the US", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_USmigrant.png", replace
+event_plot bjs_USmigra, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+	ytitle("Likelihood of migrating to the US", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
+graph export "$doc\PTA_BJS_USmigra.png", replace
 
 /* Panel (a). Work */
-csdid work [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_work)
+did_imputation work geo cohort first_cohort [aw=factor], horizons(0/6) ///
+pretrend(6) cluster(geo) fe(geo cohort) autos minn(0)
+estimates store bjs_work
 
-coefplot csdid_work, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of working", size(medium) height(5)) ///
-ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.1 0.1)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_work.png", replace
-
+event_plot bjs_work, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-0.1(0.05)0.1, labs(medium) grid format(%5.2f)) ///
+	ytitle("Likelihood of working", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
+graph export "$doc\PTA_BJS_work.png", replace
 
 /* Panel (b). Wages */
-csdid lwage if work==1 [iw=factor], ///
-time(cohort) gvar(first_cohort) method(dripw) vce(cluster geo) long2 wboot seed(6)
-estat event, window(-5 7) estore(csdid_wage)
+did_imputation lwage geo cohort first_cohort [aw=factor] if work==1, ///
+horizons(0/6) pretrend(6) cluster(geo) fe(geo cohort) autos minn(0)
+estimates store bjs_wage
 
-coefplot csdid_wage, vertical yline(0) drop(Pre_avg Post_avg) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Percentage change of wages (if works)", size(medium) height(5)) ///
-ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-xlabel(, angle(horizontal) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-.4 .4)) recast(connected) ///
-coeflabels(Tm8 = "-8" Tm7 = "-7" Tm6 = "-6" Tm5 = "-5" Tm4 = "-4" Tm3 = "-3" ///
-Tm2 = "-2" Tp0 = "0" Tp1 = "1" Tp2 = "2" Tp3 = "3" Tp4 = "4" ///
-Tp5 = "5" Tp6 = "6" Tp7 = "7" Tp8 = "8")
-graph export "$doc\PTA_CS_wage.png", replace
-
+event_plot bjs_wage, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.2f)) ///
+	ytitle("Percentage change of wages (if works)", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
+graph export "$doc\PTA_BJS_wage.png", replace
 
 
 
