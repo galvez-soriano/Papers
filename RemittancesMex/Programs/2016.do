@@ -1376,6 +1376,12 @@ collapse (sum) tamhogesc, by(folioviv foliohog);
 sort folioviv foliohog;
 save "$bases\tamhogesc16.dta", replace;
 
+*************************************************************************;   =========================================================================================================>>>>>>>>> New stuff!!!!
+use "$data\gastoshogar.dta", clear;
+keep  folioviv foliohog clave tipo_gasto lugar_comp gasto_tri;
+sort  folioviv foliohog;
+
+/* New stuff ends here */
 *************************************************************************;
 
 use "$bases\ingresotot16.dta", clear;
