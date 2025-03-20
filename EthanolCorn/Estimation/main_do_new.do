@@ -46,6 +46,9 @@ rename State State_str
 encode State_str,gen(State)
 rename County County_str
 encode County_str,gen(County)
+
+/* keep nccpi LandValue_Thousand State Year GovPay PopDen AnnualReturn_mi County PecentPlantedCorn 
+order State County Year*/
 /* ========================================================== */
 sum nccpi, d
 gen treat=nccpi > r(p10)
@@ -54,7 +57,7 @@ gen after=Year>2005
 gen treat_after=treat*after
 
 areg LandValue_Thousand treat_after State#Year i.Year GovPay PopDen ///
-AnnualReturn_mi, absorb(County) vce(cluster State)
+, absorb(County) vce(cluster State)
 /* ========================================================== */
 sum nccpi, d
 gen treat_top=nccpi > r(p75)
@@ -105,7 +108,7 @@ gen treat=pct > `x'
 gen treat_after=treat*after
 
 areg LandValue_Thousand treat_after State#Year i.Year GovPay PopDen ///
-AnnualReturn_mi, absorb(County) vce(cluster State)
+, absorb(County) vce(cluster State)
 estimates store corn`x'
 }
 
@@ -117,7 +120,7 @@ coefplot (corn5, label(>5)) (corn6, label(>6)) (corn7, label(>7)) ///
 (corn11, label(>11)) (corn12, label(>12)) (corn13, label(>13)) ///
 (corn14, label(>14)) (corn15, label(>15)), ///
 vertical keep(treat_after) yline(0) ///
-yline(.9875402, lstyle(grid) lpattern(dash) lcolor(navy)) ///
+yline(1.029, lstyle(grid) lpattern(dash) lcolor(navy)) ///
 ytitle("Land value in thousand dollars", size(medium) height(5)) ///
 ylabel(0(0.5)2, labs(medium) grid format(%5.2f)) ///
 legend( pos(2) ring(0) col(4)) ///
