@@ -11,3 +11,5 @@ Work activities (O*NET): https://www.onetonline.org/find/descriptor/browse/4.A/4
 SINCO 2011 catalog: https://www.snieg.mx/DocumentacionPortal/Normatividad/historica/sinco-2012.pdf
 
 Crosswalk SOC 2010-2018: https://www.bls.gov/soc/2018/crosswalks_used_by_agencies.htm
+
+Description of the variables in ENILEMS data: https://en.www.inegi.org.mx/contenidos/programas/enilems/2012/doc/enilems12_fd.pdf
