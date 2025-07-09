@@ -105,6 +105,9 @@ vce(cluster geo)
 
 matrix sa_b = e(b_iw)
 matrix sa_v = e(V_iw)
+
+ereturn post sa_b sa_v
+test (F2event=0) (F3event=0) (F4event=0) (F5event=0) (F6event=0)
 *========================================================================*
 /* Traditional staggered DiD using OLS */
 *========================================================================*
@@ -113,6 +116,8 @@ if cohort>=1984 & cohort<=1994 & paidw==1, absorb(cohort geo state#cohort) vce(c
 estimates store ols_hrsEng
 matrix ols_b = e(b)
 matrix ols_v = e(V_FE)
+
+test (F2event=0) (F3event=0) (F4event=0) (F5event=0) (F6event=0)
 *========================================================================*
 /* de Chaisemartin and D'Haultfoeuille (2020) */
 *========================================================================*
@@ -144,25 +149,6 @@ estimates store bjs
 *========================================================================*
 /* All in one. Panel (a) */
 *========================================================================*
-/*event_plot ols_hrsEng sa_b#sa_v csdid_hrsEng dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(F#event F#event Tm# Placebo_#) ///
-    stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend perturb(-.16 -0.06 0.06 0.16) ///
-	graph_opt( ///
-	ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-	ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(order(2 "TWFE" 4 "Sun-Abraham" 6 "Callaway-Sant'Anna" 8 "de Chaisemartin and D'Haultfoeuille") pos(5) ring(0) col(1)) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
-    lag_opt4(msize(small) msymbol(D) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt4(color(ebblue) lwidth(medthick))
-graph export "$doc\PTA_All_hrsEng.png", replace
-*/
 event_plot ols_hrsEng sa_b#sa_v csdid_hrsEng dcdh_b#dcdh_v bjs, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_# pre#) ///
@@ -257,6 +243,9 @@ vce(cluster geo)
 
 matrix sa_b = e(b_iw)
 matrix sa_v = e(V_iw)
+
+ereturn post sa_b sa_v
+test (F2event=0) (F3event=0) (F4event=0) (F5event=0) (F6event=0)
 *========================================================================*
 /* Traditional staggered DiD using OLS */
 *========================================================================*
@@ -265,6 +254,8 @@ if cohort>=1984 & cohort<=1994 & paidw==1, absorb(cohort geo state#cohort) vce(c
 estimates store ols_Eng
 matrix ols_b = e(b)
 matrix ols_v = e(V_FE)
+
+test (F2event=0) (F3event=0) (F4event=0) (F5event=0) (F6event=0)
 *========================================================================*
 /* de Chaisemartin and D'Haultfoeuille (2020) */
 *========================================================================*
@@ -296,25 +287,6 @@ estimates store bjs
 *========================================================================*
 /* All in one. Panel (b) */
 *========================================================================*
-/*event_plot ols_Eng sa_b#sa_v csdid_Eng dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(F#event F#event Tm# Placebo_#) ///
-    stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
-	ytitle("Likelihood of speaking English", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
-    lag_opt4(msize(small) msymbol(D) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt4(color(ebblue) lwidth(medthick))
-graph export "$doc\PTA_All_Eng.png", replace*/
-
 event_plot ols_Eng sa_b#sa_v csdid_Eng dcdh_b#dcdh_v bjs, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_# pre#) ///
@@ -409,6 +381,9 @@ vce(cluster geo)
 
 matrix sa_b = e(b_iw)
 matrix sa_v = e(V_iw)
+
+ereturn post sa_b sa_v
+test (F2event=0) (F3event=0) (F4event=0) (F5event=0) (F6event=0)
 *========================================================================*
 /* Traditional staggered DiD using OLS */
 *========================================================================*
@@ -417,6 +392,8 @@ if cohort>=1984 & cohort<=1994, absorb(cohort geo state#cohort) vce(cluster geo)
 estimates store ols_paid
 matrix ols_b = e(b)
 matrix ols_v = e(V_FE)
+
+test (F2event=0) (F3event=0) (F4event=0) (F5event=0) (F6event=0)
 *========================================================================*
 /* de Chaisemartin and D'Haultfoeuille (2020) */
 *========================================================================*
@@ -448,25 +425,6 @@ estimates store bjs
 *========================================================================*
 /* All in one. Panel (c) */
 *========================================================================*
-/*event_plot ols_paid sa_b#sa_v csdid_paid dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(F#event F#event Tm# Placebo_#) ///
-    stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
-	ytitle("Likelihood of working for pay", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
-    lag_opt4(msize(small) msymbol(D) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt4(color(ebblue) lwidth(medthick))
-graph export "$doc\PTA_All_paid.png", replace
-*/
 event_plot ols_paid sa_b#sa_v csdid_paid dcdh_b#dcdh_v bjs, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_# pre#) ///
@@ -560,6 +518,9 @@ vce(cluster geo)
 
 matrix sa_b = e(b_iw)
 matrix sa_v = e(V_iw)
+
+ereturn post sa_b sa_v
+test (F2event=0) (F3event=0) (F4event=0) (F5event=0) (F6event=0)
 *========================================================================*
 /* Traditional staggered DiD using OLS */
 *========================================================================*
@@ -568,6 +529,8 @@ if cohort>=1984 & cohort<=1994 & paidw==1, absorb(cohort geo state#cohort) vce(c
 estimates store ols_wages
 matrix ols_b = e(b)
 matrix ols_v = e(V_FE)
+
+test (F2event=0) (F3event=0) (F4event=0) (F5event=0) (F6event=0)
 *========================================================================*
 /* de Chaisemartin and D'Haultfoeuille (2020) */
 *========================================================================*
@@ -586,25 +549,6 @@ mat rownames dcdh_v = Effect_0 Effect_1 Effect_2 Effect_3 Effect_4 Effect_5 Effe
 *========================================================================*
 /* All in One */
 *========================================================================*
-/*event_plot ols_wages sa_b#sa_v csdid_wage dcdh_b#dcdh_v, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(F#event F#event Tm# Placebo_#) ///
-    stub_lag(L#event L#event Tp# Effect_#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-	ytitle("Percentage change of wages", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
-    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
-    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick)) ///
-    lag_opt4(msize(small) msymbol(D) mfcolor(ebblue) mlcolor(ebblue) mlwidth(thin)) lag_ci_opt4(color(ebblue) lwidth(medthick))
-graph export "$doc\PTA_All_wages.png", replace
-*/
 event_plot ols_wages sa_b#sa_v csdid_wage dcdh_b#dcdh_v bjs, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(F#event F#event Tm# Placebo_# pre#) ///

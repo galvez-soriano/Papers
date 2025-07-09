@@ -229,7 +229,6 @@ keep if biare==1
 drop if state=="05" | state=="17"
 keep if cohort>=1984 & cohort<=1996
 sum hrs_exp, d
-return list
 gen engl=hrs_exp>=r(p90)
 
 tab state, generate(dstate)
@@ -254,17 +253,16 @@ destring geo, replace
 
 did_multiplegt hrs_exp geo cohort had_policy if paidw==1, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu c_state*) firstdiff_placebo
 did_multiplegt eng geo cohort had_policy if paidw==1, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
-
+controls(female edu c_state*) firstdiff_placebo
 did_multiplegt lwage geo cohort had_policy if paidw==1, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu c_state*) firstdiff_placebo
 did_multiplegt paidw geo cohort had_policy, weight(weight) ///
 robust_dynamic dynamic(6) placebo(5) breps(100) cluster(geo) ///
-controls(female edu c_state*)
+controls(female edu c_state*) firstdiff_placebo
 *========================================================================*
 /* Panel E: Borusyak, Jaravel, and Spiess (2023) */
 *========================================================================*
@@ -276,6 +274,8 @@ replace first_cohort=1987 if state=="19" & engl==1
 replace first_cohort=1993 if state=="25" & engl==1
 replace first_cohort=1993 if state=="26" & engl==1
 replace first_cohort=1990 if state=="28" & engl==1
+
+gen dmigrant=state!=state5
 destring geo state, replace
 
 eststo clear
@@ -291,24 +291,30 @@ esttab using "$doc\tab3_D.tex", cells(b(star fmt(%9.3f)) se(par)) ///
 star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
 stats(N, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
-/* FIGURE 1. English programs, exposure, English skills, and wages */
+/* FIGURE 1. English programs, exposure, English skills, and wages 
+To do the pre-trends test, change pretrend(6) for pretrend(2) and
+uncomment the "di e(pre_p)" line code */
 *========================================================================*
 did_imputation hrs_exp geo cohort first_cohort if paidw==1 [aw=weight], ///
 horizons(0/6) pretrend(6) ///
 controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
 estimates store bjs_hrs
+*di  e(pre_p)
 did_imputation eng geo cohort first_cohort if paidw==1 [aw=weight], ///
 horizons(0/6) pretrend(6) ///
 controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
 estimates store bjs_Eng
+*di  e(pre_p)
 did_imputation lwage geo cohort first_cohort if paidw==1 [aw=weight], ///
 horizons(0/6) pretrend(6) ///
 controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
 estimates store bjs_wage
+*di  e(pre_p)
 did_imputation paidw geo cohort first_cohort [aw=weight], ///
 horizons(0/6) pretrend(6) ///
 controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
 estimates store bjs_paid
+*di  e(pre_p)
 *========================================================================*
 /* Panel (a) */
 *========================================================================*
@@ -391,11 +397,212 @@ twowayfeweights lwage geo cohort had_policy if paidw==1, type(feTR) ///
 weight(weight) controls(female edu c_state*)
 twowayfeweights paidw geo cohort had_policy, type(feTR) ///
 weight(weight) controls(female edu c_state*)
+*========================================================================*
+/* Robustness: Domestic migration */
+*========================================================================*
+did_imputation dmigrant geo cohort first_cohort [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_dmigrant
 
+event_plot bjs_dmigrant, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of moving to a different state", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_DMigrant.png", replace
+*========================================================================*
+/* Robustness: Selection bias */
+*========================================================================*
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
+
+keep if cohort>=1984 & cohort<=1994
+gen first_cohort=1997
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
+
+destring geo state, replace
+
+sum income_hh, d
+gen hincome=income_hh>=r(p50)
+
+sum edu_hh, d
+gen hpedu=edu_hh>=r(p50)
+
+eststo clear
+eststo: did_imputation hrs_exp geo cohort first_cohort if paidw==1 & hincome==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation eng geo cohort first_cohort if paidw==1 & hincome==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation lwage geo cohort first_cohort if paidw==1 & hincome==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation paidw geo cohort first_cohort if hincome==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+esttab using "$doc\tab4_A.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: did_imputation hrs_exp geo cohort first_cohort if paidw==1 & hpedu==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation eng geo cohort first_cohort if paidw==1 & hpedu==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation lwage geo cohort first_cohort if paidw==1 & hpedu==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation paidw geo cohort first_cohort if hpedu==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+esttab using "$doc\tab4_B.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: did_imputation hrs_exp geo cohort first_cohort if rural==0 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation eng geo cohort first_cohort if rural==0 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation lwage geo cohort first_cohort if rural==0 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+eststo: did_imputation paidw geo cohort first_cohort if rural==0 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
+esttab using "$doc\tab4_C.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+
+*========================================================================*
+/* Robustness: Treatment at state level */
+*========================================================================*
+/*use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1994
+
+gen first_cohort=1997
+replace first_cohort=1990 if state=="01"
+replace first_cohort=1991 if state=="10"
+replace first_cohort=1987 if state=="19"
+replace first_cohort=1993 if state=="25"
+replace first_cohort=1993 if state=="26"
+replace first_cohort=1990 if state=="28"
+
+destring state, replace
+
+eststo clear
+eststo: did_imputation hrs_exp state cohort first_cohort if paidw==1 [aw=weight], ///
+controls(female edu) fe(state cohort) cluster(geo) autos 
+eststo: did_imputation eng state cohort first_cohort if paidw==1 [aw=weight], ///
+controls(female edu) fe(state cohort) cluster(geo) autos 
+eststo: did_imputation lwage state cohort first_cohort if paidw==1 [aw=weight], ///
+controls(female edu) fe(state cohort) cluster(geo) autos 
+eststo: did_imputation paidw state cohort first_cohort [aw=weight], ///
+controls(female edu) fe(state cohort) cluster(geo) autos 
+esttab using "$doc\tab4_D.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+
+did_imputation hrs_exp state cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(state cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrsSTATE
+did_imputation eng state cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(state cohort) cluster(geo) autos minn(0)
+estimates store bjs_EngSTATE
+did_imputation lwage state cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(state cohort) cluster(geo) autos minn(0)
+estimates store bjs_wageSTATE
+did_imputation paidw state cohort first_cohort [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(state cohort) cluster(geo) autos minn(0)
+estimates store bjs_paidSTATE
+
+event_plot bjs_hrsSTATE, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_hrsEngSTATE.png", replace
+
+event_plot bjs_EngSTATE, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) 
+graph export "$doc\PTA_EngSTATE.png", replace
+
+event_plot bjs_wageSTATE, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of wages", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_WageSTATE.png", replace
+
+event_plot bjs_paidSTATE, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Likelihood of working for pay", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_PaidSTATE.png", replace
+*/
 *========================================================================*
 /* Mechanisms */
 *========================================================================*
-/* Figure 3: Jobs requiring English skills */
+/* FIGURE 2: Jobs requiring English skills */
 *========================================================================*
 use "$data/eng_abil.dta", clear
 collapse eng [fw=weight], by(sinco2011)
@@ -481,7 +688,7 @@ event_plot , ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
 graph export "$doc\PTA_SDD_EngJobs.png", replace
 *========================================================================*
-/* Figure 4: Labor force participation and inactive individuals */
+/* FIGURE 3: Labor force participation and inactive individuals */
 *========================================================================*
 did_imputation work geo cohort first_cohort if female==0 [aw=weight], ///
 horizons(0/6) pretrend(6) ///
@@ -510,6 +717,19 @@ did_imputation inactive geo cohort first_cohort if edu<12 [aw=weight], ///
 horizons(0/6) pretrend(6) ///
 controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
 estimates store bjs_il
+
+did_imputation student geo cohort first_cohort if female==0 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_sm
+did_imputation student geo cohort first_cohort if female==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_sf
+did_imputation student geo cohort first_cohort if edu<12 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_sl
 *========================================================================*
 /* Panel (a) */
 *========================================================================*
@@ -517,7 +737,7 @@ event_plot bjs_workm bjs_workf bjs_workl, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(pre# pre# pre#) ///
     stub_lag(tau# tau# tau#) ///
-    together noautolegend ///
+    together noautolegend perturb(-0.10 0 0.10) ///
 	graph_opt( ///
 	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
 	ytitle("Likelihood of belonging to labor force", size(medium) height(5)) ///
@@ -537,7 +757,7 @@ event_plot bjs_im bjs_if bjs_il, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(pre# pre# pre#) ///
     stub_lag(tau# tau# tau#) ///
-    together noautolegend ///
+    together noautolegend perturb(-0.10 0 0.10) ///
 	graph_opt( ///
 	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
 	ytitle("Likelihood of being inactive", size(medium) height(5)) ///
@@ -551,7 +771,27 @@ event_plot bjs_im bjs_if bjs_il, ///
     lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick))
 graph export "$doc\PTA_SDD_Inactive.png", replace
 *========================================================================*
-/* Figure 5: Effect of English instruction on occupational decisions */
+/* Panel (c) */
+*========================================================================*
+event_plot bjs_sm bjs_sf bjs_sl, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre# pre# pre#) ///
+    stub_lag(tau# tau# tau#) ///
+    together noautolegend perturb(-0.10 0 0.10) ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Likelihood of being a student", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick))
+graph export "$doc\PTA_SDD_Student.png", replace
+*========================================================================*
+/* FIGURE 4: Effect of English instruction on occupational decisions */
 *========================================================================*
 sum pact, d
 return list
@@ -564,6 +804,9 @@ return list
 
 gen c_abil=communica>=r(p75)
 replace c_abil=. if paidw!=1
+
+gen other_abil=c_abil==0 & phy_act==0
+replace other_abil=. if c_abil==.
 
 did_imputation phy_act geo cohort first_cohort if paidw==1 [aw=weight], ///
 horizons(0/6) pretrend(6) ///
@@ -584,14 +827,6 @@ event_plot , ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
 graph export "$doc\PTA_SDD_JobsP.png", replace
-/*
-graph twoway (hist pact, frac ///
-xtitle("O*NET score for physically demanding jobs") ///
-ytitle("Fraction")) ///
-(scatteri 0 73 0.2 73, c(l) m(i)), ///
-legend(off)
-graph export "$doc\histo_physical.png", replace
-*/
 *========================================================================*
 did_imputation c_abil geo cohort first_cohort if paidw==1 [aw=weight], ///
 horizons(0/6) pretrend(6) ///
@@ -612,167 +847,246 @@ event_plot , ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
 graph export "$doc\PTA_SDD_JobsC.png", replace
-/*
-graph twoway (hist communica, frac ///
-xtitle("O*NET score for jobs requiring communication") ///
-ytitle("Fraction")) ///
-(scatteri 0 62 0.2 62, c(l) m(i)), ///
-legend(off)
-graph export "$doc\histo_communica.png", replace
-*/
 *========================================================================*
-/* Table: Looking within occupations */
+did_imputation other_abil geo cohort first_cohort if paidw==1 [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+
+event_plot , ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Likelihood of working in jobs requiring other skills", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_SDD_JobsO.png", replace
 *========================================================================*
-destring sinco, replace
-gen occup=.
-replace occup=1 if (sinco>6101 & sinco<=6131) | (sinco>6201 & sinco<=6231) ///
-| sinco==6999
-replace occup=2 if (sinco>=9111 & sinco<=9899) 
-replace occup=3 if sinco==6311 | (sinco>=8111 & sinco<=8199) | (sinco>=8211 ///
-& sinco<=8212) | (sinco>=8311 & sinco<=8999)
-replace occup=4 if (sinco>=7111 & sinco<=7135) | (sinco>=7211 & sinco<=7223) ///
-| (sinco>=7311 & sinco<=7353) | (sinco>=7411 & sinco<=7412) | (sinco>=7511 & ///
-sinco<=7517) | (sinco>=7611 & sinco<=7999)
-replace occup=5 if (sinco>=5111 & sinco<=5116) | (sinco>=5211 & sinco<=5254) ///
-| (sinco>=5311 & sinco<=5314) | (sinco>=5411 & sinco<=5999)
-replace occup=6 if sinco==4111 | (sinco>=4211 & sinco<=4999)
-replace occup=7 if (sinco>=3111 & sinco<=3142) | (sinco>=3211 & sinco<=3999)
-replace occup=8 if (sinco>=2111 & sinco<=2625) | (sinco>=2631 & sinco<=2639) ///
-| (sinco>=2641 & sinco<=2992)
-replace occup=9 if (sinco>=1111 & sinco<=1999) | sinco==2630 ///
-| sinco==2630 | sinco==2640 | sinco==3101 | sinco==3201 | sinco==4201 ///
-| sinco==5101 | sinco==5201 | sinco==5301 | sinco==5401 | sinco==6101 ///
-| sinco==6201 | sinco==7101 | sinco==7201 | sinco==7301 | sinco==7401 ///
-| sinco==7501 | sinco==7601 | sinco==8101 | sinco==8201 | sinco==8301
-replace occup=10 if sinco==980
+/* APPENDIX */
+*========================================================================*
+/* FIGURE AXXX. */
+*========================================================================*
+gen informal=formal==0 & work==1
 
-label define occup 1 "Farming" 2 "Elem occupations" 3 "Machine operators" ///
-4 "Crafts" 5 "Customer service" 6 "Sales" 7 "Clerical support" ///
-8 "Pro/Tech" 9 "Managerial" 10 "Abroad" 
-label values occup occup
+did_imputation informal geo cohort first_cohort [aw=weight], ///
+horizons(0/6) pretrend(6) ///
+controls(edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_informal
 
-gen farm=occup==1
-gen elem=occup==2
-gen machine=occup==3
-gen crafts=occup==4
-gen cserv=occup==5
-gen sales=occup==6
-gen clerk=occup==7
-gen protech=occup==8
-gen manage=occup==9
-gen abroad=occup==10
+event_plot bjs_informal, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of working in the informal sector", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_Informal.png", replace
+*========================================================================*
+/* TABLE A.4: Occupational decisions */
+*========================================================================*
+eststo clear
+eststo: did_imputation stud geo cohort first_cohort if female==0 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+eststo: did_imputation work geo cohort first_cohort if female==0 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+eststo: did_imputation inactive geo cohort first_cohort if female==0 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+esttab using "$doc\tabA5_A.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Occupational decisions) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
 
 eststo clear
-eststo: did_imputation farm geo cohort first_cohort if paidw==1 [aw=weight], ///
+eststo: did_imputation stud geo cohort first_cohort if female==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+eststo: did_imputation work geo cohort first_cohort if female==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+eststo: did_imputation inactive geo cohort first_cohort if female==1 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+esttab using "$doc\tabA5_B.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Occupational decisions) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: did_imputation stud geo cohort first_cohort if edu<12 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+eststo: did_imputation work geo cohort first_cohort if edu<12 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+eststo: did_imputation inactive geo cohort first_cohort if edu<12 [aw=weight], ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos
+esttab using "$doc\tabA5_C.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Occupational decisions) keep(tau) ///
+stats(N, fmt(%9.0fc %9.3f)) replace
+
+eststo clear
+eststo: did_imputation phy_act geo cohort first_cohort if paidw==1 [aw=weight], ///
 controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation elem geo cohort first_cohort if paidw==1 [aw=weight], ///
+eststo: did_imputation c_abil geo cohort first_cohort if paidw==1 [aw=weight], ///
 controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation machine geo cohort first_cohort if paidw==1 [aw=weight], ///
+eststo: did_imputation other_abil geo cohort first_cohort if paidw==1 [aw=weight], ///
 controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation crafts geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation cserv geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation sales geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation clerk geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation protech geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation manage geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-eststo: did_imputation abroad geo cohort first_cohort if paidw==1 [aw=weight], ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos 
-esttab using "$doc\tab.tex", cells(b(star fmt(%9.3f)) se(par)) ///
-star(* 0.10 ** 0.05 *** 0.01) title(Heterogeneous effects) keep(tau) ///
+esttab using "$doc\tabA6.tex", cells(b(star fmt(%9.3f)) se(par)) ///
+star(* 0.10 ** 0.05 *** 0.01) title(Occupational decisions) keep(tau) ///
 stats(N, fmt(%9.0fc %9.3f)) replace
 *========================================================================*
-/* Figure 7: Effect of English instruction on subjective well-being */
+/* Robustness: Selection bias */
 *========================================================================*
-gen dsgral=sgral>=9
-gen dssocial=ssocial>=9
-gen dssdl=ssd_living>=9
-gen dsachiev=sachiev>=9
-gen dsfp=sfuture_perspect>=9
-gen dsleissure=sleissure>=9
-gen dseact=secon_activity>=9
-*========================================================================*
-did_imputation dseact geo cohort first_cohort if paidw==1 [aw=weight], ///
-horizons(0/6) pretrend(6) ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
-estimates store bjs_sea
-did_imputation dsachiev geo cohort first_cohort if paidw==1 [aw=weight], ///
-horizons(0/6) pretrend(6) ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
-estimates store bjs_achiev
-*========================================================================*
-/* Panel (a) */
-*========================================================================*
-event_plot bjs_sea, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(pre#) ///
-    stub_lag(tau#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
-	ytitle("Likelihood of being satisfied with economic activity", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
-graph export "$doc\PTA_SDD_SatisEA.png", replace
-*========================================================================*
-/* Panel (b) */
-*========================================================================*
-event_plot bjs_achiev, ///
-    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
-    stub_lead(pre#) ///
-    stub_lag(tau#) ///
-    together noautolegend ///
-	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
-	ytitle("Likelihood of being satisfied with achievements", size(medium) height(5)) ///
-	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
-	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
-	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	legend(off) ///
-	) ///
-    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
-graph export "$doc\PTA_SDD_SatisAchiev.png", replace
+use "$data/eng_abil.dta", clear
+keep if biare==1
+drop if state=="05" | state=="17"
+keep if cohort>=1984 & cohort<=1996
+sum hrs_exp, d
+return list
+gen engl=hrs_exp>=r(p90)
 
-*========================================================================*
-/* Figure 8: School Enrollment */
-*========================================================================*
-did_imputation stud geo cohort first_cohort if age<=24 [aw=weight], ///
-horizons(0/6) pretrend(3) ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
-estimates store bjs_s24
-did_imputation stud geo cohort first_cohort if age<=25 [aw=weight], ///
-horizons(0/6) pretrend(4) ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
-estimates store bjs_s25
-did_imputation stud geo cohort first_cohort if age<=26 [aw=weight], ///
-horizons(0/6) pretrend(5) ///
-controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
-estimates store bjs_s26
+keep if cohort>=1984 & cohort<=1994
+gen first_cohort=1997
+replace first_cohort=1990 if state=="01" & engl==1
+replace first_cohort=1991 if state=="10" & engl==1
+replace first_cohort=1987 if state=="19" & engl==1
+replace first_cohort=1993 if state=="25" & engl==1
+replace first_cohort=1993 if state=="26" & engl==1
+replace first_cohort=1990 if state=="28" & engl==1
 
-event_plot bjs_s24 bjs_s25 bjs_s26, ///
+sum income_hh, d
+gen hincome=income_hh>=r(p50)
+
+sum edu_hh, d
+gen hpedu=edu_hh>=r(p50)
+
+destring geo state, replace
+
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 & hincome==1 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrsHI
+did_imputation eng geo cohort first_cohort if paidw==1 & hincome==1 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_EngHI
+did_imputation lwage geo cohort first_cohort if paidw==1 & hincome==1 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_wageHI
+did_imputation paidw geo cohort first_cohort if hincome==1 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_paidHI
+
+did_imputation hrs_exp geo cohort first_cohort if paidw==1 & hpedu==1 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrsHE
+did_imputation eng geo cohort first_cohort if paidw==1 & hpedu==1 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_EngHE
+did_imputation lwage geo cohort first_cohort if paidw==1 & hpedu==1 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_wageHE
+did_imputation paidw geo cohort first_cohort if hpedu==1 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_paidHE
+
+did_imputation hrs_exp geo cohort first_cohort if rural==0 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_hrsURB
+did_imputation eng geo cohort first_cohort if rural==0 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_EngURB
+did_imputation lwage geo cohort first_cohort if rural==0 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_wageURB
+did_imputation paidw geo cohort first_cohort if rural==0 [aw=weight], ///
+horizons(0/6) pretrend(6) tol(1e-4) maxit(100) ///
+controls(female edu) fe(geo cohort state#cohort) cluster(geo) autos minn(0)
+estimates store bjs_paidURB
+
+event_plot bjs_hrsHI bjs_hrsHE bjs_hrsURB, ///
     plottype(scatter) ciplottype(rspike) alpha(0.05) ///
     stub_lead(pre# pre# pre#) ///
     stub_lag(tau# tau# tau#) ///
-    together noautolegend ///
+    together noautolegend perturb(-0.10 0 0.10) ///
 	graph_opt( ///
-	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
-	ytitle("Likelihood of being enrolled in school", size(medium) height(5)) ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.1f)) ///
+	ytitle("Weekly hours of English instruction", size(medium) height(5)) ///
 	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
 	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
 	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-	legend(order(2 "age<25" 4 "age<26" 6 "age<27") pos(11) ring(0) col(1)) ///
+	legend(order(2 "High-income households (HH)" 4 "HH with high schooling parents" 6 "HH in urban contexts") pos(5) ring(0) col(1)) ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
     lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
     lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick))
-graph export "$doc\fig_edu_enroll.png", replace
+graph export "$doc\PTA_hrsEngSB.png", replace
 
+event_plot bjs_EngHI bjs_EngHE bjs_EngURB, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre# pre# pre#) ///
+    stub_lag(tau# tau# tau#) ///
+    together noautolegend perturb(-0.10 0 0.10) ///
+	graph_opt( ///
+	ylabel(-1.4(0.7)1.4, labs(medium) grid format(%5.1f)) ///
+	ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick))
+graph export "$doc\PTA_EngSB.png", replace
+
+event_plot bjs_wageHI bjs_wageHE bjs_wageURB, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre# pre# pre#) ///
+    stub_lag(tau# tau# tau#) ///
+    together noautolegend perturb(-0.10 0 0.10) ///
+	graph_opt( ///
+	ylabel(-10(5)10, labs(medium) grid format(%5.0f)) ///
+	ytitle("Percentage change of wages", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick))
+graph export "$doc\PTA_WageSB.png", replace
+
+event_plot bjs_paidHI bjs_paidHE bjs_paidURB, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre# pre# pre#) ///
+    stub_lag(tau# tau# tau#) ///
+    together noautolegend perturb(-0.10 0 0.10) ///
+	graph_opt( ///
+	ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+	ytitle("Likelihood of working for pay", size(medium) height(5)) ///
+	xlabel(-6(1)6) yline(0, lpattern(solid)) ///
+	xtitle("Cohorts since policy intervention", size(medium) height(5)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick)) ///
+    lag_opt3(msize(small) msymbol(S) mfcolor(blue) mlcolor(blue) mlwidth(thin)) lag_ci_opt3(color(blue) lwidth(medthick)) ///
+    lag_opt2(msize(small) msymbol(T) mfcolor(midblue) mlcolor(midblue) mlwidth(thin)) lag_ci_opt2(color(midblue) lwidth(medthick))
+graph export "$doc\PTA_PaidSB.png", replace
