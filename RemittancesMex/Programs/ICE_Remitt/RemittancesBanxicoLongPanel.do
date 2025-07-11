@@ -15,6 +15,17 @@ drop period
 *=====================================================================*
 use "$data/Papers/main/RemittancesMex/Data/ICE_Remitt/RemittUSstatesMX.dta", clear
 
-merge m:1 state using "$data/Papers/main/RemittancesMex/Data/ICE_Remitt/fips_aor.dta"
+xtset state time
+gen year = yofd(dofq(time))
 
+merge m:1 state using "$data/Papers/main/RemittancesMex/Data/ICE_Remitt/fips_aor_ss.dta"
 
+keep if _merge==3
+drop _merge
+
+sort region year
+
+merge m:1 region year using "$data/Papers/main/RemittancesMex/Data/ICE_Remitt/acs_mex_work.dta"
+
+keep if _merge==3
+drop _merge
