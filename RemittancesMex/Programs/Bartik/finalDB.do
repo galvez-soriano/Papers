@@ -20,3 +20,15 @@ drop state county
 destring county_id, replace
 
 xtset county_id year
+
+replace emp=emp+100
+replace estab=estab+100
+replace payann=payann+100
+
+gen gemp=(D.emp)/(L.emp)
+gen gestab=(D.estab)/(L.estab)
+gen gpayann=(D.payann)/(L.payann)
+
+sum gemp, d
+
+gen treat=gemp>=r(p50)
