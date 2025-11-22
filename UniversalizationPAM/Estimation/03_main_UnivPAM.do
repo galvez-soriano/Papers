@@ -35,8 +35,95 @@ esttab using "$gr\tab2A.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DDD es
 label replace keep(ddd)
 
 *=================================================================================*
+                               /*DiD*/
+*=================================================================================*
+foreach x in 16 18 20 22 24 {
+	gen treat_20`x'=0
+replace treat_20`x'=1 if treat==1 & year==20`x'
+    label var treat_20`x' "20`x'"
+}
+replace treat_2018 = 0
+
+/*PT Poverty/Extreme Poverty*/
+
+eststo poverty: reg poor treat_20* i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+eststo epoverty: reg epoor treat_20* i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot ///
+(poverty, msymbol(o) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(-0.20)) ///
+(epoverty, msymbol(d) mcolor("gs8")  ciopts(recast(rcap) lcolor("gs8"))  offset(-0.08)), ///
+vertical keep(treat_20*) ///
+byopts(cols(2) title("Likelihood of being in poverty")) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being in poverty", size(medsmall)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-0.2 0.2)) ///
+text(-0.218 2.24 "Jan 2019", size(small) place(se) nobox just(left)) ///
+legend(order(2 "Poverty" 4 "Extreme Poverty") pos(1) ring(0) col(1))
+graph export "$gr\DiD_poverty.png", replace
+
+/*PT work*/
+
+reg work treat_20* i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of working", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) text(-0.208 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\DiD_work.png", replace 
+
+/*PT Income*/
+
+reg l_inc treat_20* i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle(" Percentage change of income", size(medium) height(5)) ///
+ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.3 0.3)) text(-0.31 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\DiD_income.png", replace 
+
+/*PAM*/
+
+reg pam treat_20* i.year after i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of receiving PAM", size(medium) height(5)) ///
+ylabel(-0.6(0.3)0.6, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.6 0.6)) text(-0.623 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\DiD_PAM.png", replace 
+
+/*PT INDEP*/
+
+reg selfemp treat_20* i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being self-employed", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) text(-0.208 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\DiD_self.png", replace 
+*=================================================================================*
                                /*TRIPLE DIFFERENCE*/
 *=================================================================================*
+drop treat_20*
 
 foreach x in 16 18 20 22 24 {
 	gen treat_20`x'=0
@@ -44,7 +131,6 @@ replace treat_20`x'=1 if treat==1 & year==20`x' & tr==1
     label var treat_20`x' "20`x'"
 }
 replace treat_2018 = 0
-
 *=================================================================================*
                                /*DDD BASE*/
 *=================================================================================*
@@ -428,7 +514,7 @@ ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ysc(r(-0.3 0.3)) ///
 text(-0.325 2.24 "Jan 2019", size(small) place(se) nobox just(left)) ///
-legend(order(2 "Indigenous Poverty" 4 "No Indigenous Poverty" 6 "Indigenous Extreme Poverty" 8 "No Indigenous Extreme Poverty") pos(1) ring(0) col(2) size(vsmall))
+legend(order(2 "Indigenous Poverty" 4 "Non-Indigenous Poverty" 6 "Indigenous Extreme Poverty" 8 "Non-Indigenous Extreme Poverty") pos(1) ring(0) col(2) size(vsmall))
 graph export "$gr\6POV_INDIG.png", replace
 
 * ==========================================================================
@@ -450,7 +536,7 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.3 0.3)) text(-0.31 2.08 "Jan 2019",   ///
 size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
-legend(order(2 "Indigenous" 4 "No indigenous") cols(1) pos(1) ring(0) size(small))
+legend(order(2 "Indigenous" 4 "Non-indigenous") cols(1) pos(1) ring(0) size(small))
 graph export "$gr\6WORK_INDIG.png", replace
 
 * ==========================================================================
@@ -472,7 +558,7 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.5 0.5)) text(-0.515 2.07 "Jan 2019",   ///
 size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
-legend(order(2 "Indigenous" 4 "No indigenous") cols(1) pos(1) ring(0) size(small))
+legend(order(2 "Indigenous" 4 "Non-indigenous") cols(1) pos(1) ring(0) size(small))
 graph export "$gr\6INCOME_INDIG.png", replace
 
 
@@ -495,5 +581,5 @@ xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.6 0.6)) text(-0.62 2.07 "Jan 2019",   ///
 size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
-legend(order(2 "Indigenous" 4 "No indigenous") cols(1) pos(4) ring(0) size(small))
+legend(order(2 "Indigenous" 4 "Non-indigenous") cols(1) pos(4) ring(0) size(small))
 graph export "$gr\6PAM_INDIG.png", replace
