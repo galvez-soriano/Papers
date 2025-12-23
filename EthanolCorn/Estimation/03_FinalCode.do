@@ -156,7 +156,7 @@ label variable interact22 "2022"
 areg LandValue_Thousand interact97 zero interact07 interact12 interact17 interact22 PopDen i.Year i.State#i.Year, absorb(County) cluster(County)
 #delimit;
 coefplot, vertical keep(interact97 zero interact07 interact12 interact17 interact22) yline(0) 
-	ylabel(-2(2)6, labs(medium) grid format(%5.0f)) plotregion(style(none))
+	ylabel(-2(2)4, labs(medium) grid format(%5.0f)) plotregion(style(none))
 	xline(2.5, lcolor(gray) lwidth(thin) lpattern(dash))  mcolor(black) msize(small) ciopts(lcolor(black)) omitted baselevels 
 	graphregion(fcolor(white)) xtitle(Year) ytitle(Change in farmland value (thousands))
 ;
@@ -353,7 +353,7 @@ coefplot
 vertical yline(0) keep(interact97 zero interact07 interact12 interact17 interact22) omitted baselevels 
 xline(2.5, lstyle(grid) lpattern(dash) lcolor(black))
 ytitle("Change in farmland value (thousands)", size(medium) height(5))
-ylabel(-2(2)6, labs(medium) grid format(%5.0f))
+ylabel(-2(2)4, labs(medium) grid format(%5.0f))
 xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) 
 legend(pos(11) ring(0) col(1)) 
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
