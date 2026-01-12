@@ -48,7 +48,7 @@ tabulate Year, generate(year)
 /* ========================================================== */
 * Table X. Effect of Ethanol Boom on Farmland Values
 /* ========================================================== */
-xtreg LandValue_Thousand DiD Post, fe cluster(County)
-spxtregress LandValue_Thousand DiD Post, fe dvarlag(W)
+xtreg LandValue_Thousand DiD Post PopDen, fe cluster(County)
+spxtregress LandValue_Thousand DiD Post PopDen, fe dvarlag(W)
 estat impact DiD
 
