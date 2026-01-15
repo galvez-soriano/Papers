@@ -583,3 +583,254 @@ ysc(r(-0.6 0.6)) text(-0.62 2.07 "Jan 2019",   ///
 size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
 legend(order(2 "Indigenous" 4 "Non-indigenous") cols(1) pos(4) ring(0) size(small))
 graph export "$gr\6PAM_INDIG.png", replace
+
+
+*=================================================================================*
+*=================================================================================*
+
+                           
+						   /*DDD DISABLED*/
+						   
+*=================================================================================*
+*=================================================================================*
+
+* ==========================================================================
+* POVERTY / EXTREME POVERTY - Disabled vs No Disabled
+* ==========================================================================
+eststo clear
+eststo pov_disabled:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
+eststo pov_nodisabled:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==0  [aw=weight], vce(cluster geo)
+eststo epov_disabled: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
+eststo epov_nodisabled: reg epoor treat_20* int1 int2 int3 treat tr i.year i.age i.state state#year educ female i.loc_size if disabled==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(pov_disabled,  msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.20)) ///
+(pov_nodisabled,  msymbol(d) mcolor(cranberry) ciopts(recast(rcap) lcolor(cranberry)) offset(-0.05)) ///
+(epov_disabled, msymbol(s) mcolor(gs10) ciopts(recast(rcap) lcolor(gs10)) offset(0.05)) ///
+(epov_nodisabled, msymbol(t) mcolor("255 150 150") ciopts(recast(rcap) lcolor("255 150 150")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of living in poverty", size(medsmall)) ///
+ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ysc(r(-0.3 0.3)) ///
+text(-0.325 2.24 "Jan 2019", size(small) place(se) nobox just(left)) ///
+legend(order(2 "With disability Poverty" 4 "Without disability Poverty" 6 "With disability Extreme Poverty" 8 "Without disability Extreme Poverty") pos(1) ring(0) col(2) size(vsmall))
+graph export "$gr\7POV_disabled.png", replace
+
+* ==========================================================================
+* WORK - disabled vs No disabled
+* ==========================================================================
+
+eststo clear
+eststo work_disabled:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
+eststo work_nodisabled:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(work_disabled, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(work_nodisabled, msymbol(d) mcolor(gs8)  ciopts(recast(rcap) lcolor(gs8))  offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of working", size(medium) height(5)) ///
+ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.3 0.3)) text(-0.31 2.08 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "With disability" 4 "Without disability") cols(1) pos(1) ring(0) size(small))
+graph export "$gr\7WORK_disabled.png", replace
+
+* ==========================================================================
+* INCOME - disabled vs No disabled
+* ==========================================================================
+
+eststo clear
+eststo inc_disabled:    reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
+eststo inc_nodisabled:  reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(inc_disabled, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(inc_nodisabled, msymbol(d) mcolor(gs8) ciopts(recast(rcap) lcolor(gs8)) offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle(" Percentage change of income", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) text(-0.515 2.07 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "With disability" 4 "Without disability") cols(1) pos(1) ring(0) size(small))
+graph export "$gr\7INCOME_disabled.png", replace
+
+
+* ==========================================================================
+* PAM - disabled vs No disabled
+* ==========================================================================
+
+eststo clear
+eststo pam_disabled:    reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
+eststo pam_nodisabled:  reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(pam_disabled, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(pam_nodisabled, msymbol(d) mcolor(gs8) ciopts(recast(rcap) lcolor(gs8)) offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of receiving PAM", size(medium) height(5)) ///
+ylabel(-0.6(0.3)0.6, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.6 0.6)) text(-0.62 2.07 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "With disability" 4 "Without disability") cols(1) pos(4) ring(0) size(small))
+graph export "$gr\7PAM_disabled.png", replace
+
+*==================================================================================*
+*==================================================================================*
+		
+							/*WEALTH*/
+							
+*==================================================================================*
+*==================================================================================*
+
+eststo clear
+
+reg wealth treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change of wealth", size(medium) height(5)) ///
+ylabel(-0.03(0.015)0.03, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.015 0.015)) text(-0.031 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\8Wealth.png", replace 
+
+
+eststo clear
+
+eststo q1_wealth: reg wealth treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_wealth: reg wealth treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_wealth: reg wealth treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_wealth: reg wealth treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_wealth, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_wealth, msymbol(d) mcolor("gs10")  ciopts(recast(rcap) lcolor("gs10"))  offset(-0.08)) ///
+(q3_wealth, msymbol(s) mcolor("gs7")  ciopts(recast(rcap) lcolor("gs7"))  offset(0.08))  ///
+(q4_wealth, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(4, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change of wealth", size(medsmall)) ///
+ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-0.005 0.005)) ///
+legend(order(2 "Q1" 4 "Q2" 6 "Q3" 8 "Q4") pos(1) ring(0) col(2) size(small))
+graph export "$gr\8Wealth_Q.png", replace
+
+
+*=================================================================================*
+*=================================================================================*
+
+                           
+						   /*DDD BORDER*/
+						   
+*=================================================================================*
+*=================================================================================*
+
+* ==========================================================================
+* POVERTY / EXTREME POVERTY - Border vs No Border
+* ==========================================================================
+eststo clear
+eststo pov_border:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
+eststo pov_noborder:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0  [aw=weight], vce(cluster geo)
+eststo epov_border: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
+eststo epov_noborder: reg epoor treat_20* int1 int2 int3 treat tr i.year i.age i.state state#year educ female i.loc_size if border==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(pov_border,  msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.20)) ///
+(pov_noborder,  msymbol(d) mcolor(cranberry) ciopts(recast(rcap) lcolor(cranberry)) offset(-0.05)) ///
+(epov_border, msymbol(s) mcolor(gs10) ciopts(recast(rcap) lcolor(gs10)) offset(0.05)) ///
+(epov_noborder, msymbol(t) mcolor("255 150 150") ciopts(recast(rcap) lcolor("255 150 150")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of living in poverty", size(medsmall)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ysc(r(-0.5 0.5)) ///
+text(-0.535 2.24 "Jan 2019", size(small) place(se) nobox just(left)) ///
+legend(order(2 "Northern Border Poverty" 4 "Non-Northern Border Poverty" 6 "Northern Border Extreme Poverty" 8 "Non-Northern Border Extreme Poverty") pos(1) ring(0) col(2) size(vsmall))
+graph export "$gr\9POV_border.png", replace
+
+* ==========================================================================
+* WORK - border vs No border
+* ==========================================================================
+
+eststo clear
+eststo work_border:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
+eststo work_noborder:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(work_border, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(work_noborder, msymbol(d) mcolor(gs8)  ciopts(recast(rcap) lcolor(gs8))  offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of working", size(medium) height(5)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.5 0.5)) text(-0.51 2.08 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "Northern border municipalities" 4 "Non-Northern Border municipalities") cols(1) pos(1) ring(0) size(small))
+graph export "$gr\9WORK_border.png", replace
+
+* ==========================================================================
+* INCOME - border vs No border
+* ==========================================================================
+
+eststo clear
+eststo inc_border:    reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
+eststo inc_noborder:  reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(inc_border, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(inc_noborder, msymbol(d) mcolor(gs8) ciopts(recast(rcap) lcolor(gs8)) offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle(" Percentage change of income", size(medium) height(5)) ///
+ylabel(-0.8(0.4)0.8, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.4 0.4)) text(-0.815 2.07 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "Northern border municipalities" 4 "Non-Northern Border municipalities") cols(1) pos(1) ring(0) size(small))
+graph export "$gr\9INCOME_border.png", replace
+
+
+* ==========================================================================
+* PAM - border vs No border
+* ==========================================================================
+
+eststo clear
+eststo pam_border:    reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
+eststo pam_noborder:  reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(pam_border, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(pam_noborder, msymbol(d) mcolor(gs8) ciopts(recast(rcap) lcolor(gs8)) offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of receiving PAM", size(medium) height(5)) ///
+ylabel(-0.6(0.3)0.6, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.6 0.6)) text(-0.62 2.07 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "Northern border municipalities" 4 "Non-Northern Border municipalities") cols(1) pos(4) ring(0) size(small))
+graph export "$gr\9PAM_border.png", replace
+
+

@@ -39,7 +39,6 @@ gl data="C:\Users\Oscar Galvez Soriano\Documents\Papers\UniversalizationPAM\Data
 gl bases="C:\Users\Oscar Galvez Soriano\Documents\Papers\UniversalizationPAM\Data\2018\Bases";
 gl log="C:\Users\Oscar Galvez Soriano\Documents\Papers\UniversalizationPAM\Data\2018\Log";
 
-
 log using "$log\Pobreza_18.txt", text replace;
 
 *********************************************************
@@ -852,6 +851,21 @@ merge folioviv using "$bases\viviendas.dta";
 tab _merge;
 drop _merge;
 
+*=======================================================================*;
+
+								*PCA;
+
+*=======================================================================*;
+
+destring mat_techos, gen(acc_techo) force;
+recode acc_techo (0=.) (1=1) (2=2) (6=3) (3=4) (4=5) (5=6) (7=7) (9=8) (8=9) (10=10);
+destring mat_pisos, gen(acc_piso) force;
+recode acc_piso (0=.) (1=1) (2=2) (3=3);
+destring mat_pared, gen(acc_muro) force;
+recode acc_muro (1=1) (2=2) (4=3) (5=4) (3=5) (6=6) (7=7) (8=8) ;
+
+*=======================================================================*;
+
 
 *Material de los pisos de la vivienda;
 destring mat_pisos, gen(icv_pisos) force;
@@ -925,9 +939,9 @@ replace ic_cv=. if icv_pisos==. | icv_techos==. | icv_muros==. | icv_hac==.;
 label var ic_cv "Indicador de carencia por calidad y espacios de la vivienda";
 label value ic_cv caren;
 sort  folioviv foliohog;
-keep  folioviv foliohog icv_pisos icv_techos icv_muros icv_hac ic_cv;
+keep  folioviv foliohog icv_pisos icv_techos icv_muros icv_hac ic_cv acc_techo acc_piso acc_muro;
 save "$bases\ic_cev18.dta", replace;
-  
+    
  
  
 ************************************************************************
@@ -2084,7 +2098,16 @@ save "$bases\labor.dta", replace;
 
 use "$data\poblacion.dta", clear;
 
-keep folioviv foliohog numren etnia;
+gen discap=.;
+replace discap=0 if (disc1=="" | disc1=="&" | disc1=="8");
+replace discap=1 if (disc1!="8");
+
+label var discap "Población según condición de discapacidad física o mental";
+label define discap 0 "Sin discapacidad"
+                    1 "Con discapacidad";
+label value discap discap;
+
+keep folioviv foliohog numren etnia discap;
 sort folioviv foliohog numren;
 save "$bases\etnia.dta", replace;
 
@@ -2255,6 +2278,148 @@ sort folioviv foliohog numren;
 keep folioviv foliohog numren mon_inc lab_inc rent_inc month_inc remittances inc_pam1;
 save "$bases\income_indiv.dta", replace;
 
+*==============================================================================*;
+
+*PCA;
+
+*==============================================================================*;
+
+use "$data\hogares.dta", clear;
+
+
+* Autos;
+destring num_auto, replace force;
+label var num_auto "Número de autos del hogar";
+
+* SUVs / Vans;
+destring num_van, replace force;
+rename num_van num_suv;
+label var num_suv "Número de SUVs del hogar";
+
+* Pick-ups;
+destring num_pickup, gen(num_pick) force;
+label var num_pick "Número de pick-ups del hogar";
+
+* Motos;
+destring num_moto, replace force;
+label var num_moto "Número de motos del hogar";
+
+* Bicicletas;
+destring num_bici, replace force;
+replace num_bici = . if num_bici == -1;
+
+* Triciclos;
+destring num_trici, replace force;
+replace num_trici = . if num_trici == -1;
+
+* Carretas;
+destring num_carret, replace force;
+replace num_carret = . if num_carret == -1;
+
+* Canoas;
+destring num_canoa, replace force;
+replace num_canoa = . if num_canoa == -1;
+
+* Otros vehículos;
+destring num_otro, replace force;
+replace num_otro = . if num_otro == -1;
+
+* Estéreos;
+destring num_ester, replace force;
+replace num_ester = . if num_ester == -1;
+
+*Grabadoras;
+destring num_grab, replace force;
+replace num_ester = . if num_ester == -1;
+
+* Radios;
+destring num_radio, replace force;
+replace num_radio = . if num_radio == -1;
+replace num_radio= num_radio + num_grab;
+
+* Televisores analógicos;
+destring num_tva, replace force;
+replace num_tva = . if num_tva == -1;
+
+* Televisores digitales;
+destring num_tvd, replace force;
+replace num_tvd = . if num_tvd == -1;
+
+* Reproductores de video;
+destring num_video, replace force;
+replace num_video = . if num_video == -1;
+
+* Reproductores DVD / Blu-ray;
+destring num_dvd, replace force;
+replace num_dvd = . if num_dvd == -1;
+replace num_dvd=num_dvd+num_video;
+
+* Licuadoras;
+destring num_licua, replace force;
+replace num_licua = . if num_licua == -1;
+
+* Tostadores;
+destring num_tosta, replace force;
+replace num_tosta = . if num_tosta == -1;
+
+* Microondas;
+destring num_micro, replace force;
+replace num_micro = . if num_micro == -1;
+
+* Refrigeradores;
+destring num_refri, replace force;
+replace num_refri = . if num_refri == -1;
+
+* Estufas;
+destring num_estuf, replace force;
+replace num_estuf = . if num_estuf == -1;
+
+* Lavadoras;
+destring num_lavad, replace force;
+replace num_lavad = . if num_lavad == -1;
+
+* Planchas;
+destring num_planc, replace force;
+replace num_planc = . if num_planc == -1;
+
+* Máquinas de coser;
+destring num_maqui, replace force;
+replace num_maqui = . if num_maqui == -1;
+
+* Ventiladores;
+destring num_venti, replace force;
+replace num_venti = . if num_venti == -1;
+
+* Aspiradoras;
+destring num_aspir, replace force;
+replace num_aspir = . if num_aspir == -1;
+
+* Computadoras;
+destring num_compu, replace force;
+replace num_compu = . if num_compu == -1;
+
+* Laptops;
+*destring num_lap, replace force;
+*replace num_lap = . if num_lap == -1;
+
+* Tablets;
+*destring num_table, replace force;
+*replace num_table = . if num_table == -1;
+
+* Impresoras;
+destring num_impre, replace force;
+replace num_impre = . if num_impre == -1;
+
+* Consolas de videojuegos;
+destring num_juego, replace force;
+replace num_juego = . if num_juego == -1;
+
+sort folioviv foliohog;
+keep folioviv foliohog num_auto num_suv num_pick num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_video num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego;
+save "$bases\assets.dta", replace;
+
+*=====================================================================*;
+
 ************************************************************************
 
 *Parte VIII Pobreza multidimensional
@@ -2308,6 +2473,11 @@ tab _merge;
 drop _merge;
 sort folioviv foliohog;
 
+merge folioviv foliohog using "$bases\assets.dta";
+tab _merge;
+drop _merge;
+sort folioviv foliohog;
+
 merge folioviv foliohog using "$bases\p_ingresos18.dta";
 tab _merge;
 drop _merge;
@@ -2357,6 +2527,48 @@ label value ent ent;
 gen year=2018;
 label var year "Year";
 
+#delimit cr
+
+foreach v in num_auto num_suv num_pickup num_moto num_bici num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_aspir num_compu num_impre num_juego acc_muro acc_piso acc_techo {
+    quietly summarize `v', meanonly
+    gen double y_`v' = .
+    replace y_`v' = (`v'/r(mean)) if !missing(`v') & r(mean) != 0
+}
+
+#delimit ;
+
+pca y_num_auto y_num_suv y_num_pickup y_num_moto y_num_bici y_num_tvd y_num_dvd y_num_licua y_num_tosta y_num_micro y_num_refri y_num_estuf y_num_lavad y_num_planc y_num_aspir y_num_compu y_num_impre y_num_juego y_acc_muro y_acc_piso y_acc_techo;
+
+predict z_pca z_pca2 z_pca3 z_pca4 z_pca5 z_pca6 if e(sample), score;
+
+egen c1_min = min(z_pca);
+egen c1_max = max(z_pca);
+gen pc1 = (z_pca - c1_min)/c1_max;
+
+egen c2_min = min(z_pca2);
+egen c2_max = max(z_pca2);
+gen pc2 = (z_pca2 - c2_min)/c2_max;
+
+egen c3_min = min(z_pca3);
+egen c3_max = max(z_pca3);
+gen pc3 = (z_pca3 - c3_min)/c3_max;
+
+egen c4_min = min(z_pca4);
+egen c4_max = max(z_pca4);
+gen pc4 = (z_pca4 - c4_min)/c4_max;
+
+egen c5_min = min(z_pca5);
+egen c5_max = max(z_pca5);
+gen pc5 = (z_pca5 - c5_min)/c5_max;
+
+egen c6_min = min(z_pca6);
+egen c6_max = max(z_pca6);
+gen pc6 = (z_pca6 - c6_min)/c6_max;
+
+gen mean = ((pc1 + pc2 + pc3 + pc4 + pc5 + pc6)/6)*100;
+gen wealth = ln(mean);
+			
+
 keep 	folioviv foliohog numren est_dis upm
 		factor tam_loc rururb ent ubica_geo edad sexo parentesco 
 	 anac_e niv_ed
@@ -2367,7 +2579,7 @@ keep 	folioviv foliohog numren est_dis upm
 		plp_e plp p65mas tot_integ
 		tamhogesc ictpc ict ing_mens ing_mon ing_lab ing_ren ing_tra nomon pago_esp reg_esp remittances inc_pam1 mon_inc lab_inc rent_inc month_inc
 		hli edad anac_e student niv_ed  
-parentesco hli educ time_work time_study time_repair time_leisure formal htrab sinco scian year etnia;
+parentesco hli educ time_work time_study time_repair time_leisure formal htrab sinco scian year etnia discap  num_auto num_suv num_pick num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_video num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego acc_techo acc_piso acc_muro wealth;
 		
 order 	folioviv foliohog numren est_dis upm
 		factor tam_loc rururb ent ubica_geo edad sexo parentesco 
@@ -2379,9 +2591,8 @@ order 	folioviv foliohog numren est_dis upm
 		plp_e plp p65mas tot_integ
 		tamhogesc ictpc ict ing_mens ing_mon ing_lab ing_ren ing_tra nomon pago_esp reg_esp remittances inc_pam1 mon_inc lab_inc rent_inc month_inc
 		hli edad anac_e student niv_ed  
-parentesco hli educ time_work time_study time_repair time_leisure formal htrab sinco scian year etnia; 
-		
-			
+parentesco hli educ time_work time_study time_repair time_leisure formal htrab sinco scian year etnia discap  num_auto num_suv num_pick num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_video num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego acc_techo acc_piso acc_muro wealth; 
+
 label var sexo "Sexo";
 label var parentesco "Parentesco con el jefe del hogar";
 label var est_dis "Estrato de diseño";
