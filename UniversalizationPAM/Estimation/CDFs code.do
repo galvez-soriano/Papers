@@ -7,48 +7,70 @@ set more off
 
 gl rd="C:\Users\Oscar Galvez Soriano\Documents\Papers\UniversalizationPAM\Data"
 gl gr="C:\Users\Oscar Galvez Soriano\Documents\Papers\UniversalizationPAM\Doc"
+import excel "$rd/INPC.xlsx", firstrow clear
+
+save "$rd/INPC.dta", replace
 *=================================================================================*
 use "$rd\dbasePAM.dta", clear
 *=================================================================================*
      				          /*Prep Data*/
 *=================================================================================*
 
+*UNIMOS LA BASE DEL INPC CON LA DE POBREZA 
+merge m:1 year using "$rd/INPC.dta"
+drop _merge
+
+*DEFLACTAMOS LOS MONTOS
+replace ictpc = ictpc / (INPC/100)
+
+*LOGARITMO DEL INGRESO DEFLACTADO
+drop l_inc
+gen l_inc=ln(ictpc+1)
+replace l_inc=0 if l_inc<0
+
 * GENERAMOS EL ICTPC SIN PAM
 gen ictpc1 = ictpc - inc_pam
 gen income = ln(ictpc1 + 1)
+
+*INPC (base segunda quincena de 2018=100 )
+local inpc2016 = 90.12792483333
+local inpc2018 = 100.25541853477
+local inpc2020 = 107.43000000000
+local inpc2022 = 122.50750000000
+local inpc2024 = 135.38458333333
 
 
 *LINEAS DE POBREZA RURAL Y URBANA
 
 * 2016
-local lpei_urb2016 = ln(1351.24)
-local lpei_rur2016 = ln(1018.43)
-local lpi_urb2016  = ln(2903.91)
-local lpi_rur2016  = ln(2030.14)
+local lpei_urb2016 = ln(1351.24/(`inpc2016'/100))
+local lpei_rur2016 = ln(1018.43/(`inpc2016'/100))
+local lpi_urb2016  = ln(2903.91/(`inpc2016'/100))
+local lpi_rur2016  = ln(2030.14/(`inpc2016'/100))
 
 * 2018
-local lpei_urb2018 = ln(1544.07)
-local lpei_rur2018 = ln(1164.75)
-local lpi_urb2018  = ln(3325.40)
-local lpi_rur2018  = ln(2316.57)
+local lpei_urb2018 = ln(1544.07/(`inpc2018'/100))
+local lpei_rur2018 = ln(1164.75/(`inpc2018'/100))
+local lpi_urb2018  = ln(3325.40/(`inpc2018'/100))
+local lpi_rur2018  = ln(2316.57/(`inpc2018'/100))
 
 * 2020
-local lpei_urb2020 = ln(1702.28)
-local lpei_rur2020 = ln(1299.30)
-local lpi_urb2020  = ln(3559.88)
-local lpi_rur2020  = ln(2520.16)
+local lpei_urb2020 = ln(1702.28/(`inpc2020'/100))
+local lpei_rur2020 = ln(1299.30/(`inpc2020'/100))
+local lpi_urb2020  = ln(3559.88/(`inpc2020'/100))
+local lpi_rur2020  = ln(2520.16/(`inpc2020'/100))
 
 * 2022
-local lpei_urb2022 = ln(2086.21)
-local lpei_rur2022 = ln(1600.18)
-local lpi_urb2022  = ln(4158.35)
-local lpi_rur2022  = ln(2970.76)
+local lpei_urb2022 = ln(2086.21/(`inpc2022'/100))
+local lpei_rur2022 = ln(1600.18/(`inpc2022'/100))
+local lpi_urb2022  = ln(4158.35/(`inpc2022'/100))
+local lpi_rur2022  = ln(2970.76/(`inpc2022'/100))
 
 * 2024
-local lpei_urb2024 = ln(2354.65)
-local lpei_rur2024 = ln(1800.55)
-local lpi_urb2024  = ln(4564.97)
-local lpi_rur2024  = ln(3296.92)
+local lpei_urb2024 = ln(2354.65/(`inpc2024'/100))
+local lpei_rur2024 = ln(1800.55/(`inpc2024'/100))
+local lpi_urb2024  = ln(4564.97/(`inpc2024'/100))
+local lpi_rur2024  = ln(3296.92/(`inpc2024'/100))
 
 *COLORES
 local col_pam    "144 238 144"
@@ -58,20 +80,20 @@ local col_red    "200 0 0"
 local col_lightred "255 150 150"
 
 *MONTO MENSUAL DEL PAM
-local m2016 = ln(580)
-local m2018 = ln(580)
-local m2020 = ln(1310)
-local m2022 = ln(1925)
-local m2024 = ln(3000)
+local m2016 = ln(580/(`inpc2016'/100))
+local m2018 = ln(580/(`inpc2018'/100))
+local m2020 = ln(1310/(`inpc2020'/100))
+local m2022 = ln(1925/(`inpc2022'/100))
+local m2024 = ln(3000/(`inpc2024'/100))
 
 
 *===============================================================*
 				     	*\RURAL INCOME\*
 *===============================================================*
 * GENERAMOS EL LOGARITMO DEL INGRESO RURAL
-gen rurincome = ln(ictpc+1) if rururb==1
+gen rurincome = income if rururb==1
 * GENERAMOS EL INGRESO RURAL SIN PAM
-gen rurictpc= ln(ictpc-inc_pam+1) if rururb==1
+gen rurictpc= l_inc if rururb==1
 
 foreach yr in 2016 2018 2020 2022 2024 {
 
@@ -161,9 +183,6 @@ twoway ///
     graph drop _all
     restore
 }
-
-
-
 
 
 *===============================================================*

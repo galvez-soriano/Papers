@@ -10,28 +10,95 @@ gl gr="C:\Users\Oscar Galvez Soriano\Documents\Papers\UniversalizationPAM\Doc"
 *=================================================================================*
 use "$rd\dbasePAM.dta", clear
 *=====================================================================*
-/* Table 1: The impact of univesalization social pensions (DDD estimation)
-Panel A. Baseline */
+/* Table 1: Summary statistics */
 *=====================================================================*
-* Dependent variable: Take up
 eststo clear
+eststo control_B: quietly estpost sum pam l_inc poor epoor work female ///
+educ indig cohab1 rururb [aw=weight] if after==0 & treat==0 ///
+& tr==0
+eststo treat_B: quietly estpost sum pam l_inc poor epoor work female ///
+educ indig cohab1 rururb [aw=weight] if after==0 & treat==1 ///
+& tr==0
+eststo control_A: quietly estpost sum pam l_inc poor epoor work female ///
+educ indig cohab1 rururb [aw=weight] if after==1 & treat==0 ///
+& tr==0
+eststo treat_A: quietly estpost sum pam l_inc poor epoor work female ///
+educ indig cohab1 rururb [aw=weight] if after==1 & treat==1 ///
+& tr==0
+eststo control_BP: quietly estpost sum pam l_inc poor epoor work female ///
+educ indig cohab1 rururb [aw=weight] if after==0 & treat==0 ///
+& tr==1
+eststo treat_BP: quietly estpost sum pam l_inc poor epoor work female ///
+educ indig cohab1 rururb [aw=weight] if after==0 & treat==1 ///
+& tr==1
+eststo control_AP: quietly estpost sum pam l_inc poor epoor work female ///
+educ indig cohab1 rururb [aw=weight] if after==1 & treat==0 ///
+& tr==1
+eststo treat_AP: quietly estpost sum pam l_inc poor epoor work female ///
+educ indig cohab1 rururb [aw=weight] if after==1 & treat==1 ///
+& tr==1
+eststo diff: quietly estpost ttest pam l_inc poor epoor work female ///
+educ indig cohab1 rururb, by(treat) unequal 
+esttab control_B treat_B control_A treat_A control_BP treat_BP control_AP treat_AP diff using "$gr\tab1.tex", ///
+cells("mean(pattern(1 1 1 1 1 1 1 1 0) fmt(%9.2fc)) b(star pattern(0 0 0 0 0 0 0 0 1) fmt(%9.2fc))") ///
+star(* 0.10 ** 0.05 *** 0.01) label replace
+
+/* Notes:
+
+Fill in the last column of the table with the actual DDD estimate using
+the following code for each variable y:
 gen ddd=after*tr*treat
-eststo: areg pam ddd int1 int2 int3 treat tr after educ female indig i.age ///
+reg y ddd int1 int2 int3 treat tr after [aw=weight], vce(cluster geo)
+
+Standard errors are clustered at the municipality level. To obtain the SE use 
+the following code for each case:
+reg y treat if after==(0,1) & tr==(0,1) [aw=weight], vce(cluster geo)
+*/
+*=====================================================================*
+/* Table 2: The impact of the 2019 PAM expansion */
+*=====================================================================*
+/* Panel A. Combined effects: increment in cash transfer and universalization */
+*=====================================================================*
+eststo clear
+eststo: areg pam int1 i.age i.year educ female indig ///
 cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
 * Dependent variable: Income per capita
-eststo: areg l_inc ddd int1 int2 int3 treat tr after educ female indig i.age ///
+eststo: areg l_inc int1 i.age i.year educ female indig ///
 cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
 * Dependent variable: Poverty. Welfare and minimum welfare lines
-eststo: areg poor ddd int1 int2 int3 treat tr after educ female indig i.age ///
+eststo: areg poor int1 i.age i.year educ female indig ///
 cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
-eststo: areg epoor ddd int1 int2 int3 treat tr educ female indig i.age ///
-cohab1 i.loc_size  [aw=weight], absorb(state) vce(cluster geo)
+eststo: areg epoor int1 i.age i.year educ female indig ///
+cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
 * Dependent variable: Labor
-eststo: areg work ddd int1 int2 int3 treat tr after educ female indig i.age ///
-cohab1 i.loc_size  [aw=weight], absorb(state) vce(cluster geo)
+eststo: areg work int1 i.age i.year educ female indig ///
+cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
 
 esttab using "$gr\tab2A.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DDD estimations ///
-(\autoref{eq:1})\label{tab2}) star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+(\autoref{eq:1})\label{tab2A}) star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+label replace keep(int1)
+*=====================================================================*
+/* Panel B. Isolating the universalization effects */
+*=====================================================================*
+gen ddd=after*tr*treat
+* Dependent variable: Take up
+eststo clear
+eststo: areg pam ddd int1 int2 int3 treat tr i.year educ female indig i.age ///
+cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
+* Dependent variable: Income per capita
+eststo: areg l_inc ddd int1 int2 int3 treat tr i.year educ female indig i.age ///
+cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
+* Dependent variable: Poverty. Welfare and minimum welfare lines
+eststo: areg poor ddd int1 int2 int3 treat tr i.year educ female indig i.age ///
+cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
+eststo: areg epoor ddd int1 int2 int3 treat tr i.year educ female indig i.age ///
+cohab1 i.loc_size  [aw=weight], absorb(state) vce(cluster geo)
+* Dependent variable: Labor
+eststo: areg work ddd int1 int2 int3 treat tr i.year educ female indig i.age ///
+cohab1 i.loc_size  [aw=weight], absorb(state) vce(cluster geo)
+
+esttab using "$gr\tab2B.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DDD estimations ///
+(\autoref{eq:1})\label{tab2B}) star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
 label replace keep(ddd)
 
 *=================================================================================*

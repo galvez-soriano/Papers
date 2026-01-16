@@ -130,7 +130,18 @@ foreach m of local fn_muns {
 }
 
 
+label var pam "PAM take-up"
+label var l_inc "Ln(income)"
+label var poor "Poverty"
+label var epoor "Extreme poverty"
+label var work "Employment"
+label var female "Female"
+label var educ "Education"
+label var indig "Indigenous"
+label var cohab1 "Cohabitation"
+
 save "$data\dbasePAM.dta", replace
+
 *=====================================================================*
 /*use "$data\dbasePAM.dta", clear
 local start=0
