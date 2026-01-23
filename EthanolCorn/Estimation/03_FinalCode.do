@@ -363,6 +363,20 @@ ysc(r(-2 2)) plotregion(style(none))
 graph export "$doc\Did_ExtMargin.png", replace
 
 /* ========================================================== */
+/* Figure X. Effects on poverty */
+/* ========================================================== */
+areg poverty interact97 zero interact07 interact12 interact17 interact22 PopDen i.Year i.State#i.Year, absorb(County) cluster(County)
+#delimit;
+coefplot, vertical keep(interact97 zero interact07 interact12 interact17 interact22) yline(0) 
+	ylabel(-2(2)4, labs(medium) grid format(%5.0f)) plotregion(style(none))
+	xline(2.5, lcolor(gray) lwidth(thin) lpattern(dash))  mcolor(black) msize(small) ciopts(lcolor(black)) omitted baselevels 
+	graphregion(fcolor(white)) xtitle(Year) ytitle(Change in farmland value (thousands))
+;
+#delimit cr
+graph export "$doc\Did_Poverty.png",replace
+
+areg poverty DiD PopDen i.Year State#Year, absorb(County) cluster(County)
+/* ========================================================== */
 /* Figure X. By ethanol plants */
 /* ========================================================== */
 areg LandValue_Thousand interact97 zero interact07 interact12 interact17 interact22 PopDen i.Year i.State#i.Year if ethanol_plant==1, absorb(County) cluster(County)

@@ -127,3 +127,33 @@ merge m:1 fips using "$data/ext_margin.dta"
 drop if _merge!=3
 drop _merge
 save "$base\AgDBase.dta", replace
+
+use "$base\AgDBase.dta", clear
+
+merge 1:1 fips Year using "$data/SAIPE.dta"
+drop if _merge==2
+drop _merge
+
+save "$base\AgDBase.dta", replace
+/*
+use "$data/SAIPE.dta", clear
+rename year Year
+rename povertypercent_allgges poverty
+destring Year, replace
+gen str fips=state_fips + county_fips
+sort fips
+drop in 85914/l
+drop in 1/16
+
+destring fips, replace
+tostring fips, replace format(%5.0f)
+keep fips Year poverty
+order fips Year poverty
+sort fips Year
+
+bysort fips Year: gen dupli=_N
+drop if dupli==2
+drop dupli
+
+save "$base\SAIPE.dta", replace
+*/
