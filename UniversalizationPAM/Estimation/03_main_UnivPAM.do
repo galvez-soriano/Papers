@@ -900,4 +900,86 @@ size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
 legend(order(2 "Northern border municipalities" 4 "Non-Northern Border municipalities") cols(1) pos(4) ring(0) size(small))
 graph export "$gr\9PAM_border.png", replace
 
+*=================================================================================*
+                               
+							   /*ROBUSTNESS CHECK*/
+							   
+*=================================================================================*
 
+*=================================================================================*
+                               /*TRIPLE DIFFERENCE*/
+*=================================================================================*
+drop treat_20*
+foreach x in 16 18 20 22 24 {
+    gen treat_20`x' = 0
+    replace treat_20`x' = 1 if treat2==1 & year==20`x' & tr==1
+    label var treat_20`x' "20`x'"
+}
+
+replace treat_2018 = 0
+*=================================================================================*
+                               /*DDD BASE*/
+*=================================================================================*
+
+/*PT Poverty/Extreme Poverty*/
+
+eststo poverty: reg poor treat_20* int12 int22 int32 treat2 tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+eststo epoverty: reg epoor treat_20* int12 int22 int32 treat2 tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot ///
+(poverty, msymbol(o) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(-0.20)) ///
+(epoverty, msymbol(d) mcolor("gs8")  ciopts(recast(rcap) lcolor("gs8"))  offset(-0.08)), ///
+vertical keep(treat_20*) ///
+byopts(cols(2) title("Likelihood of being in poverty")) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being in poverty", size(medsmall)) ///
+ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-0.3 0.3)) ///
+text(-0.325 2.24 "Jan 2019", size(small) place(se) nobox just(left)) ///
+legend(order(2 "Poverty" 4 "Extreme Poverty") pos(1) ring(0) col(1))
+graph export "$gr\RC2EPOV_POV.png", replace
+
+/*PT work*/
+
+reg work treat_20* int12 int22 int32 treat2 tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of working", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) text(-0.208 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\RC2WORK.png", replace 
+
+/*PT Income*/
+
+reg l_inc treat_20* int12 int22 int32 treat2 tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle(" Percentage change of income", size(medium) height(5)) ///
+ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.3 0.3)) text(-0.31 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\RC2INCOME.png", replace 
+
+/*PAM*/
+
+reg pam treat_20* int12 int22 int32 treat2 tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of receiving PAM", size(medium) height(5)) ///
+ylabel(-0.6(0.3)0.6, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.6 0.6)) text(-0.623 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\RC2PAM.png", replace 
