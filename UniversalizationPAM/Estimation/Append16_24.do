@@ -51,10 +51,13 @@ label drop discap
 rename discap disabled
 label define discap 0 "Without disability" 1 "With disability"
 
+gen ind_60_64 = age >= 60 & age < 65
+bysort folioviv foliohog: egen n_60_64 = total(ind_60_64)
+
 *GENERAMOS LA VARIABLE DE COHABITACIÓN CON PERSONAS DE 65 Y MÁS AÑOS E INTEGRANTES TOTATLES DEL HOGAR
 gen cohab1=.
-replace cohab1 =1 if tot_integ!=p65mas
-replace cohab1 = 0 if tot_integ==p65mas
+replace cohab1 =1 if tot_integ!=p65mas | tot_integ!=n_60_64
+replace cohab1 = 0 if tot_integ==p65mas | tot_integ==n_60_64
 
 
 *GENERAMOS LA VARIABLE DE SUBORDINADO CON BASE EN EL EMPLEO PRINCIPAL
@@ -64,16 +67,14 @@ rename main_jobt subor
 *GENERAMOS LA VARIABLE DE AUTOEMPLEADOS
 gen selfemp= subor==0
 
-*MANTENEMOS LAS EDADES DE INTERÉS (62-64 Y 68-70 AÑOS).
-
-keep if inrange(age, 62, 70)
-
-drop if inrange(age, 65, 67)
+*MANTENEMOS LAS EDADES DE INTERÉS (62-73 AÑOS).
+keep if inrange(age, 62, 73)
 
 *GENERAMOS LA TERCERA DIMENSIÓN QUE LLAMAREMOS ´tr'
 gen tr = . 
-replace tr=1 if inc_ret>=1092
-replace tr=0 if inc_ret<1092
+replace tr = 1 if inc_ret >= 1092 
+
+replace tr=0 if inc_ret<1092 
 
 *GENERAMOS EL TRATAMIENTO: ADULTOS MAYORES DE 68 A 70 AÑOS.
 gen treat=.
@@ -93,12 +94,21 @@ gen int2=treat*tr
 gen int3=after*tr
 
 
+***GENERAMOS EL TRATAMIENTO, AFTER, TR E INTERACCIONES PARA EL ROBUSTNESS CHECK
+gen treat2=.
+replace treat2=1 if inrange(age,71,73)
+replace treat2=0 if inrange(age,62,64)
+gen int12 =treat2*after
+gen int22=treat2*tr
+gen int32=after*tr
+
+
 *LOGARITMO DEL INGRESO
 gen l_inc=ln(ictpc+1)
 replace l_inc=0 if l_inc<0
 
 *MANTENEMOS LAS VARIABLES DE INTERÉS
-keep geo state year weight cohab1 age female pam inc_pam poor epoor work treat after int1 int2 int3 tr pam l_inc rururb loc_size subor ictpc tot_integ p65mas selfemp educ indig ss_dir indig disabled num_auto num_suv num_pickup num_moto num_bici        num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc   num_aspir num_compu num_impre num_juego acc_piso acc_techo acc_muro wealth
+keep foliohog folioviv geo state year weight cohab1 age female pam inc_pam poor epoor work treat after int1 int2 int3 tr pam l_inc rururb loc_size subor ictpc tot_integ p65mas selfemp educ indig ss_dir indig disabled num_auto num_suv num_pickup num_moto num_bici num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_aspir num_compu num_impre num_juego acc_piso acc_techo acc_muro wealth int12 int22 int32 treat2 
 
 *PERCENTILES PONDERADOS
 pctile pval = ictpc [aw=weight], nq(100)
