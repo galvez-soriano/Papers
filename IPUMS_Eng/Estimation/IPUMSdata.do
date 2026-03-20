@@ -1,7 +1,7 @@
 *========================================================================*
 * English instruction in Mexico and labor market outcomes in the US
 *========================================================================*
-* Oscar Galvez-Soriano and Hoanh Le
+* Oscar Galvez-Soriano and Maria Padilla
 *========================================================================*
 clear
 set more off
