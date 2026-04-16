@@ -22,6 +22,12 @@ merge m:1 geo using "$data/Papers/main/AI_TimeUse/Data/exposureCoverage.dta"
 keep if _merge==3
 drop _merge
 
+destring sinco naics, replace
+
+merge m:1 sinco using "$data/Papers/main/AI_TimeUse/Data/ai_occupations.dta"
+drop if _merge==2
+drop _merge
+
 gen after=year>=2024
 gen treat_after=treat*after
 label variable treat_after "Treat $\times$ After"
@@ -282,564 +288,97 @@ ysc(r(-0.4 0.4))
 graph export "$doc\PTA_income.png", replace
 
 *=====================================================================*
-/* Heterogeneity */
+/* AI occupations */
 *=====================================================================*
-/* Figure 3. Young individuals' time use (by sex) */
-*=====================================================================*
-reghdfe time_study treat_20* hhsize age educ indigen i.loc_size if age>=6 & age<=24 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store stime_women
-reghdfe time_study treat_20* hhsize age educ indigen i.loc_size if age>=6 & age<=24 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store stime_men
+sum aioe, d
+gen ai_occupa=aioe>r(p90)
+
+sum computer_ai, d
+gen comp_occupa=computer_ai>r(p90)
+
+reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=65 & work==1 & ai_occupa==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+estimates store wage_aio
+reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=65 & work==1 & ai_occupa==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+estimates store wage_naio
 
 coefplot ///
-(stime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(stime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
+(wage_aio, offset(-0.1) label(Occupations with high use of AI) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
+(wage_naio, label(Occupations with low use of AI) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
 , vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent studying (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+ytitle("Ln(Income)", size(medium) height(5)) ///
+ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 legend(pos(11) ring(0) col(1)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_tystudySex.png", replace
+ysc(r(-0.4 0.4))
+graph export "$doc\PTA_wageAI.png", replace
 
-reghdfe t_work treat_20* hhsize age educ indigen i.loc_size if age>=6 & age<=24 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ywtime_women
-reghdfe t_work treat_20* hhsize age educ indigen i.loc_size if age>=6 & age<=24 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ywtime_men
 
-coefplot ///
-(ywtime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(ywtime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_tyworkSex.png", replace
-
-reghdfe time_leisure treat_20* hhsize age educ indigen i.loc_size if age>=6 & age<=24 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yltime_women
-reghdfe time_leisure treat_20* hhsize age educ indigen i.loc_size if age>=6 & age<=24 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yltime_men
+reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=65 & work==1 & comp_occupa==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+estimates store wage_comp
+reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=65 & work==1 & comp_occupa==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+estimates store wage_ncomp
 
 coefplot ///
-(yltime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(yltime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
+(wage_comp, offset(-0.1) label(Occupations with high use of computers) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
+(wage_ncomp, label(Occupations with low use of computers) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
 , vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_tyleisureSex.png", replace
-
-reghdfe time_other treat_20* hhsize age educ indigen i.loc_size if age>=6 & age<=24 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yotime_women
-reghdfe time_other treat_20* hhsize age educ indigen i.loc_size if age>=6 & age<=24 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yotime_men
-
-coefplot ///
-(yotime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(yotime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_tyotherSex.png", replace
-*=====================================================================*
-/* Figure 4. Young individuals' time use (by ethnicity) */
-*=====================================================================*
-reghdfe time_study treat_20* hhsize age female educ i.loc_size if age>=6 & age<=24 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store stime_ind
-reghdfe time_study treat_20* hhsize age female educ i.loc_size if age>=6 & age<=24 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store stime_nonind
-
-coefplot ///
-(stime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(stime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent studying (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(pos(12) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_tystudyInd.png", replace
-
-reghdfe t_work treat_20* hhsize age female educ i.loc_size if age>=6 & age<=24 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ywtime_ind
-reghdfe t_work treat_20* hhsize age female educ i.loc_size if age>=6 & age<=24 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ywtime_nonind
-
-coefplot ///
-(ywtime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(ywtime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_tyworkInd.png", replace
-
-reghdfe time_leisure treat_20* hhsize age female educ i.loc_size if age>=6 & age<=24 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yltime_ind
-reghdfe time_leisure treat_20* hhsize age female educ i.loc_size if age>=6 & age<=24 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yltime_nonind
-
-coefplot ///
-(yltime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(yltime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_tyleisureInd.png", replace
-
-reghdfe time_other treat_20* hhsize age female educ i.loc_size if age>=6 & age<=24 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yotime_ind
-reghdfe time_other treat_20* hhsize age female educ i.loc_size if age>=6 & age<=24 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yotime_nonind
-
-coefplot ///
-(yotime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(yotime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_tyotherInd.png", replace
-*=====================================================================*
-/* Figure 5. Young individuals' time use (by context) */
-*=====================================================================*
-reghdfe time_study treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store stime_rural
-reghdfe time_study treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store stime_urban
-
-coefplot ///
-(stime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(stime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent studying (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+ytitle("Ln(Income)", size(medium) height(5)) ///
+ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 legend(pos(11) ring(0) col(1)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_tystudyRU.png", replace
+ysc(r(-0.4 0.4))
+graph export "$doc\PTA_wageComp.png", replace
 
-reghdfe t_work treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ywtime_rural
-reghdfe t_work treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ywtime_urban
+/* Tripple interaction */
+foreach x in 16 18 20 22 24{
+gen ttreat_20`x'=0
+replace ttreat_20`x'=1 if treat==1 & year==20`x' & ai_occupa==1
+label var ttreat_20`x' "20`x'"
+}
+replace ttreat_2022=0
 
-coefplot ///
-(ywtime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(ywtime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
+gen after_ai=after*ai_occupa
+gen treat_ai=treat*ai_occupa
+
+reghdfe lincome ttreat_20* hhsize age female educ indigen i.loc_size after_ai treat_ai ai_occupa ///
+treat_after if age>=14 & age<=65 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+
+coefplot , vertical keep(ttreat_20*) yline(0) omitted baselevels ///
 xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+ytitle("Ln(Income)", size(medium) height(5)) ///
+ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 legend(off) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_tyworkRU.png", replace
+ysc(r(-0.4 0.4))
+graph export "$doc\PTA_wageDDDai.png", replace
 
-reghdfe time_leisure treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yltime_rural
-reghdfe time_leisure treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yltime_urban
 
-coefplot ///
-(yltime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(yltime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
+foreach x in 16 18 20 22 24{
+gen ctreat_20`x'=0
+replace ctreat_20`x'=1 if treat==1 & year==20`x' & comp_occupa==1
+label var ctreat_20`x' "20`x'"
+}
+replace ctreat_2022=0
+
+gen after_comp=after*comp_occupa
+gen treat_comp=treat*comp_occupa
+
+reghdfe lincome ctreat_20* hhsize age female educ indigen i.loc_size after_comp treat_comp comp_occupa ///
+treat_after if age>=14 & age<=65 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+
+coefplot , vertical keep(ctreat_20*) yline(0) omitted baselevels ///
 xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+ytitle("Ln(Income)", size(medium) height(5)) ///
+ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 legend(off) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_tyleisureRU.png", replace
+ysc(r(-0.4 0.4))
+graph export "$doc\PTA_wageDDDcomp.png", replace
 
-reghdfe time_other treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yotime_rural
-reghdfe time_other treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store yotime_urban
-
-coefplot ///
-(yotime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(yotime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-6(3)6, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-6 6)) 
-graph export "$doc\PTA_tyotherRU.png", replace
-*=====================================================================*
-/* Figure 6. Adults' time use (by sex) */
-*=====================================================================*
-reghdfe t_work treat_20* hhsize age educ indigen i.loc_size if age>=25 & age<=54 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store awtime_women
-reghdfe t_work treat_20* hhsize age educ indigen i.loc_size if age>=25 & age<=54 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store awtime_men
-
-coefplot ///
-(awtime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(awtime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(pos(11) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_taworkSex.png", replace
-
-reghdfe time_leisure treat_20* hhsize age educ indigen i.loc_size if age>=25 & age<=54 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store altime_women
-reghdfe time_leisure treat_20* hhsize age educ indigen i.loc_size if age>=25 & age<=54 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store altime_men
-
-coefplot ///
-(altime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(altime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_taleisureSex.png", replace
-
-reghdfe time_other treat_20* hhsize age educ indigen i.loc_size if age>=25 & age<=54 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store aotime_women
-reghdfe time_other treat_20* hhsize age educ indigen i.loc_size if age>=25 & age<=54 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store aotime_men
-
-coefplot ///
-(aotime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(aotime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-6(3)6, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-6 6)) 
-graph export "$doc\PTA_taotherSex.png", replace
-*=====================================================================*
-/* Figure 7. Adults' time use (by context) */
-*=====================================================================*
-reghdfe t_work treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store awtime_rural
-reghdfe t_work treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store awtime_urban
-
-coefplot ///
-(awtime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(awtime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(pos(7) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_taworkRU.png", replace
-
-reghdfe time_leisure treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store altime_rural
-reghdfe time_leisure treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store altime_urban
-
-coefplot ///
-(altime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(altime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_taleisureRU.png", replace
-
-reghdfe time_other treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store aotime_rural
-reghdfe time_other treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store aotime_urban
-
-coefplot ///
-(aotime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(aotime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-6(3)6, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-6 6)) 
-graph export "$doc\PTA_taotherRU.png", replace
-*=====================================================================*
-/* Figure 8. Adults' time use (by ethnicity) */
-*=====================================================================*
-reghdfe t_work treat_20* hhsize age female educ i.loc_size if age>=25 & age<=54 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store awtime_ind
-reghdfe t_work treat_20* hhsize age female educ i.loc_size if age>=25 & age<=54 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store awtime_nonind
-
-coefplot ///
-(awtime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(awtime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(pos(7) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_taworkInd.png", replace
-
-reghdfe time_leisure treat_20* hhsize age female educ i.loc_size if age>=25 & age<=54 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store altime_ind
-reghdfe time_leisure treat_20* hhsize age female educ i.loc_size if age>=25 & age<=54 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store altime_nonind
-
-coefplot ///
-(altime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(altime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_taleisureInd.png", replace
-
-reghdfe time_other treat_20* hhsize age female educ i.loc_size if age>=25 & age<=54 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store aotime_ind
-reghdfe time_other treat_20* hhsize age female educ i.loc_size if age>=25 & age<=54 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store aotime_nonind
-
-coefplot ///
-(aotime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(aotime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_taotherInd.png", replace
-*=====================================================================*
-/* Figure 9. Elderlies' time use (by sex) */
-*=====================================================================*
-reghdfe t_work treat_20* hhsize age educ indigen i.loc_size if age>=55 & age<=100 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ewtime_women
-reghdfe t_work treat_20* hhsize age educ indigen i.loc_size if age>=55 & age<=100 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ewtime_men
-
-coefplot ///
-(ewtime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(ewtime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(pos(11) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_teworkSex.png", replace
-
-reghdfe time_leisure treat_20* hhsize age educ indigen i.loc_size if age>=55 & age<=100 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eltime_women
-reghdfe time_leisure treat_20* hhsize age educ indigen i.loc_size if age>=55 & age<=100 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eltime_men
-
-coefplot ///
-(eltime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(eltime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_teleisureSex.png", replace
-
-reghdfe time_other treat_20* hhsize age educ indigen i.loc_size if age>=55 & age<=100 & female==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eotime_women
-reghdfe time_other treat_20* hhsize age educ indigen i.loc_size if age>=55 & age<=100 & female==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eotime_men
-
-coefplot ///
-(eotime_women, offset(-0.1) label(Women) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(eotime_men, label(Men) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-6(3)6, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-6 6)) 
-graph export "$doc\PTA_teotherSex.png", replace
-*=====================================================================*
-/* Figure 10. Elderlies' time use (by ethnicity) */
-*=====================================================================*
-reghdfe t_work treat_20* hhsize age female educ i.loc_size if age>=55 & age<=100 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ewtime_ind
-reghdfe t_work treat_20* hhsize age female educ i.loc_size if age>=55 & age<=100 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ewtime_nonind
-
-coefplot ///
-(ewtime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(ewtime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(pos(7) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_teworkInd.png", replace
-
-reghdfe time_leisure treat_20* hhsize age female educ i.loc_size if age>=55 & age<=100 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eltime_ind
-reghdfe time_leisure treat_20* hhsize age female educ i.loc_size if age>=55 & age<=100 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eltime_nonind
-
-coefplot ///
-(eltime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(eltime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_teleisureInd.png", replace
-
-reghdfe time_other treat_20* hhsize age female educ i.loc_size if age>=55 & age<=100 & indigen==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eotime_ind
-reghdfe time_other treat_20* hhsize age female educ i.loc_size if age>=55 & age<=100 & indigen==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eotime_nonind
-
-coefplot ///
-(eotime_ind, offset(-0.1) label(Indigenous) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(eotime_nonind, label(Non-indigenous) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_teotherInd.png", replace
-
-*=====================================================================*
-/* Figure 11. Elderlies' time use (by context) */
-*=====================================================================*
-reghdfe t_work treat_20* hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ewtime_rural
-reghdfe t_work treat_20* hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store ewtime_urban
-
-coefplot ///
-(ewtime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(ewtime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent working (hours)", size(medium) height(5)) ///
-ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(pos(7) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-4 4)) 
-graph export "$doc\PTA_teworkRU.png", replace
-
-reghdfe time_leisure treat_20* hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eltime_rural
-reghdfe time_leisure treat_20* hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eltime_urban
-
-coefplot ///
-(eltime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(eltime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in leisure (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_teleisureRU.png", replace
-
-reghdfe time_other treat_20* hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & rururb==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eotime_rural
-reghdfe time_other treat_20* hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & rururb==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store eotime_urban
-
-coefplot ///
-(eotime_rural, offset(-0.1) label(Rural) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(eotime_urban, label(Urban) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Time spent in other chores (hours)", size(medium) height(5)) ///
-ylabel(-8(4)8, labs(medium) grid format(%5.0f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-8 8)) 
-graph export "$doc\PTA_teotherRU.png", replace
-
+*
