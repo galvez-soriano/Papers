@@ -43,70 +43,64 @@ replace treat_2022=0
 gen t_work=time_work
 replace t_work=hrs_work if t_work==0 & hrs_work!=.
 gen time_other= 168-(t_work + time_study + time_leisure)
-gen lincome=ln(lab_inc+1)
+gen lincome=asinh(lab_inc) // Inverse hyperbolic sine
+gen lmoni=asinh(mon_inc)
+gen self_emp=main_jobt>=2 & main_jobt!=.
 *=====================================================================*
 /* Table 1 */
 *=====================================================================*
 /* Panel A */
 *=====================================================================*
 eststo clear
+*Time use
 eststo: reghdfe time_study treat_after hhsize age female indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe t_work treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe time_leisure treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe time_other treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+*Labor outcomes
+eststo: reghdfe student treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe work treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe inactive treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe self_emp treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe lincome treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe lmoni treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 esttab using "$doc\tab1A.tex", r2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations) ///
 star(* 0.10 ** 0.05 *** 0.01) stats(N r2, fmt(%9.0fc %9.3f)) label replace keep(treat_after)
 *=====================================================================*
 /* Panel B */
 *=====================================================================*
 eststo clear
+*Time use
 eststo: reghdfe time_study treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe t_work treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe time_leisure treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe time_other treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+*Labor outcomes
+eststo: reghdfe student treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe work treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe inactive treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe self_emp treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe lincome treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe lmoni treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 esttab using "$doc\tab1B.tex", r2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations) ///
 star(* 0.10 ** 0.05 *** 0.01) stats(N r2, fmt(%9.0fc %9.3f)) label replace keep(treat_after)
 *=====================================================================*
 /* Panel C */
 *=====================================================================*
 eststo clear
+*Time use
 eststo: reghdfe time_study treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe t_work treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe time_leisure treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe time_other treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-esttab using "$doc\tab1C.tex", r2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N r2, fmt(%9.0fc %9.3f)) label replace keep(treat_after)
-*=====================================================================*
-/* Table 2 */
-*=====================================================================*
-/* Panel A */
-*=====================================================================*
-eststo clear
-eststo: reghdfe student treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-eststo: reghdfe work treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-eststo: reghdfe inactive treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-eststo: reghdfe lincome treat_after hhsize age female educ indigen i.loc_size if age>=6 & age<=24 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-esttab using "$doc\tab2A.tex", r2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N r2, fmt(%9.0fc %9.3f)) label replace keep(treat_after)
-*=====================================================================*
-/* Panel B */
-*=====================================================================*
-eststo clear
-eststo: reghdfe student treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-eststo: reghdfe work treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-eststo: reghdfe inactive treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-eststo: reghdfe lincome treat_after hhsize age female educ indigen i.loc_size if age>=25 & age<=54 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-esttab using "$doc\tab2B.tex", r2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations) ///
-star(* 0.10 ** 0.05 *** 0.01) stats(N r2, fmt(%9.0fc %9.3f)) label replace keep(treat_after)
-*=====================================================================*
-/* Panel C */
-*=====================================================================*
-eststo clear
+*Labor outcomes
 eststo: reghdfe student treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe work treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe inactive treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+eststo: reghdfe self_emp treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 eststo: reghdfe lincome treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-esttab using "$doc\tab2C.tex", r2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations) ///
+eststo: reghdfe lmoni treat_after hhsize age female educ indigen i.loc_size if age>=55 & age<=100 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+esttab using "$doc\tab1C.tex", r2 cells(b(star fmt(%9.3f)) se(par)) title(DiD estimations) ///
 star(* 0.10 ** 0.05 *** 0.01) stats(N r2, fmt(%9.0fc %9.3f)) label replace keep(treat_after)
 *=====================================================================*
 /* Figure 1 */
