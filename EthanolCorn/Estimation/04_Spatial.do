@@ -25,7 +25,7 @@ set scheme s1mono
 * Robustness: Spatial regression
 /* ========================================================== */
 use "$base\AgDBase.dta", clear
-drop GovPay GovPayment GovPay_mi Gov_dollarperacre unit AnnualReturn AnnualReturn_mi
+drop GovPay GovPayment GovPay_mi Gov_dollarperacre AnnualReturn AnnualReturn_mi
 
 merge m:1 fips_code using "$base\Shapefiles\tl_2016_us_county.dta"
 keep if _merge==3
@@ -46,7 +46,7 @@ label variable DiD "Treat x After"
 
 tabulate Year, generate(year)
 /* ========================================================== */
-* Table X. Effect of Ethanol Boom on Farmland Values
+* Table 3. Effect of Ethanol Boom on Farmland Values (Spatial DiD)
 /* ========================================================== */
 xtreg LandValue_Thousand DiD Post PopDen, fe cluster(County)
 spxtregress LandValue_Thousand DiD Post PopDen, fe dvarlag(W)

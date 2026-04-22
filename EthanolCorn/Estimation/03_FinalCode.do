@@ -236,7 +236,7 @@ graph export "$doc\DiD_byIncome.png", replace
 * Robustness Checks
 ****************************************************************************************
 /* ========================================================== */
-/* Figure 6. Sensitivity Analysis */
+/* Figure 7. Sensitivity Analysis */
 /* ========================================================== */
 xtile pct = nccpi, nq(100) // creates percentile variable
 gen after = (Year>2005)
@@ -270,7 +270,12 @@ graphregion(color(white)) scheme(s2mono) ciopts()
 graph export "$doc\sa_landv.png", replace  
 
 /* ========================================================== */
-* Table 3. Robustness Check: Removing Big Corn Producers
+* Table 3. Effect of Ethanol Boom on Farmland Values (Spatial DiD)
+/* ========================================================== */
+/* Elaborated using the code 04_Spatial.do */
+
+/* ========================================================== */
+* Table 4. Robustness Check: Removing Big Corn Producers
 /* ========================================================== */
 drop Treat DiD
 summarize nccpi, detail
@@ -299,7 +304,7 @@ esttab reg* using"$doc\reg6_DiD_Robust.tex", replace ///
 keep(DiD PopDen)  b(3)se(3) label unstack ///
 title("Robustness Check: Removing Big Corn Producers") stats(N r2, fmt(%9.0fc %9.3f))
 /* ========================================================== */
-/* Figure 7. Removing switchers */
+/* Figure 8. Removing switchers */
 /* ========================================================== */
 drop interact*
 gen interact97=dumyr97*Treat
@@ -339,7 +344,7 @@ graph export "$doc\Did_Switchers.png", replace
 * Mechanisms
 ****************************************************************************************
 /* ========================================================== */
-/* Figure 8. Expanding area of corn production */
+/* Figure 6. Evidence on price vs land demand */
 /* ========================================================== */
 areg LandValue_Thousand interact97 zero interact07 interact12 interact17 interact22 PopDen i.Year i.State#i.Year if ext_margin==0, absorb(County) cluster(County)
 estimates store ext_marg
@@ -361,44 +366,6 @@ ysc(r(-2 2)) plotregion(style(none))
 ;
 #delimit cr
 graph export "$doc\Did_ExtMargin.png", replace
-
-/* ========================================================== */
-/* Figure X. Effects on poverty */
-/* ========================================================== */
-areg poverty interact97 zero interact07 interact12 interact17 interact22 PopDen i.Year i.State#i.Year, absorb(County) cluster(County)
-#delimit;
-coefplot, vertical keep(interact97 zero interact07 interact12 interact17 interact22) yline(0) 
-	ylabel(-2(2)4, labs(medium) grid format(%5.0f)) plotregion(style(none))
-	xline(2.5, lcolor(gray) lwidth(thin) lpattern(dash))  mcolor(black) msize(small) ciopts(lcolor(black)) omitted baselevels 
-	graphregion(fcolor(white)) xtitle(Year) ytitle(Change in farmland value (thousands))
-;
-#delimit cr
-graph export "$doc\Did_Poverty.png",replace
-
-areg poverty DiD PopDen i.Year State#Year, absorb(County) cluster(County)
-/* ========================================================== */
-/* Figure X. By ethanol plants */
-/* ========================================================== */
-areg LandValue_Thousand interact97 zero interact07 interact12 interact17 interact22 PopDen i.Year i.State#i.Year if ethanol_plant==1, absorb(County) cluster(County)
-estimates store ethanol
-areg LandValue_Thousand interact97 zero interact07 interact12 interact17 interact22 PopDen i.Year i.State#i.Year if ethanol_plant==0, absorb(County) cluster(County)
-estimates store noethanol
-
-#delimit;
-coefplot
-(ethanol, label(Ethanol plants counties) msize(small) msymbol(T) mcolor(gs4) ciopt(lc(gs4) recast(gs4)) lc(gs4)) 
-(noethanol, offset(-0.1) label(No ethanol plants counties) msize(small) msymbol(O) mcolor(gs10) ciopt(lc(gs10) recast(gs10)) lc(gs10)), 
-vertical yline(0) keep(interact97 zero interact07 interact12 interact17 interact22) omitted baselevels 
-xline(2.5, lstyle(grid) lpattern(dash) lcolor(black))
-ytitle("Change in farmland value (thousands)", size(medium) height(5))
-ylabel(-2(2)4, labs(medium) grid format(%5.0f))
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) 
-legend(pos(11) ring(0) col(1)) 
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap))
-ysc(r(-2 2)) plotregion(style(none))
-;
-#delimit cr
-graph export "$doc\Did_EthanolPlants.png", replace
 
 /* ========================================================== */
 * Appendix
@@ -426,7 +393,7 @@ erepeat(\cmidrule(lr){@span})) stats(N, fmt(%9.0fc)) ///
 title("Summary Statistics: High and Low Corn Suitability Counties")
 
 /* ========================================================== */
-* Table A.1. Summary Statistics: Top and Bottom Corn Suitability Counties
+* Table A.2. Summary Statistics: Top and Bottom Corn Suitability Counties
 /* ========================================================== */
 drop Treat DiD
 sum nccpi, detail
@@ -450,7 +417,7 @@ erepeat(\cmidrule(lr){@span})) stats(N, fmt(%9.0fc)) ///
 title("Summary Statistics: Top and Bottom Corn Suitability Counties")
 
 /* ========================================================== */
-* Table A2. Summary Statistics: Corn Suitability by Quintile
+* Table A.3. Summary Statistics: Corn Suitability by Quintile
 /* ========================================================== */
 xtile Q_nccpi = nccpi, nq(5)
 gen  Q2 = (Q_nccpi ==2)

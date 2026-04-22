@@ -7,11 +7,12 @@ gl base = "C:\Users\Oscar Galvez Soriano\Documents\Papers\Ethanol\Data"
 * These data only include states in the Midwest region
 use  "$data/CensusofAgData.dta", clear
 drop if TotalArea==0|TotalArea==.
+gen str fips=fips_state + fips_cnty
 
 merge m:1 fips using "$data/Income.dta"
 keep if _merge ==3
 drop _merge
-format %05s fips
+*format %05s fips
 /* 6 counties were dropped due to missing data on agland and cropland geoname
 Keweenaw, MI
 Sioux, ND
@@ -24,11 +25,12 @@ Vilas, WI
 */
 drop if CroplandArea==.
 /* */
-drop LandValue
+drop LandValue GovPayment
 rename RealLandValue LandValue
+rename Real_GovPayment GovPayment
 /* */
 * Gen variable
-replace GovPayment = 0 if GovPayment==.
+*replace GovPayment = 0 if GovPayment==.
 gen AcresCorn = TotalCornAreaHarvested/1000
 gen TotalCropland =CroplandArea/1000
 gen land_sqmi = aland10/2589988.1103 /* Aland is in square km, convert to square mile here*/
@@ -62,7 +64,7 @@ encode State_str,gen(State)
 rename County County_str
 encode County_str,gen(County)
 
-drop Period WeekEnding Program GeoLevel ZipCode Region Watershed Domain DomainCategory count
+drop Period Program GeoLevel count
 order fips fips_code fips_state fips_cnty Year State County
 save "$base\AgDBase.dta", replace
 
