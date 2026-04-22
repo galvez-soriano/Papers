@@ -12,7 +12,6 @@ gen str fips=fips_state + fips_cnty
 merge m:1 fips using "$data/Income.dta"
 keep if _merge ==3
 drop _merge
-*format %05s fips
 /* 6 counties were dropped due to missing data on agland and cropland geoname
 Keweenaw, MI
 Sioux, ND
@@ -30,7 +29,6 @@ rename RealLandValue LandValue
 rename Real_GovPayment GovPayment
 /* */
 * Gen variable
-*replace GovPayment = 0 if GovPayment==.
 gen AcresCorn = TotalCornAreaHarvested/1000
 gen TotalCropland =CroplandArea/1000
 gen land_sqmi = aland10/2589988.1103 /* Aland is in square km, convert to square mile here*/
@@ -45,7 +43,6 @@ gen LandValue_Thousand = LandValue/1000
 gen AnnualReturn_mi = AnnualReturn/1000
 gen GovPay_mi = GovPay/1000
 gen Gov_dollarperacre = GovPayment/TotalArea
-*gen LandValueInflationAdj = LandValue_Thousand/Ratio /* 1997 is the reference year*/
 * Label variables
 label variable TotalAgLand "Total ag land (thousands acres)"
 label variable GovPay "Gov Payment (thousands)"
@@ -137,25 +134,3 @@ drop if _merge==2
 drop _merge
 
 save "$base\AgDBase.dta", replace
-/*
-use "$data/SAIPE.dta", clear
-rename year Year
-rename povertypercent_allgges poverty
-destring Year, replace
-gen str fips=state_fips + county_fips
-sort fips
-drop in 85914/l
-drop in 1/16
-
-destring fips, replace
-tostring fips, replace format(%5.0f)
-keep fips Year poverty
-order fips Year poverty
-sort fips Year
-
-bysort fips Year: gen dupli=_N
-drop if dupli==2
-drop dupli
-
-save "$base\SAIPE.dta", replace
-*/
