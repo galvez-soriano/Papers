@@ -19,13 +19,13 @@ foreach x in 2 3 4 5 6 7 8 9 10 11 {
 save "$base\ipums.dta", replace 
 */
 *=====================================================================*
-// use "$base\ACS22_24.dta", clear
-use "$base\ACS24.dta", clear
+use "$base\ACS22_24.dta", clear
+// use "$base\ACS24.dta", clear
 
 rename birthyr cohort
 keep if cohort>=1995 & cohort<=2010
 keep if hispan!=0
-keep if year==2024
+*keep if year==2024
 /* 
 1. Remove US-born Hispanics 
 2. Exposed cohorts. Is 1999 treated? No, the policy did not affect this cohort
@@ -72,7 +72,7 @@ replace treat_1999=0
 
 
 *========================================================================*
-reghdfe eng treat_* [aw=perwt], absorb(bpld cohort) vce(cluster cluster)
+reghdfe eng treat_* [aw=perwt], absorb(bpld cohort year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -86,7 +86,7 @@ graph export "$doc\figEng.png", replace
 areg eng after_treat i.cohort [aw=perwt], absorb(bpld) vce(cluster cluster)
 
 *========================================================================*
-reghdfe educ treat_* [aw=perwt], absorb(bpld cohort) vce(cluster cluster)
+reghdfe educ treat_* [aw=perwt], absorb(bpld cohort year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -99,7 +99,7 @@ graph export "$doc\figEdu.png", replace
 *========================================================================*
 drop treat_2007 treat_2008 treat_2009 treat_2010
 
-reghdfe labforce treat_* [aw=perwt], absorb(bpld cohort) vce(cluster cluster)
+reghdfe labforce treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -110,7 +110,7 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
 
 *========================================================================*
-reghdfe work treat_* educ sex [aw=perwt], absorb(bpld cohort) vce(cluster cluster)
+reghdfe work treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -122,7 +122,7 @@ ysc(r(-0.2 0.2))
 graph export "$doc\figWork.png", replace
 
 *========================================================================*
-reghdfe lincome treat_* [aw=perwt], absorb(bpld cohort) vce(cluster cluster)
+reghdfe lincome treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -133,7 +133,7 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) 
 
 *========================================================================*
-reghdfe lwage treat_* educ sex [aw=perwt] if work==1, absorb(bpld cohort) vce(cluster cluster)
+reghdfe lwage treat_* educ sex [aw=perwt] if work==1 & cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///

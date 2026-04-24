@@ -14,7 +14,7 @@ gl base= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Doc
 gl doc= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
 *========================================================================*
 clear
-foreach x in 97 98 99 00 01 02 03 04 05 06 07 08 09 10 11 12 13{
+foreach x in 97 98 99 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17{
 append using "$data/stat911_`x'.dta"
 }
 order state id_mun id_loc cct shift year eng teach_eng hours_eng total_groups total_stud ///
@@ -92,7 +92,7 @@ label var state "State"
 drop if cct==""
 drop if year==.
 bysort cct: gen same_school=_N
-keep if same_school>=15 & same_school<=17
+keep if same_school>=12 & same_school<=21
 drop same_school
 
 merge m:m cct year using "$data2/fts0718.dta"
@@ -118,12 +118,18 @@ collapse (mean) h_group [fw=total_stud], by(year)
 gen id=1
 reshape wide h_group, i(id) j(year)
 
+egen hrs_exp1995=rowmean(h_group2001 h_group2002 h_group2003 h_group2004 h_group2005 h_group2006)
+egen hrs_exp1996=rowmean(h_group2002 h_group2003 h_group2004 h_group2005 h_group2006 h_group2007)
 egen hrs_exp1997=rowmean(h_group2003 h_group2004 h_group2005 h_group2006 h_group2007 h_group2008)
 egen hrs_exp1998=rowmean(h_group2004 h_group2005 h_group2006 h_group2007 h_group2008 h_group2009)
 egen hrs_exp1999=rowmean(h_group2005 h_group2006 h_group2007 h_group2008 h_group2009 h_group2010)
 egen hrs_exp2000=rowmean(h_group2006 h_group2007 h_group2008 h_group2009 h_group2010 h_group2011)
 egen hrs_exp2001=rowmean(h_group2007 h_group2008 h_group2009 h_group2010 h_group2011 h_group2012)
 egen hrs_exp2002=rowmean(h_group2008 h_group2009 h_group2010 h_group2011 h_group2012 h_group2013)
+egen hrs_exp2003=rowmean(h_group2009 h_group2010 h_group2011 h_group2012 h_group2013 h_group2014)
+egen hrs_exp2004=rowmean(h_group2010 h_group2011 h_group2012 h_group2013 h_group2014 h_group2015)
+egen hrs_exp2005=rowmean(h_group2011 h_group2012 h_group2013 h_group2014 h_group2015 h_group2016)
+egen hrs_exp2006=rowmean(h_group2012 h_group2013 h_group2014 h_group2015 h_group2016 h_group2017)
 
 drop h_group19* h_group20*
 
@@ -133,8 +139,8 @@ drop id
 graph bar hrs_exp, over(cohort) graphregion(color(white)) ///
 ytitle("Weekly hours of Eng instruction per class", size(medium) height(5))
 graph export "$doc\EngCohort.png", replace
-*========================================================================*
 
+*========================================================================*
 use "$base\d_schools.dta", clear
 
 drop if public==0
@@ -147,12 +153,18 @@ collapse (mean) h_group [fw=total_stud], by(year)
 gen id=1
 reshape wide h_group, i(id) j(year)
 
+egen hrs_exp1995=rowmean(h_group2001 h_group2002 h_group2003 h_group2004 h_group2005 h_group2006)
+egen hrs_exp1996=rowmean(h_group2002 h_group2003 h_group2004 h_group2005 h_group2006 h_group2007)
 egen hrs_exp1997=rowmean(h_group2003 h_group2004 h_group2005 h_group2006 h_group2007 h_group2008)
 egen hrs_exp1998=rowmean(h_group2004 h_group2005 h_group2006 h_group2007 h_group2008)
 egen hrs_exp1999=rowmean(h_group2005 h_group2006 h_group2007 h_group2008)
 egen hrs_exp2000=rowmean(h_group2006 h_group2007 h_group2008 h_group2009 h_group2010 h_group2011)
 egen hrs_exp2001=rowmean(h_group2007 h_group2008 h_group2009 h_group2010 h_group2011 h_group2012)
 egen hrs_exp2002=rowmean(h_group2008 h_group2009 h_group2010 h_group2011 h_group2012 h_group2013)
+egen hrs_exp2003=rowmean(h_group2009 h_group2010 h_group2011 h_group2012 h_group2013 h_group2014)
+egen hrs_exp2004=rowmean(h_group2010 h_group2011 h_group2012 h_group2013 h_group2014 h_group2015)
+egen hrs_exp2005=rowmean(h_group2011 h_group2012 h_group2013 h_group2014 h_group2015 h_group2016)
+egen hrs_exp2006=rowmean(h_group2012 h_group2013 h_group2014 h_group2015 h_group2016 h_group2017)
 
 drop h_group19* h_group20*
 
