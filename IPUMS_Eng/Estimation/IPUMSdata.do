@@ -6,8 +6,8 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
-gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
+gl base= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
 
 graph set window fontface "Times New Roman"
 *========================================================================*
@@ -26,18 +26,14 @@ rename birthyr cohort
 keep if cohort>=1995 & cohort<=2010
 keep if hispan!=0
 *keep if year==2024
-/* 
-1. Remove US-born Hispanics 
-2. Exposed cohorts. Is 1999 treated? No, the policy did not affect this cohort
-3. Exposure to the policy by cohort using the school census
-4. Add 2023 ACS 
-*/
 
 /* Assign the treatment to individuals who were born in Mexico */
 gen treat=bpld==20000 
+
 /* Removing from the treatment the indiviuals who migrated to the US
 when they were kids because they did no have exposure to the policy
-and because they had exposure to the English language in the US. The policy started as a trial stage in 2009, but expanded for three years until 2011 */
+and because they had exposure to the English language in the US. The policy 
+started as a trial stage in 2009, but expanded for three years until 2011 */
 drop if yrimmig<2009 & bpld==20000
 /* Removing immigrants from other countries different from Mexico */
 replace treat=. if bpld>5600 & bpld!=20000
@@ -60,6 +56,7 @@ gen work=empstat==1
 gen white=race==1
 recode labforce (0=.) (1=0) (2=1)
 recode sex (2=0)
+gen married=marst<=2 & marst!=.
 
 foreach x in 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 ///
 2006 2007 2008 2009 2010 {
@@ -96,20 +93,12 @@ xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-2 2)) 
 graph export "$doc\figEdu.png", replace
+
+*========================================================================*
+/* Labor market outcomes */
 *========================================================================*
 drop treat_2007 treat_2008 treat_2009 treat_2010
 
-reghdfe labforce treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of belonging to labor force", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-
-*========================================================================*
 reghdfe work treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -122,17 +111,6 @@ ysc(r(-0.2 0.2))
 graph export "$doc\figWork.png", replace
 
 *========================================================================*
-reghdfe lincome treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Change in income (percent)", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) 
-
-*========================================================================*
 reghdfe lwage treat_* educ sex [aw=perwt] if work==1 & cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
@@ -143,3 +121,28 @@ xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) 
 graph export "$doc\figWages.png", replace
+
+
+
+*========================================================================*
+reghdfe married treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
+
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being married", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) 
+graph export "$doc\figMarried.png", replace
+
+*========================================================================*
+reghdfe lincome treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
+
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Change in income (percent)", size(medium) height(5)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-1 1)) 
