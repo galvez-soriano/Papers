@@ -57,6 +57,8 @@ gen white=race==1
 recode labforce (0=.) (1=0) (2=1)
 recode sex (2=0)
 gen married=marst<=2 & marst!=.
+gen olang=language>=2
+gen private=schltype==3
 
 foreach x in 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 ///
 2006 2007 2008 2009 2010 {
@@ -95,6 +97,20 @@ ysc(r(-2 2))
 graph export "$doc\figEdu.png", replace
 
 *========================================================================*
+reghdfe school treat_* [aw=perwt], absorb(bpld cohort year) vce(cluster cluster)
+
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being enrolled in school", size(medium) height(5)) ///
+ylabel(-0.4(0.2)0.4, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.4 0.4)) 
+graph export "$doc\figEnroll.png", replace
+
+
+
+*========================================================================*
 /* Labor market outcomes */
 *========================================================================*
 drop treat_2007 treat_2008 treat_2009 treat_2010
@@ -122,8 +138,6 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-1 1)) 
 graph export "$doc\figWages.png", replace
 
-
-
 *========================================================================*
 reghdfe married treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
 
@@ -137,12 +151,13 @@ ysc(r(-0.2 0.2))
 graph export "$doc\figMarried.png", replace
 
 *========================================================================*
-reghdfe lincome treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
+reghdfe olang treat_* educ sex [aw=perwt] if cohort<2007, absorb(bpld cohort year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Change in income (percent)", size(medium) height(5)) ///
-ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+ytitle("Likelihood of speaking another language", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-1 1)) 
+ysc(r(-0.2 0.2)) 
+graph export "$doc\figOtherLang.png", replace
