@@ -67,7 +67,7 @@ keep ent mun id_viv id_persona factor sexo edad asisten mun_asi ent_pais_asi esc
 ent_pais_res_5a mun_res_5a conact ocupacion_c aguinaldo vacaciones servicio_medico ///
 incap_sueldo sar_afore credito_vivienda ingtrmen hortra actividades_c ///
 mun_trab ent_pais_trab tamloc utilidades perte_indigena hlengua qdialect_inali ///
-hespanol elengua 
+hespanol elengua situa_conyugal ident_pareja numper
 
 rename id_persona id
 tostring id_viv, replace format(%012.0f) force
@@ -129,6 +129,28 @@ replace geo="." if mun5=="."
 recode hlengua (3=0) (9=.)
 recode hespanol (3=0) (9=.)
 recode elengua (5=1) (7=0) (9=.)
+
+gen married=situa_conyugal==1 | (situa_conyugal>=5 & situa_conyugal<=7)
+*gen id_person = substr(id, 17, 1)
+*destring id_person, replace
+rename numper id_person
+rename ident_pareja id_spouse
+sort id_viv id_person
+
+preserve
+	keep if married==1
+    keep id_viv id_person indigenous
+    rename id_person  id_spouse 
+    rename indigenous indigenous_sp    // spouse's ethnicity
+    tempfile spouse_indigenous
+    save "$base\spouse_indigenous.dta", replace
+restore
+
+merge m:1 id_viv id_spouse using "$base\spouse_indigenous.dta"
+
+drop if _merge==2
+drop _merge
+
 
 /*
 sum elengua [fw= factor] if state==1 & age>=3
@@ -221,6 +243,10 @@ gen formal_s=ind_act==1
 gen informal_s=ind_act==2
 gen inactive=ind_act==4
 gen labor=conact<=30
+
+gen niw_im = (female == 1 & indigenous == 0 & married == 1 & indigenous_sp == 1)
+gen nim_iw = (female == 0 & indigenous == 0 & married == 1 & indigenous_sp == 1)
+gen interethnic = max(niw_im, nim_iw)
 
 gen dmigrant=geo!=geo_mun
 drop geo_mun mun_asi ent_pais_asi aguinaldo
