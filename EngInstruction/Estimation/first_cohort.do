@@ -1,5 +1,5 @@
 *========================================================================*
-/* First cohort affected */
+/* First cohort affected - to implement staggered DiD */
 *========================================================================*
 gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngInstruct\Data"
 *========================================================================*
