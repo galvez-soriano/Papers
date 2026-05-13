@@ -3,12 +3,32 @@
 *========================================================================*
 gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngInstruct\Data"
 *========================================================================*
+/* For ENOE only */
+use "$base\d_schools.dta", clear
+
+gen str geo_mun_s=(state + id_mun)
+drop if public==0
+drop if fts==1
+keep if shift==1
+keep if year==2011
+destring geo_mun_s, replace
+collapse geo_mun, by(cct)
+tostring geo_mun, replace format(%05.0f)
+
+save "$base\cct_geo.dta", replace
+*========================================================================*
+/* For IMSS */ 
+*========================================================================*
 use "$base\exposure_school.dta", clear
 
 drop if cohort<=1996
 drop t_eng t_colle t_mast
 
 gen state=substr(cct,1,2)
+
+merge m:1 cct using "$base\cct_geo.dta"
+drop if _merge!=3
+drop _merge
 
 /* Generating treatment variable */
 gen treat=0
@@ -52,3 +72,10 @@ replace first_treat=2003 if first_treat==0 // assigning the value of 2003 to nev
 drop ncount ftreat
 /* Creatig time-relative variable */
 gen K=cohort-first_treat
+*========================================================================*
+/* For ENOE */
+rename geo_mun_s geo1a
+keep treat first_treat K cohort geo1a h_eng
+order geo1a cohort 
+*========================================================================*
+save "$base\treatment_mun_enoe.dta", replace
