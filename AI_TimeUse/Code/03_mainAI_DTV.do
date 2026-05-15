@@ -191,31 +191,30 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-4 4))
 graph export "$doc\PTA_tother.png", replace
 
+
+reghdfe time_hclean treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+estimates store young_hc
+reghdfe time_hclean treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+estimates store adult_hc
+reghdfe time_hclean treat_20* hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+estimates store elderly_hc
+
+coefplot ///
+(young_hc, offset(-0.1) label(Young individuals (6-24)) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
+(adult_hc, label(Prime age adults (25-54)) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
+(elderly_hc, offset(0.1) label(Elderlies (55-100)) msize(small) msymbol(S) mcolor(gs12) ciopt(lc(gs12) recast(gs12)) lc(gs12)) ///
+, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Time spent house cleaning (hours)", size(medium) height(5)) ///
+ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+legend(off) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-4 4))
+graph export "$doc\PTA_thclean.png", replace
 *=====================================================================*
 /* Figure 2 */
 *=====================================================================*
-reghdfe student treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store young_stud
-reghdfe student treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store adult_stud
-reghdfe student treat_20* hhsize age female educ indigen i.loc_size if age>=55 & age<=100 [aw=weight], absorb(geo year state#year) vce(cluster geo)
-estimates store elderly_stud
-
-coefplot ///
-(young_stud, offset(-0.1) label(Young individuals (6-24)) msize(small) msymbol(O) mcolor(gs2) ciopt(lc(gs2) recast(gs2)) lc(gs2)) ///
-(adult_stud, label(Prime age adults (25-54)) msize(small) msymbol(T) mcolor(gs8) ciopt(lc(gs8) recast(gs8)) lc(gs8)) ///
-(elderly_stud, offset(0.1) label(Elderlies (55-100)) msize(small) msymbol(S) mcolor(gs12) ciopt(lc(gs12) recast(gs12)) lc(gs12)) ///
-, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of being enrolled in school", size(medium) height(5)) ///
-ylabel(-0.06(0.03)0.06, labs(medium) grid format(%5.2f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(pos(11) ring(0) col(1)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.06 0.06))
-graph export "$doc\PTA_student.png", replace
-
-
 reghdfe work treat_20* hhsize age female educ indigen i.loc_size if age>=6 & age<=24 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 estimates store young_work
 reghdfe work treat_20* hhsize age female educ indigen i.loc_size if age>=25 & age<=54 [aw=weight], absorb(geo year state#year) vce(cluster geo)
@@ -232,7 +231,7 @@ xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of being employed", size(medium) height(5)) ///
 ylabel(-0.06(0.03)0.06, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-legend(off) ///
+legend(pos(11) ring(0) col(1)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.06 0.06))
 graph export "$doc\PTA_work.png", replace
@@ -281,6 +280,9 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.4 0.4))
 graph export "$doc\PTA_income.png", replace
 
+
+
+
 *=====================================================================*
 /* AI occupations */
 *=====================================================================*
@@ -290,9 +292,9 @@ gen ai_occupa=aioe>r(p90)
 sum computer_ai, d
 gen comp_occupa=computer_ai>r(p90)
 
-reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=65 & work==1 & ai_occupa==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=54 & work==1 & ai_occupa==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 estimates store wage_aio
-reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=65 & work==1 & ai_occupa==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=54 & work==1 & ai_occupa==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 estimates store wage_naio
 
 coefplot ///
@@ -309,9 +311,9 @@ ysc(r(-0.4 0.4))
 graph export "$doc\PTA_wageAI.png", replace
 
 
-reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=65 & work==1 & comp_occupa==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=54 & work==1 & comp_occupa==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 estimates store wage_comp
-reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=65 & work==1 & comp_occupa==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+reghdfe lincome treat_20* hhsize age female educ indigen i.loc_size if age>=14 & age<=54 & work==1 & comp_occupa==0 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 estimates store wage_ncomp
 
 coefplot ///
@@ -339,7 +341,7 @@ gen after_ai=after*ai_occupa
 gen treat_ai=treat*ai_occupa
 
 reghdfe lincome ttreat_20* hhsize age female educ indigen i.loc_size after_ai treat_ai ai_occupa ///
-treat_after if age>=14 & age<=65 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+treat_after if age>=14 & age<=54 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 
 coefplot , vertical keep(ttreat_20*) yline(0) omitted baselevels ///
 xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -363,7 +365,7 @@ gen after_comp=after*comp_occupa
 gen treat_comp=treat*comp_occupa
 
 reghdfe lincome ctreat_20* hhsize age female educ indigen i.loc_size after_comp treat_comp comp_occupa ///
-treat_after if age>=14 & age<=65 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
+treat_after if age>=14 & age<=54 & work==1 [aw=weight], absorb(geo year state#year) vce(cluster geo)
 
 coefplot , vertical keep(ctreat_20*) yline(0) omitted baselevels ///
 xline(4.3, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -375,4 +377,3 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.4 0.4))
 graph export "$doc\PTA_wageDDDcomp.png", replace
 
-*

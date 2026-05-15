@@ -1,7 +1,7 @@
 *=====================================================================*
 /* Paper: Income effect and labor market outcomes: The case of remittances 
 		  in Mexico
-   Authors: Oscar Galvez-Soriano and Hoanh Le */
+   Authors: Oscar Galvez-Soriano and Ornella Darova */
 *=====================================================================*
 /* INSTRUCTIONS:
 
