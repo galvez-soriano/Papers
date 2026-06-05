@@ -59,28 +59,51 @@ reg y treat if after==(0,1) & tr==(0,1) [aw=weight], vce(cluster geo)
 *=====================================================================*
 /* Table 2: The impact of the 2019 PAM expansion */
 *=====================================================================*
-/* Panel A. Combined effects: increment in cash transfer and universalization */
+/* Panel A. Combined effects: increment in cash transfer and 
+universalization among elder without a contributory pension */
 *=====================================================================*
 eststo clear
 eststo: areg pam int1 i.age i.year educ female indig ///
-cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
+cohab1 i.loc_size if tr==0 [aw=weight], absorb(state) vce(cluster geo)
 * Dependent variable: Income per capita
 eststo: areg l_inc int1 i.age i.year educ female indig ///
-cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
+cohab1 i.loc_size if tr==0 [aw=weight], absorb(state) vce(cluster geo)
 * Dependent variable: Poverty. Welfare and minimum welfare lines
 eststo: areg poor int1 i.age i.year educ female indig ///
-cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
+cohab1 i.loc_size if tr==0 [aw=weight], absorb(state) vce(cluster geo)
 eststo: areg epoor int1 i.age i.year educ female indig ///
-cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
+cohab1 i.loc_size if tr==0 [aw=weight], absorb(state) vce(cluster geo)
 * Dependent variable: Labor
 eststo: areg work int1 i.age i.year educ female indig ///
-cohab1 i.loc_size [aw=weight], absorb(state) vce(cluster geo)
+cohab1 i.loc_size if tr==0 [aw=weight], absorb(state) vce(cluster geo)
 
 esttab using "$gr\tab2A.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DDD estimations ///
 (\autoref{eq:1})\label{tab2A}) star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
 label replace keep(int1)
 *=====================================================================*
-/* Panel B. Isolating the universalization effects */
+/* Panel B. Combined effects: increment in cash transfer and 
+universalization among elder with a contributory pension */
+*=====================================================================*
+eststo clear
+eststo: areg pam int1 i.age i.year educ female indig ///
+cohab1 i.loc_size if tr==1 [aw=weight], absorb(state) vce(cluster geo)
+* Dependent variable: Income per capita
+eststo: areg l_inc int1 i.age i.year educ female indig ///
+cohab1 i.loc_size if tr==1 [aw=weight], absorb(state) vce(cluster geo)
+* Dependent variable: Poverty. Welfare and minimum welfare lines
+eststo: areg poor int1 i.age i.year educ female indig ///
+cohab1 i.loc_size if tr==1 [aw=weight], absorb(state) vce(cluster geo)
+eststo: areg epoor int1 i.age i.year educ female indig ///
+cohab1 i.loc_size if tr==1 [aw=weight], absorb(state) vce(cluster geo)
+* Dependent variable: Labor
+eststo: areg work int1 i.age i.year educ female indig ///
+cohab1 i.loc_size if tr==1 [aw=weight], absorb(state) vce(cluster geo)
+
+esttab using "$gr\tab2B.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DDD estimations ///
+(\autoref{eq:1})\label{tab2B}) star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+label replace keep(int1)
+*=====================================================================*
+/* Panel C. Isolating the universalization effects */
 *=====================================================================*
 gen ddd=after*tr*treat
 * Dependent variable: Take up
@@ -99,8 +122,8 @@ cohab1 i.loc_size  [aw=weight], absorb(state) vce(cluster geo)
 eststo: areg work ddd int1 int2 int3 treat tr i.year educ female indig i.age ///
 cohab1 i.loc_size  [aw=weight], absorb(state) vce(cluster geo)
 
-esttab using "$gr\tab2B.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DDD estimations ///
-(\autoref{eq:1})\label{tab2B}) star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
+esttab using "$gr\tab2C.tex", ar2 cells(b(star fmt(%9.3f)) se(par)) title(DDD estimations ///
+(\autoref{eq:1})\label{tab2C}) star(* 0.10 ** 0.05 *** 0.01) stats(N ar2, fmt(%9.0fc %9.3f)) ///
 label replace keep(ddd)
 
 *=================================================================================*
