@@ -136,68 +136,153 @@ foreach x in 16 18 20 22 24 {
 }
 replace treat_2018 = 0
 
+
 /*PT Poverty/Extreme Poverty*/
 
-eststo poverty: reg poor treat_20* treat after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+eststo clear
 
-eststo epoverty: reg epoor treat_20* treat after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+eststo poverty_tr1: reg poor ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==1 [aw=weight], vce(cluster geo)
+
+eststo epoverty_tr1: reg epoor ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==1 [aw=weight], vce(cluster geo)
+
+
+eststo poverty_tr0: reg poor ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==0 [aw=weight], vce(cluster geo)
+
+eststo epoverty_tr0: reg epoor ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
-(poverty, msymbol(o) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(-0.20)) ///
-(epoverty, msymbol(d) mcolor("gs8")  ciopts(recast(rcap) lcolor("gs8"))  offset(-0.08)), ///
+(poverty_tr1,  msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.20)) ///
+(poverty_tr0,  msymbol(d) mcolor(cranberry) ciopts(recast(rcap) lcolor(cranberry)) offset(-0.05)) ///
+(epoverty_tr1, msymbol(s) mcolor(gs10) ciopts(recast(rcap) lcolor(gs10)) offset(0.05)) ///
+(epoverty_tr0, msymbol(t) mcolor("255 150 150") ciopts(recast(rcap) lcolor("255 150 150")) offset(0.20)), ///
 vertical keep(treat_20*) ///
-byopts(cols(2) title("Likelihood of being in poverty")) ///
 yline(0) omitted baselevels ///
 xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of being in poverty", size(medsmall)) ///
 ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ysc(r(-0.2 0.2)) ///
+xtitle("Year", size(medium)) ///
+xlabel(, labs(medium)) ///
+graphregion(color(white)) ///
+scheme(s2mono) ///
+ysc(r(-0.2 0.2)) ///
 text(-0.218 2.24 "Jan 2019", size(small) place(se) nobox just(left)) ///
-legend(order(2 "Poverty" 4 "Extreme Poverty") pos(1) ring(0) col(1))
+legend(order(2 "With Contributory pension - Poverty" ///
+             4 "Without contributory pension - Poverty" ///
+             6 "With Contributory pension - Extreme Poverty" ///
+             8 "Without contributory pension - Extreme Poverty") ///
+       pos(1) ring(0) col(1) size(vsmall))
+
 graph export "$gr\DiD_poverty.png", replace
 
 /*PT work*/
 
-reg work treat_20* treat after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+eststo clear
 
-coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+eststo work_tr1: reg work ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==1 [aw=weight], vce(cluster geo)
+
+eststo work_tr0: reg work ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(work_tr1, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(work_tr0, msymbol(d) mcolor(gs8)  ciopts(recast(rcap) lcolor(gs8))  offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of working", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) text(-0.208 2.09 "Jan 2019",   ///
-size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$gr\DiD_work.png", replace 
-
-/*PT Income*/
-
-reg l_inc treat_20* treat after i.year i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
-
-coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
-xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle(" Percentage change of income", size(medium) height(5)) ///
 ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.3 0.3)) text(-0.31 2.09 "Jan 2019",   ///
-size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$gr\DiD_income.png", replace 
+ysc(r(-0.3 0.3)) text(-0.31 2.08 "Jan 2019", ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "With Contributory Pension" 4 "Without Contributory Pension") cols(1) pos(1) ring(0) size(small))
 
-/*PAM*/
+graph export "$gr\DiD_work.png", replace
 
-reg pam treat_20* treat after i.year after i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+/*Income*/
 
-coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+eststo clear
+
+eststo inc_tr1: reg l_inc ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==1 [aw=weight], vce(cluster geo)
+
+eststo inc_tr0: reg l_inc ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(inc_tr1, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(inc_tr0, msymbol(d) mcolor(gs8)  ciopts(recast(rcap) lcolor(gs8))  offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change of income", size(medium) height(5)) ///
+ylabel(-0.4(0.20)0.4, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.4 0.4)) text(-0.415 2.08 "Jan 2019", ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "With Contributory Pension" 4 "Without Contributory Pension") cols(1) pos(4) ring(0) size(small))
+
+graph export "$gr\DiD_income.png", replace
+
+
+/*PT PAM*/
+
+eststo clear
+
+eststo pam_tr1: reg pam ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==1 [aw=weight], vce(cluster geo)
+
+eststo pam_tr0: reg pam ///
+    treat_20* treat after ///
+    i.year i.age i.state i.loc_size ///
+    state#year educ cohab1 female indig ///
+    if tr==0 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(pam_tr1, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
+(pam_tr0, msymbol(d) mcolor(gs8)  ciopts(recast(rcap) lcolor(gs8))  offset(0.08)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
 xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of receiving PAM", size(medium) height(5)) ///
-ylabel(-0.6(0.3)0.6, labs(medium) grid format(%5.2f)) ///
-xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+ylabel(-0.8(0.4)0.8, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.6 0.6)) text(-0.623 2.09 "Jan 2019",   ///
-size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
-graph export "$gr\DiD_PAM.png", replace 
+ysc(r(-0.8 0.8)) text(-0.825 2.08 "Jan 2019", ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
+legend(order(2 "With Contributory Pension" 4 "Without Contributory Pension") cols(1) pos(4) ring(0) size(small))
+
+graph export "$gr\DiD_PAM.png", replace
 
 /*PT INDEP*/
 
@@ -291,6 +376,48 @@ ysc(r(-0.6 0.6)) text(-0.623 2.09 "Jan 2019",   ///
 size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$gr\1PAM.png", replace 
 
+/*TIME WORK*/
+
+reg time_work treat_20* int1 int2 int3 treat tr i.year after i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Change in hours worked", size(medium) height(5)) ///
+ylabel(-7(3.5)7, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-7 7)) text(-7.3 2.1 "Jan 2019", ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\1TIMEWORK.png", replace 
+
+/*TIME LEISURE*/
+
+reg time_leisure treat_20* int1 int2 int3 treat tr i.year after i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Change in leisure hours", size(medium) height(5)) ///
+ylabel(-5(2.5)5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-5 5)) text(-5.2 2.1 "Jan 2019", ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\1TIMELEISURE.png", replace 
+
+/*TOTAL EXPENDITURE*/
+
+reg gasto_total treat_20* int1 int2 int3 treat tr i.year after i.age i.state i.loc_size state#year educ cohab1 female indig [aw=weight], vce(cluster geo)
+
+coefplot, vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change of total expenditure", size(medium) height(5)) ///
+ylabel(-0.6(0.3)0.6, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.6 0.6)) text(-0.623 2.09 "Jan 2019",   ///
+size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
+graph export "$gr\1TOTALEXPENDITURE.png", replace 
+
 
 *============================*
 *  PAM: 4 cuartiles en 1 fig
@@ -319,6 +446,33 @@ text(-1.08 2.264 "Jan 2019", size(small) place(se) nobox just(left)) ///
 legend(order(2 "Q1" 4 "Q2" 6 "Q3" 8 "Q4") pos(4) ring(0) col(2) size(small))
 graph export "$gr\2PAM_Q.png", replace
 
+*============================*
+*  TIME WORK: 4 cuartiles en 1 fig
+*============================*
+
+eststo clear
+
+eststo q1_timework: reg time_work treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ female cohab1 indig if quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_timework: reg time_work treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ female cohab1 indig if quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_timework: reg time_work treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ female cohab1 indig if quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_timework: reg time_work treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ female cohab1 indig if quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_timework, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_timework, msymbol(d) mcolor("gs10")  ciopts(recast(rcap) lcolor("gs10"))  offset(-0.08)) ///
+(q3_timework, msymbol(s) mcolor("gs7")  ciopts(recast(rcap) lcolor("gs7"))  offset(0.08))  ///
+(q4_timework, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+byopts(cols(2) title("Change in hours worked")) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Change in hours worked", size(medsmall)) ///
+ylabel(-18(9)18, labs(medium) grid format(%5.0f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-18 18)) ///
+text(-19.5 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\2TIMEWORK_Q.png", replace
+
 
 *==============================*
 *  WORK: 4 cuartiles en 1 fig
@@ -337,15 +491,39 @@ coefplot ///
 (q4_work, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
 vertical keep(treat_20*) ///
 yline(0) omitted baselevels ///
-xline(2.53, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Likelihood of working", size(medsmall)) ///
 ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ysc(r(-0.5 0.5)) ///
-text(-0.54 2.265 "Jan 2019", size(small) place(se) nobox just(left)) ///
-legend(order(2 "Q1" 4 "Q2" 6 "Q3" 8 "Q4") pos(1) ring(0) col(2) size(small))
+text(-0.54 2.265 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
 graph export "$gr\2WORK_Q.png", replace
 
+*==============================*
+*  INACTIVE: 4 cuartiles en 1 fig
+*==============================*
+
+eststo clear
+
+eststo q1_inactive: reg inactive treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_inactive: reg inactive treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_inactive: reg inactive treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_inactive: reg inactive treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_inactive, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_inactive, msymbol(d) mcolor("gs10")  ciopts(recast(rcap) lcolor("gs10"))  offset(-0.08)) ///
+(q3_inactive, msymbol(s) mcolor("gs7")  ciopts(recast(rcap) lcolor("gs7"))  offset(0.08))  ///
+(q4_inactive, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being inactive", size(medsmall)) ///
+ylabel(-0.5(0.25)0.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-0.5 0.5)) ///
+text(-0.54 2.265 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\2INACTIVE_Q.png", replace
 
 *=================================================================================*
 *=================================================================================*
@@ -491,7 +669,7 @@ eststo clear
 eststo pov_cohab:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size indig if cohab1==1 [aw=weight], vce(cluster geo)
 eststo pov_nocoh:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size indig if cohab1==0  [aw=weight], vce(cluster geo)
 eststo epov_cohab: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size indig if cohab1==1 [aw=weight], vce(cluster geo)
-eststo epov_nocoh: reg epoor treat_20* int1 int2 int3 treat tr i.year i.age i.state state#year educ female i.loc_size indig if cohab1==0 [aw=weight], vce(cluster geo)
+eststo epov_nocoh: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size indig if cohab1==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (pov_cohab,  msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.20)) ///
@@ -589,10 +767,10 @@ graph export "$gr\5PAM_COHAB.png", replace
 * POVERTY / EXTREME POVERTY - Indigenous vs No Indigenous
 * ==========================================================================
 eststo clear
-eststo pov_indig:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==1 [aw=weight], vce(cluster geo)
-eststo pov_noindig:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==0  [aw=weight], vce(cluster geo)
-eststo epov_indig: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==1 [aw=weight], vce(cluster geo)
-eststo epov_noindig: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==0 [aw=weight], vce(cluster geo)
+eststo pov_indig:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==1 [aw=weight], vce(cluster geo)
+eststo pov_noindig:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==0  [aw=weight], vce(cluster geo)
+eststo epov_indig: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==1 [aw=weight], vce(cluster geo)
+eststo epov_noindig: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (pov_indig,  msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.20)) ///
@@ -615,8 +793,8 @@ graph export "$gr\6POV_INDIG.png", replace
 * ==========================================================================
 
 eststo clear
-eststo work_indig:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==1 [aw=weight], vce(cluster geo)
-eststo work_noindig:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==0 [aw=weight], vce(cluster geo)
+eststo work_indig:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==1 [aw=weight], vce(cluster geo)
+eststo work_noindig:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (work_indig, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -637,8 +815,8 @@ graph export "$gr\6WORK_INDIG.png", replace
 * ==========================================================================
 
 eststo clear
-eststo inc_indig:    reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==1 [aw=weight], vce(cluster geo)
-eststo inc_noindig:  reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==0 [aw=weight], vce(cluster geo)
+eststo inc_indig:    reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==1 [aw=weight], vce(cluster geo)
+eststo inc_noindig:  reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (inc_indig, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -660,8 +838,8 @@ graph export "$gr\6INCOME_INDIG.png", replace
 * ==========================================================================
 
 eststo clear
-eststo pam_indig:    reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==1 [aw=weight], vce(cluster geo)
-eststo pam_noindig:  reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if indig==0 [aw=weight], vce(cluster geo)
+eststo pam_indig:    reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==1 [aw=weight], vce(cluster geo)
+eststo pam_noindig:  reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if indig==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (pam_indig, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -691,10 +869,10 @@ graph export "$gr\6PAM_INDIG.png", replace
 * POVERTY / EXTREME POVERTY - Disabled vs No Disabled
 * ==========================================================================
 eststo clear
-eststo pov_disabled:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
-eststo pov_nodisabled:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==0  [aw=weight], vce(cluster geo)
-eststo epov_disabled: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
-eststo epov_nodisabled: reg epoor treat_20* int1 int2 int3 treat tr i.year i.age i.state state#year educ female i.loc_size if disabled==0 [aw=weight], vce(cluster geo)
+eststo pov_disabled:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==1 [aw=weight], vce(cluster geo)
+eststo pov_nodisabled:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==0  [aw=weight], vce(cluster geo)
+eststo epov_disabled: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==1 [aw=weight], vce(cluster geo)
+eststo epov_nodisabled: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (pov_disabled,  msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.20)) ///
@@ -717,8 +895,8 @@ graph export "$gr\7POV_disabled.png", replace
 * ==========================================================================
 
 eststo clear
-eststo work_disabled:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
-eststo work_nodisabled:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==0 [aw=weight], vce(cluster geo)
+eststo work_disabled:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==1 [aw=weight], vce(cluster geo)
+eststo work_nodisabled:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (work_disabled, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -739,8 +917,8 @@ graph export "$gr\7WORK_disabled.png", replace
 * ==========================================================================
 
 eststo clear
-eststo inc_disabled:    reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
-eststo inc_nodisabled:  reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==0 [aw=weight], vce(cluster geo)
+eststo inc_disabled:    reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==1 [aw=weight], vce(cluster geo)
+eststo inc_nodisabled:  reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (inc_disabled, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -762,8 +940,8 @@ graph export "$gr\7INCOME_disabled.png", replace
 * ==========================================================================
 
 eststo clear
-eststo pam_disabled:    reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==1 [aw=weight], vce(cluster geo)
-eststo pam_nodisabled:  reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if disabled==0 [aw=weight], vce(cluster geo)
+eststo pam_disabled:    reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==1 [aw=weight], vce(cluster geo)
+eststo pam_nodisabled:  reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if disabled==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (pam_disabled, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -797,7 +975,7 @@ ytitle("Percentage change of wealth", size(medium) height(5)) ///
 ylabel(-0.03(0.015)0.03, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium) height(5)) xlabel(,labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.015 0.015)) text(-0.031 2.09 "Jan 2019",   ///
+ysc(r(-0.03 0.03)) text(-0.031 2.09 "Jan 2019",   ///
 size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$gr\8Wealth.png", replace 
 
@@ -816,11 +994,11 @@ coefplot ///
 (q4_wealth, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
 vertical keep(treat_20*) ///
 yline(0) omitted baselevels ///
-xline(2.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+xline(2, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Percentage change of wealth", size(medsmall)) ///
 ylabel(-0.05(0.025)0.05, labs(medium) grid format(%5.2f)) ///
 xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ysc(r(-0.005 0.005)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-0.05 0.05)) ///
 legend(order(2 "Q1" 4 "Q2" 6 "Q3" 8 "Q4") pos(1) ring(0) col(2) size(small))
 graph export "$gr\8Wealth_Q.png", replace
 
@@ -838,10 +1016,10 @@ graph export "$gr\8Wealth_Q.png", replace
 * POVERTY / EXTREME POVERTY - Border vs No Border
 * ==========================================================================
 eststo clear
-eststo pov_border:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
-eststo pov_noborder:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0  [aw=weight], vce(cluster geo)
-eststo epov_border: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
-eststo epov_noborder: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0 [aw=weight], vce(cluster geo)
+eststo pov_border:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==1 [aw=weight], vce(cluster geo)
+eststo pov_noborder:  reg poor  treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==0  [aw=weight], vce(cluster geo)
+eststo epov_border: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==1 [aw=weight], vce(cluster geo)
+eststo epov_noborder: reg epoor treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (pov_border,  msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.20)) ///
@@ -864,8 +1042,8 @@ graph export "$gr\9POV_border.png", replace
 * ==========================================================================
 
 eststo clear
-eststo work_border:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
-eststo work_noborder:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0 [aw=weight], vce(cluster geo)
+eststo work_border:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==1 [aw=weight], vce(cluster geo)
+eststo work_noborder:  reg work treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (work_border, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -886,8 +1064,8 @@ graph export "$gr\9WORK_border.png", replace
 * ==========================================================================
 
 eststo clear
-eststo inc_border:    reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
-eststo inc_noborder:  reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0 [aw=weight], vce(cluster geo)
+eststo inc_border:    reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==1 [aw=weight], vce(cluster geo)
+eststo inc_noborder:  reg l_inc treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (inc_border, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -909,8 +1087,8 @@ graph export "$gr\9INCOME_border.png", replace
 * ==========================================================================
 
 eststo clear
-eststo pam_border:    reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==1 [aw=weight], vce(cluster geo)
-eststo pam_noborder:  reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size if border==0 [aw=weight], vce(cluster geo)
+eststo pam_border:    reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==1 [aw=weight], vce(cluster geo)
+eststo pam_noborder:  reg pam treat_20* int1 int2 int3 treat tr after i.year i.age i.state state#year educ female i.loc_size cohab1 if border==0 [aw=weight], vce(cluster geo)
 
 coefplot ///
 (pam_border, msymbol(o) mcolor(black) ciopts(recast(rcap) lcolor(black)) offset(-0.08)) ///
@@ -925,6 +1103,364 @@ ysc(r(-0.6 0.6)) text(-0.62 2.07 "Jan 2019",   ///
 size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75)) ///
 legend(order(2 "Northern border municipalities" 4 "Non-Northern Border municipalities") cols(1) pos(4) ring(0) size(small))
 graph export "$gr\9PAM_border.png", replace
+
+*=================================================================================*
+
+                               /*OTROS ANÁLISIS*/
+							   
+*=================================================================================*
+
+
+*======================================*
+*  CEREALES: 4 cuartiles en 1 fig
+*======================================*
+eststo clear
+
+eststo q1_cereales: reg cereales_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_cereales: reg cereales_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_cereales: reg cereales_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_cereales: reg cereales_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_cereales, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_cereales, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_cereales, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_cereales, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change in monthly cereal expenditure", size(medsmall)) ///
+ylabel(-2.5(1.25)2.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-2.7 2.264 "Jan 2019", size(small) place(se) nobox just(left)) ///
+legend(order(2 "Q1" 4 "Q2" 6 "Q3" 8 "Q4") pos(1) ring(0) col(2) size(small))
+graph export "$gr\1HY_CEREALES_Q.png", replace
+
+*======================================*
+*  CARNES: 4 cuartiles en 1 fig
+*======================================*
+eststo clear
+
+eststo q1_carnes: reg carnes_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_carnes: reg carnes_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_carnes: reg carnes_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_carnes: reg carnes_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_carnes, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_carnes, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_carnes, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_carnes, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change in monthly meat expenditure", size(medsmall)) ///
+ylabel(-2.5(1.25)2.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-2.7 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off)
+graph export "$gr\2HY_CARNES_Q.png", replace
+
+*======================================*
+*  HUEVO: 4 cuartiles en 1 fig
+*======================================*
+eststo clear
+
+eststo q1_huevo: reg huevo_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_huevo: reg huevo_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_huevo: reg huevo_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_huevo: reg huevo_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_huevo, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_huevo, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_huevo, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_huevo, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change in monthly egg expenditure", size(medsmall)) ///
+ylabel(-4.5(2.25)4.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-4.9 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off)
+graph export "$gr\5HY_HUEVO_Q.png", replace
+
+*======================================*
+*  TUBERCULOS: 4 cuartiles en 1 fig
+*======================================*
+eststo clear
+
+eststo q1_tuberculo: reg tuberculo_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_tuberculo: reg tuberculo_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_tuberculo: reg tuberculo_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_tuberculo: reg tuberculo_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_tuberculo, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_tuberculo, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_tuberculo, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_tuberculo, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change in monthly root vegeatables expenditure", size(medsmall)) ///
+ylabel(-4.5(2.25)4.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-4.9 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\7HY_TUBERCULO_Q.png", replace
+
+
+*======================================*
+*  VERDURAS: 4 cuartiles en 1 fig
+*======================================*
+eststo clear
+
+eststo q1_verduras: reg verduras_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_verduras: reg verduras_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_verduras: reg verduras_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_verduras: reg verduras_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_verduras, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_verduras, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_verduras, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_verduras, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change in monthly vegeatables expenditure", size(medsmall)) ///
+ylabel(-4.5(2.25)4.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-4.9 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\8HY_VERDURAS_Q.png", replace
+
+*======================================*
+*  AZUCAR: 4 cuartiles en 1 fig
+*======================================*
+eststo clear
+
+eststo q1_azucar: reg azucar_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_azucar: reg azucar_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_azucar: reg azucar_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_azucar: reg azucar_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_azucar, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_azucar, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_azucar, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_azucar, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) ///
+yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change in monthly sugar expenditure", size(medsmall)) ///
+ylabel(-4.5(2.25)4.5, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-4.9 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\10HY_AZUCAR_Q.png", replace
+
+*======================================*
+*  CALZADO
+*======================================*
+eststo clear
+eststo q1_calzado: reg calzado_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_calzado: reg calzado_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_calzado: reg calzado_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_calzado: reg calzado_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_calzado, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_calzado, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_calzado, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_calzado, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change in monthly footwear expenditure", size(medsmall)) ///
+ylabel(-4.8(2.4)4.8, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-5.2 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\14HY_CALZADO_Q.png", replace
+
+
+*======================================*
+*  MEDICAMENTOS Y SALUD
+*======================================*
+eststo clear
+
+eststo q1_med: reg med_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_med: reg med_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_med: reg med_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_med: reg med_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if hy==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_med, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_med, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_med, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_med, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Percentage change in monthly medicine expenditure", size(medsmall)) ///
+ylabel(-4.8(2.4)4.8, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-5.2 2.264 "Jan 2019", size(small) place(se) nobox just(left)) ///
+legend(order(2 "Q1" 4 "Q2" 6 "Q3" 8 "Q4") pos(1) ring(0) col(2) size(small))
+graph export "$gr\15HY_MED_Q.png", replace
+
+
+*======================================*
+*  EDUCACION SUPERIOR
+*======================================*
+eststo clear
+
+eststo q1_educsup: reg educ_superior_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_educsup: reg educ_superior_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_educsup: reg educ_superior_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_educsup: reg educ_superior_monh treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_educsup, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_educsup, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_educsup, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_educsup, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Change in monthly higher education expenditure (%)", size(medsmall)) ///
+ylabel(-4.8(2.4)4.8, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-5.2 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off)
+graph export "$gr\18HY_EDUCSUP_Q.png", replace
+
+*======================================*
+*  SCHOOL ATTENDANCE - 6-18
+*======================================*
+eststo clear
+
+eststo q1_school: reg school_at treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_618==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_school: reg school_at treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_618==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_school: reg school_at treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_618==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_school: reg school_at treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_618==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_school, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_school, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_school, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_school, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of attending school", size(medsmall)) ///
+ylabel(-0.25(0.125)0.25, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-0.25 0.25)) ///
+text(-0.275 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\19HY_SCHOOLATT_618.png", replace
+
+*======================================*
+*  SCHOOL ATTENDANCE - 19-30
+*======================================*
+eststo clear
+
+eststo q1_school: reg school_at treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_school: reg school_at treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_school: reg school_at treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_school: reg school_at treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_school, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_school, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_school, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_school, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of attending school", size(medsmall)) ///
+ylabel(-0.25(0.125)0.25, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-0.25 0.25)) ///
+text(-0.275 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\19HY_SCHOOLATT_1930.png", replace
+
+
+*======================================*
+*  Labor - 6-18
+*======================================*
+eststo clear
+
+eststo q1_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_618==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_618==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_618==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_618==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_pea12, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_pea12, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_pea12, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_pea12, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being in the labor force", size(medsmall)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-1.1 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\20HY_LABOR_618.png", replace
+
+
+*======================================*
+*  Labor - 19-30
+*======================================*
+eststo clear
+
+eststo q1_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_pea12, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_pea12, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_pea12, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_pea12, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being in the labor force", size(medsmall)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-1.1 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off) 
+graph export "$gr\20HY_LABOR_1930.png", replace
+
+
+
+*======================================*
+*  Labor - 19-30
+*======================================*
+eststo clear
+
+eststo q1_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==1 [aw=weight], vce(cluster geo)
+eststo q2_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==2 [aw=weight], vce(cluster geo)
+eststo q3_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==3 [aw=weight], vce(cluster geo)
+eststo q4_pea12: reg labor treat_20* int1 int2 int3 treat tr after i.year i.age i.state i.loc_size state#year educ cohab1 female indig if age_1930==1 & quartile==4 [aw=weight], vce(cluster geo)
+
+coefplot ///
+(q1_pea12, msymbol(o) mcolor("gs13") ciopts(recast(rcap) lcolor("gs13")) offset(-0.20)) ///
+(q2_pea12, msymbol(d) mcolor("gs10") ciopts(recast(rcap) lcolor("gs10")) offset(-0.08)) ///
+(q3_pea12, msymbol(s) mcolor("gs7") ciopts(recast(rcap) lcolor("gs7")) offset(0.08)) ///
+(q4_pea12, msymbol(t) mcolor("black") ciopts(recast(rcap) lcolor("black")) offset(0.20)), ///
+vertical keep(treat_20*) yline(0) omitted baselevels ///
+xline(2.51, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of being in the labor force", size(medsmall)) ///
+ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+xtitle("Year", size(medium)) xlabel(,labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ysc(r(-1 1)) ///
+text(-1.1 2.264 "Jan 2019", size(small) place(se) nobox just(left)) legend(off)
+graph export "$gr\20HY_LABOR_1930.png", replace
+
 
 
 *=================================================================================*
@@ -1010,4 +1546,8 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.6 0.6)) text(-0.623 2.09 "Jan 2019",   ///
 size(small) place(se) nobox just(left) margin(l+4 t+2 b+2) width(75))
 graph export "$gr\RC2PAM.png", replace 
+
+
+
+
 

@@ -143,9 +143,13 @@ gen time_repair=hor_5+(min_5/60);
 replace time_repair=0 if time_repair==.;
 gen time_leisure=hor_8+(min_8/60);
 replace time_leisure=0 if time_leisure==.;
+gen time_tc=hor_4+(min_4/60);
+replace time_tc=0 if time_tc==.;
+gen time_lc=hor_6+(min_6/60);
+replace time_lc=0 if time_lc==.;
 
 keep folioviv foliohog numren edad anac_e student niv_ed  
-parentesco hli educ time_work time_study time_repair time_leisure;
+parentesco hli educ time_work time_study time_repair time_leisure time_tc time_lc;
 sort folioviv foliohog numren;
 
 save "$bases\ic_rezedu24.dta", replace;
@@ -224,7 +228,6 @@ label define pea 0 "PNEA"
          1 "PEA: ocupada" 
          2 "PEA: desocupada";
 label value pea pea;
-
 
 *Tipo de trabajo;
 *Ocupación principal;
@@ -604,6 +607,13 @@ label define pea 0 "PNEA"
 				 2 "PEA: desocupada";
 label value pea pea;
 
+gen pea12=.;
+replace pea12=1 if trab==1 & (edad>=12 & edad!=.);
+replace pea12=2 if (act_pnea1=="1" | act_pnea2=="1") & (edad>=12 & edad!=.);
+replace pea12=0 if (edad>=12 & edad!=.) & (act_pnea1!="1" & act_pnea2!="1") & 
+				 ((act_pnea1>="2" & act_pnea1<="6") | (act_pnea2>="2" & 
+				 act_pnea2<="6")) & pea12==.;
+
 *Tipo de trabajo;
 *Ocupación principal;
 replace tipo_trab1=tipo_trab1 if pea==1;
@@ -843,7 +853,7 @@ label value ic_segsoc caren;
 
 keep folioviv foliohog numren tipo_trab* aforlab* smlab*
 		  smcv aforecv pea jub ss_dir par jef_ss cony_ss hijo_ss s_salud pam ing_pam
-    	ic_segsoc ing_pens tipo_trab1;
+    	ic_segsoc ing_pens tipo_trab1 pea12;
 sort folioviv foliohog numren;
 save "$bases\ic_segsoc24.dta", replace;
 
@@ -1888,7 +1898,7 @@ Construcción del ingreso corriente total
 *********************************************************;
 
 use "$data\concentradohogar.dta", clear;
-keep folioviv foliohog tam_loc factor tot_integ est_dis upm ubica_geo p65mas;
+keep folioviv foliohog tam_loc factor tot_integ est_dis upm ubica_geo p65mas cereales carnes pescado leche huevo aceites tuberculo verduras frutas azucar cafe especias otros_alim bebidas tabaco edad_jefe sexo_jefe ali_dentro vesti_calz vestido calzado;
 
 
 *Incorporación de la base de ingreso monetario deflactado;
@@ -2076,7 +2086,7 @@ label var plp "Población con ingreso menor a las líneas de pobreza por ingreso
 
 keep folioviv foliohog factor tam_loc rururb tamhogesc ict ictpc plp_e plp 
 	 est_dis upm ubica_geo tot_integ ing_mon ing_lab ing_ren ing_tra nomon 
-	 pago_esp reg_esp p65mas ing_mens tot_integ; 
+	 pago_esp reg_esp p65mas cereales carnes pescado leche huevo aceites tuberculo verduras frutas azucar cafe especias otros_alim bebidas tabaco edad_jefe sexo_jefe ali_dentro vesti_calz vestido calzado ing_mens tot_integ; 
 sort folioviv foliohog ;
 save "$bases\p_ingresos24.dta", replace;
 
@@ -2091,19 +2101,14 @@ keep folioviv foliohog numren formal htrab sinco scian;
 sort folioviv foliohog numren;
 save "$bases\labor.dta", replace;
 
-*********************************************************;
-
-use "$data\poblacion.dta", clear;
-
-keep folioviv foliohog numren etnia;
-sort folioviv foliohog numren;
-save "$bases\etnia.dta", replace;
 
 *********************************************************;
 
 use "$data\poblacion.dta", clear;
+drop if parentesco>="400" & parentesco <"500";
+drop if parentesco>="700" & parentesco <"800";
 
-keep folioviv foliohog numren etnia;
+keep folioviv foliohog numren etnia c_futuro asis_esc;
 sort folioviv foliohog numren;
 save "$bases\etnia.dta", replace;
 
@@ -2255,6 +2260,7 @@ gen double remittances= ing_mens if clave=="P041";
 
 gen double inc_pam1 = ing_mens if clave=="P104" | clave=="P044";
 
+
 /* ========== Income at the individual level ========== */;
 save "$bases\income_indiv.dta", replace;
 
@@ -2268,7 +2274,7 @@ label var ing_tra "Ingreso corriente monetario por transferencias";
 							 
 							 
 sort folioviv foliohog;
-save "$bases\ingreso_deflactado16.dta", replace;
+save "$bases\ingreso_deflactado24.dta", replace;
 
 /* ========== Income at the individual level - renaming variables ========== */;
 use "$bases\income_indiv.dta", clear;
@@ -2449,11 +2455,995 @@ destring num_juego, replace force;
 replace num_juego = . if num_juego == -1;
 
 sort folioviv foliohog;
-keep folioviv foliohog num_auto num_suv num_pickup num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego;
+keep folioviv foliohog num_auto num_suv num_pickup num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego alim17_1 alim17_2 alim17_3 alim17_4 alim17_5 alim17_6 alim17_7 alim17_8 alim17_9 alim17_10 alim17_11 alim17_12;
 save "$bases\assets.dta", replace;
 
 *=====================================================================*;
 
+
+*=====================================================================
+
+GASTO MONETARIO DE DIFERENTEAS RAMAS EN EL HOGAR Y EN OTROS HOGARES
+
+*=====================================================================*;
+#delimit;
+
+use "$data\gastoshogar.dta", clear;
+gen base=1;
+append using "$data\gastospersona.dta";
+recode base (.=2);
+
+replace frecuencia=frec_rem if base==2;
+
+label var base "Origen del monto";
+label define base 1 "Monto del hogar"
+         2 "Monto de personas";
+label value base base;
+
+* En primer lugar se obtiene una variable que 
+identifique la decena de levantamiento;
+
+gen decena=real(substr(folioviv,8,1));
+
+*Definición de los deflactores;		
+		
+*Rubro 1.1 semanal, Alimentos;		
+scalar d11w07 =	1.0069482620	;
+scalar d11w08 =	1.0000000000	;
+scalar d11w09 =	0.9939913834	;
+scalar d11w10 =	1.0028508968	;
+scalar d11w11 =	1.0071464185	;
+		
+*Rubro 1.2 semanal, Bebidas alcohólicas y tabaco_mon;		
+scalar d12w07 =	0.9988469924	;
+scalar d12w08 =	1.0000000000	;
+scalar d12w09 =	0.9964151945	;
+scalar d12w10 =	1.0022081843	;
+scalar d12w11 =	1.0010481887	;
+		
+*Rubro 2 trimestral, Ropa, calzado_mon y accesorios;		
+scalar d2t05 =	0.9957420330	;
+scalar d2t06 =	0.9978207469	;
+scalar d2t07 =	1.0005488892	;
+scalar d2t08 =	1.0033503978	;
+		
+*Rubro 3 mensual, Vivienda;		
+scalar d3m07 =	0.9974870947	;
+scalar d3m08 =	1.0000000000	;
+scalar d3m09 =	1.0023425388	;
+scalar d3m10 =	1.0112186313	;
+scalar d3m11 =	1.0270286386	;
+		
+*Rubro 4.2 mensual, Accesorios y artículos de limpieza para el hogar;		
+scalar d42m07 =	0.9966288886	;
+scalar d42m08 =	1.0000000000	;
+scalar d42m09 =	1.0038013160	;
+scalar d42m10 =	1.0057619205	;
+scalar d42m11 =	0.9991889586	;
+		
+*Rubro 4.2 trimestral, Accesorios y artículos de limpieza para el hogar;		
+scalar d42t05 =	0.9937326478	;
+scalar d42t06 =	0.9970920050	;
+scalar d42t07 = 1.0001434015	;
+scalar d42t08 =	1.0031877455	;
+		
+*Rubro 4.1 semestral, Muebles y aparatos domésticos;		
+scalar d41s02 =	1.0146967630	;
+scalar d41s03 =	1.0096833589	;
+scalar d41s04 =	1.0066002665	;
+scalar d41s05 =	1.0029542990	;
+		
+*Rubro 5.1 trimestral, Salud;		
+scalar d51t05 =	0.9958136090	;
+scalar d51t06 =	0.9981247941	;
+scalar d51t07 =	1.0005895628	;
+scalar d51t08 =	1.0027719358	;
+		
+*Rubro 6.1.1 semanal, Transporte público urbano;		
+scalar d611w07 = 0.9947468645	;
+scalar d611w08 = 1.0000000000	;
+scalar d611w09 = 1.0050561429	;
+scalar d611w10 = 1.0044159170	;
+scalar d611w11 = 1.0064597150	;
+		
+*Rubro 6 mensual, Transporte;		
+scalar d6m07 =	0.9989836000	;
+scalar d6m08 =	1.0000000000	;
+scalar d6m09 =	1.0011310315	;
+scalar d6m10 =	1.0026135999	;
+scalar d6m11 =	1.0042566525	;
+		
+*Rubro 6 semestral, Transporte;		
+scalar d6s02 =	0.9859245164	;
+scalar d6s03 =	0.9904282636	;
+scalar d6s04 =	0.9935360529	;
+scalar d6s05 =	0.9967279054	;
+		
+*Rubro 7 mensual, Educación y esparcimiento;	
+scalar d7m07 =	0.9956915367	;
+scalar d7m08 =	1.0000000000	;
+scalar d7m09 =	1.0090938485	;
+scalar d7m10 =	1.0110742866	;
+scalar d7m11 =	1.0090938485	;
+		
+*Rubro 2.3 mensual, Accesorios y cuidados del vestido_mon;		
+scalar d23m07 =	0.9936721992	;
+scalar d23m08 =	1.0000000000	;
+scalar d23m09 =	1.0036785828	;
+scalar d23m10 =	1.0070619215	;
+scalar d23m11 =	1.0046760294	;
+		
+*Rubro 2.3 trimestral, Accesorios y cuidados del vestido_mon;	
+scalar d23t05 =	0.9932253431	;
+scalar d23t06 =	0.9965076072	;
+scalar d23t07 =	0.9991169273	;
+scalar d23t08 =	1.0035801681	;
+
+		
+*INPC semestral;		
+scalar	dINPCs02 =	0.9885893260;
+scalar	dINPCs03 =	0.9914468960;
+scalar	dINPCs04 =	0.9939160227;
+scalar	dINPCs05 =	0.9969696524;
+
+
+*Una vez definidos los deflactores, se seleccionan los rubros;
+
+gen double gastom=gasto_tri/3;
+
+gen gmon=1 if tipo_gasto=="G1";
+gen gmonotro=1 if tipo_gasto=="G2";
+drop if tipo_gasto=="G5" | tipo_gasto=="G4" | tipo_gasto=="G6" | tipo_gasto=="G3" | tipo_gasto=="G7";
+
+*Control para la frecuencia de los regalos recibidos por el hogar;
+drop if (frecuencia>="1" | frecuencia=="") & base==1 & tipo_gasto=="G1";
+
+*Control para la frecuencia de los regalos recibidos por persona;
+drop if frecuencia>="1" & base==2 & tipo_gasto=="G1";
+
+*Gasto no monetario en Alimentos deflactado (semanal) ;
+
+gen cereales_mon = gastom if ///
+(clave>="011111" & clave<="011139") | ///
+(clave>="011191" & clave<="011196") | ///
+inlist(clave, "011150", "01119A", "011995", "181113", "181156", "181171");
+
+gen carnes_mon = gastom if ///
+(clave>="011221" & clave<="011229") | ///
+(clave>="01122A" & clave<="01122H") | ///
+(clave>="011231" & clave<="011235") | ///
+(clave>="011241" & clave<="011247") | ///
+(clave>="011251" & clave<="011256") | ///
+(clave>="181114" & clave<="181126") | ///
+inlist(clave, "011210", "011592", "181153", "181158");
+
+
+gen pescado_mon = gastom if ///
+(clave>="011321" & clave<="011324") | ///
+(clave>="011331" & clave<="011332") | ///
+(clave>="011341" & clave<="011343") | ///
+(clave>="011351" & clave<="011352") | ///
+inlist(clave, "011310", "011360", "011370", "181127", "181128", "181157");
+
+gen leche_mon = gastom if ///
+(clave>="011411" & clave<="011412") | ///
+(clave>="011432" & clave<="011433") | ///
+(clave>="011441" & clave<="011442") | ///
+(clave>="011451" & clave<="011456") | ///
+(clave>="181129" & clave<="181132") | ///
+inlist(clave, "011420", "011460", "011471", "011473", "011490", ///
+"011520", "011921");
+
+gen cafe_mon = gastom if ///
+(clave>="011851" & clave<="011853") | ///
+(clave>="012201" & clave<="012203") | ///
+(clave>="012301" & clave<="012302") | ///
+clave=="181155";
+
+gen huevo_mon = gastom if inlist(clave, ///
+"011481", "011482");
+
+gen aceites_mon = gastom if inlist(clave, ///
+"011511", "011512", "011530", "011591", "011593", "181133", "181159", ///
+"181160");
+
+gen tuberculo_mon = gastom if inlist(clave, ///
+"011747", "011751", "011752", "011755", "011791", "011795", "011796", ///
+"181163");
+
+gen verduras_mon = gastom if ///
+(clave>="011711" & clave<="011713") | ///
+(clave>="011721" & clave<="01172A") | ///
+(clave>="011731" & clave<="011733") | ///
+(clave>="011741" & clave<="011749") | ///
+(clave>="011761" & clave<="011764") | ///
+(clave>="011781" & clave<="011782") | ///
+(clave>="011793" & clave<="01179A") | ///
+(clave>="011942" & clave<="011944") | ///
+(clave>="181140" & clave<="181142") | ///
+(clave>="181164" & clave<="181167") | ///
+inlist(clave, "011611", "011680", "011770", "011946", "181161");
+
+gen frutas_mon = gastom if ///
+(clave>="011612" & clave<="011617") | ///
+(clave>="011621" & clave<="011624") | ///
+(clave>="011631" & clave<="011635") | ///
+(clave>="011641" & clave<="011642") | ///
+(clave>="011651" & clave<="011654") | ///
+(clave>="011691" & clave<="011692") | ///
+(clave>="181134" & clave<="181139") | ///
+inlist(clave, "011660", "011670", "011753", "011754", "011843");
+
+gen especias_mon = gastom if ///
+(clave>="011931" & clave<="011938") | ///
+(clave>="181143" & clave<="181145") | ///
+inlist(clave, "011945", "011993", "181168");
+
+gen otros_alim_mon = gastom if ///
+clave=="01122I" | clave=="011472" | clave=="011744" | ///
+(clave>="011833" & clave<="011834") | ///
+(clave>="011841" & clave<="011842") | ///
+clave=="011861" | ///
+(clave>="011891" & clave<="011893") | ///
+clave=="011911" | ///
+(clave>="011922" & clave<="011925") | ///
+(clave>="011991" & clave<="011992") | ///
+clave=="011994" | clave=="011996" | ///
+clave=="013000" | clave=="093221" | ///
+(clave>="111121" & clave<="111126") | ///
+clave=="181111" | clave=="181112" | ///
+clave=="181152" | clave=="181169";
+
+gen noalcohol_mon = gastom if ///
+(clave>="012201" & clave<="012203") | ///
+(clave>="012301" & clave<="012302") | ///
+(clave>="012501" & clave<="012502") | ///
+(clave>="012601" & clave<="012604") | ///
+(clave>="012901" & clave<="012905") | ///
+inlist(clave, "012100", "012400", "012907");
+
+gen double azucar_mon = gastom if ///
+clave=="011810" | /// Azúcar
+clave=="011831" | /// Miel de abeja
+clave=="011820" | /// Sustitutos de azúcar y otros azúcares
+clave=="011832" | /// Otras mieles
+clave=="011472" | /// Cajeta, dulces de leche, jamoncillos y natillas
+clave=="011833" | /// Mermeladas y jaleas
+clave=="011834" | /// Ate y dulces a base de frutas
+clave=="011861" | /// Helados, nieves y paletas de hielo
+clave=="011891" | /// Dulces y golosinas
+clave=="011851" | /// Chocolate en barra o tableta
+clave=="011852" | /// Cacao y chocolate en polvo para todos los usos
+clave=="181155" | /// Cacao y chocolate líquido para todos los usos
+clave=="011853" | /// Otros chocolates
+clave=="012901" | /// Aguas frescas naturales de frutas o verduras
+clave=="181170" | /// Jugos de frutas o verduras naturales
+clave=="012100" | /// Jugos de frutas o verduras envasados
+clave=="012905" | /// Concentrados y polvos para preparar bebidas
+clave=="012601" | /// Refrescos sabor cola
+clave=="012602" | /// Refrescos de otros sabores
+clave=="012604" | /// Jugos con gas
+clave=="012904";    // Bebidas energéticas;
+
+foreach var in cereales_mon carnes_mon pescado_mon leche_mon huevo_mon aceites_mon tuberculo_mon verduras_mon frutas_mon cafe_mon especias_mon otros_alim_mon noalcohol_mon azucar_mon {;
+
+    replace `var'=`var'/d11w08 if decena==1;
+    replace `var'=`var'/d11w08 if decena==2;
+    replace `var'=`var'/d11w08 if decena==3;
+
+    replace `var'=`var'/d11w09 if decena==4;
+    replace `var'=`var'/d11w09 if decena==5;
+    replace `var'=`var'/d11w09 if decena==6;
+
+    replace `var'=`var'/d11w10 if decena==7;
+    replace `var'=`var'/d11w10 if decena==8;
+    replace `var'=`var'/d11w10 if decena==9;
+
+    replace `var'=`var'/d11w11 if decena==0;
+
+};
+
+
+*Gasto no monetario en alcohol_mon y tabaco_mon deflactado (semanal);
+
+gen tabaco_mon = gastom if inlist(clave, ///
+"023010", "023020", "023090");
+
+gen alcohol_mon = gastom if ///
+(clave>="021101" & clave<="021105") | ///
+(clave>="021211" & clave<="021213") | ///
+(clave>="021301" & clave<="021303") | ///
+(clave>="021901" & clave<="021902") | ///
+inlist(clave, "021220");
+
+foreach var in tabaco_mon alcohol_mon {;
+
+    replace `var'=`var'/d12w08 if decena==1;
+    replace `var'=`var'/d12w08 if decena==2;
+    replace `var'=`var'/d12w08 if decena==3;
+
+    replace `var'=`var'/d12w09 if decena==4;
+    replace `var'=`var'/d12w09 if decena==5;
+    replace `var'=`var'/d12w09 if decena==6;
+
+    replace `var'=`var'/d12w10 if decena==7;
+    replace `var'=`var'/d12w10 if decena==8;
+    replace `var'=`var'/d12w10 if decena==9;
+
+    replace `var'=`var'/d12w11 if decena==0;
+};
+
+*Gasto no monetario en vestido_mon y calzado_mon deflactado (trimestral);
+
+gen vestido_mon = gastom if ///
+(clave>="031211" & clave<="03121J") | ///
+(clave>="031221" & clave<="03122O") | ///
+(clave>="031235" & clave<="03123C") | ///
+(clave>="172111" & clave<="17211B") | ///
+inlist(clave, "031100", "031231", "031232", "031420");
+
+gen calzado_mon = gastom if ///
+(clave>="032111" & clave<="032119") | ///
+(clave>="032121" & clave<="032129") | ///
+(clave>="032135" & clave<="03213D") | ///
+(clave>="172121" & clave<="172124") | ///
+inlist(clave, "032131", "032132", "032201", "032202", "056111");
+
+gen double vestido17_mon = gastom if ///
+(clave>="03121A" & clave<="03121J") | /// Prendas de vestir niño
+(clave>="03122D" & clave<="03122O") | /// Prendas de vestir niña
+(clave>="031231" & clave<="03123C") | /// Prendas de vestir hombre 5-17 años
+(clave>="172111" & clave<="17211B") ; /// Prendas de vestir mujer 5-17 años
+
+gen double calzado17_mon = gastom if ///
+(clave>="032115" & clave<="032118") | /// Calzado para niño
+(clave>="032121" & clave<="032128") | /// Calzado para niña
+(clave>="032131" & clave<="032138") | /// Calzado para hombre 5-17 años
+(clave>="172121" & clave<="172124") ; /// Calzado para mujer 5-17 años
+
+foreach var in vestido_mon calzado_mon vestido17_mon calzado17_mon {;
+    replace `var'=`var'/d2t05 if decena==1;
+    replace `var'=`var'/d2t05 if decena==2;
+
+    replace `var'=`var'/d2t06 if decena==3;
+    replace `var'=`var'/d2t06 if decena==4;
+    replace `var'=`var'/d2t06 if decena==5;
+
+    replace `var'=`var'/d2t07 if decena==6;
+    replace `var'=`var'/d2t07 if decena==7;
+    replace `var'=`var'/d2t07 if decena==8;
+
+    replace `var'=`var'/d2t08 if decena==9;
+    replace `var'=`var'/d2t08 if decena==0;
+};
+
+*Gasto no monetario en Educación básica deflactado (mensual);
+
+gen kinder_mon = gastom if inlist(clave, ///
+"101011", "101012", "101013", "101014", "101015");
+
+gen primaria_mon = gastom if inlist(clave, ///
+"101021", "101022", "101023", "101024", "101025");
+	
+gen secu_mon = gastom if inlist(clave, ///
+"102001", "102002", "102003", "102004", "102005");
+
+gen prepa_mon = gastom if inlist(clave, ///
+"103001", "103002", "103003", "103004", "103005");
+
+gen universidad_mon = gastom if inlist(clave, ///
+"104011", "104012", "104013", "104014", "104015", "104016", "104017");
+
+gen posgrado_mon = gastom if inlist(clave, ///
+"104018", "104019", "10401A");
+
+gen double educ_basica_mon = gastom if ///
+clave=="097302" | /// Mapas y globos terráqueos
+(clave>="097401" & clave<="097407") | /// Papelería general
+clave=="081322" | /// Calculadoras
+clave=="097111" | /// Libros de texto
+clave=="097408" | /// Paquetes de útiles escolares
+clave=="073230" | /// Transporte escolar de cualquier nivel educativo
+clave=="094611" | /// Cursos de formación recreativa
+clave=="094623" | /// Cursos de formación deportiva
+clave=="105010" | /// Tutorías
+clave=="112030" | /// Alojamiento en establecimientos educativos
+clave=="171319" | /// Internamiento en establecimientos educativos
+(clave>="174111" & clave<="174114") | /// Educación inicial
+(clave>="133011" & clave<="133014") | /// Guarderías y cuidado infantil
+clave=="174115" | /// Cuotas de guarderías
+(clave>="101011" & clave<="101015") | /// Jardín de niños y preescolar
+(clave>="101021" & clave<="101025") | /// Primaria
+(clave>="102001" & clave<="102005") ; /// Secundaria
+
+gen double educ_media_mon = gastom if ///
+clave=="097302" | /// Mapas y globos terráqueos
+(clave>="097401" & clave<="097407") | /// Papelería general
+clave=="081322" | /// Calculadoras
+clave=="097111" | /// Libros de texto
+clave=="097408" | /// Paquetes de útiles escolares
+clave=="073230" | /// Transporte escolar de cualquier nivel educativo
+clave=="094611" | /// Cursos de formación recreativa
+clave=="094623" | /// Cursos de formación deportiva
+clave=="105010" | /// Tutorías
+clave=="112030" | /// Alojamiento en establecimientos educativos
+clave=="171319" | /// Internamiento en establecimientos educativos
+(clave>="103001" & clave<="103005") | /// Bachillerato / preparatoria
+(clave>="104011" & clave<="104014") | /// Carrera técnica
+(clave>="105091" & clave<="105093") ; /// Educación para el trabajo
+
+gen double educ_superior_mon = gastom if ///
+clave=="097302" | /// Mapas y globos terráqueos
+(clave>="097401" & clave<="097407") | /// Papelería general
+clave=="081322" | /// Calculadoras
+clave=="097111" | /// Libros de texto
+clave=="097408" | /// Paquetes de útiles escolares
+clave=="073230" | /// Transporte escolar de cualquier nivel educativo
+clave=="094611" | /// Cursos de formación recreativa
+clave=="094623" | /// Cursos de formación deportiva
+clave=="105010" | /// Tutorías
+clave=="112030" | /// Alojamiento en establecimientos educativos
+clave=="171319" | /// Internamiento en establecimientos educativos
+(clave>="104015" & clave<="104019") | /// Inscripciones y colegiaturas de educación superior y posgrado
+clave=="104017" | /// Imprevistos de educación superior
+clave=="10401A" ; /// Imprevistos de posgrado
+
+foreach var in kinder_mon primaria_mon secu_mon prepa_mon universidad_mon posgrado_mon educ_basica_mon educ_media_mon educ_superior_mon {;
+
+    replace `var'=`var'/d7m07 if decena==1;
+    replace `var'=`var'/d7m07 if decena==2;
+
+    replace `var'=`var'/d7m08 if decena==3;
+    replace `var'=`var'/d7m08 if decena==4;
+    replace `var'=`var'/d7m08 if decena==5;
+
+    replace `var'=`var'/d7m09 if decena==6;
+    replace `var'=`var'/d7m09 if decena==7;
+    replace `var'=`var'/d7m09 if decena==8;
+
+    replace `var'=`var'/d7m10 if decena==9;
+    replace `var'=`var'/d7m10 if decena==0;
+
+};
+
+*Gasto no monetario en Cuidado personal deflactado (mensual);
+
+gen double cuip_mon=gastom if (clave>="131111" & clave<="131113") | clave=="131120" | (clave>="131201" & clave<="131208") | (clave>="131311" & clave<="131313") | (clave>="131321" & clave<="131323") | clave=="132916" | clave=="139010" | clave=="061338" | (clave>="13120A" & clave<="13120N");
+
+replace cuip_mon=cuip_mon/d23m07 if decena==1;
+replace cuip_mon=cuip_mon/d23m07 if decena==2;
+replace cuip_mon=cuip_mon/d23m08 if decena==3;
+replace cuip_mon=cuip_mon/d23m08 if decena==4;
+replace cuip_mon=cuip_mon/d23m08 if decena==5;
+replace cuip_mon=cuip_mon/d23m09 if decena==6;
+replace cuip_mon=cuip_mon/d23m09 if decena==7;
+replace cuip_mon=cuip_mon/d23m09 if decena==8;
+replace cuip_mon=cuip_mon/d23m10 if decena==9;
+replace cuip_mon=cuip_mon/d23m10 if decena==0;
+
+*Gasto no monetario en Accesorios personales deflactado (trimestral);
+
+gen double accp_mon=gastom if clave=="132911" |	clave=="031311" |	clave=="132912" |	clave=="132919" |	clave=="132111" |	clave=="132913" |	clave=="132914" |	clave=="132112" |	clave=="031312" |	clave=="132915" |	clave=="132917" |	clave=="132918" |	clave=="132200" |	clave=="13291B" |	clave=="132921" |	clave=="132120" |	clave=="132922" ;
+
+replace accp_mon=accp_mon/d23t05 if decena==1;
+replace accp_mon=accp_mon/d23t05 if decena==2;
+replace accp_mon=accp_mon/d23t06 if decena==3;
+replace accp_mon=accp_mon/d23t06 if decena==4;
+replace accp_mon=accp_mon/d23t06 if decena==5;
+replace accp_mon=accp_mon/d23t07 if decena==6;
+replace accp_mon=accp_mon/d23t07 if decena==7;
+replace accp_mon=accp_mon/d23t07 if decena==8;
+replace accp_mon=accp_mon/d23t08 if decena==9;
+replace accp_mon=accp_mon/d23t08 if decena==0;
+
+
+*Gasto monetario en Cristalería y blancos deflactado (trimestral);
+
+gen double cris_mon=gastom if clave=="132113" | clave=="031320" | clave=="051111" | (clave>="051142" & clave<="051145") | (clave>="052111" & clave<="052113") | (clave>="052121" & clave<="052124") | (clave>="052131" & clave<="052132") | (clave>="052191" & clave<="052193") | clave=="052200" | (clave>="054011" & clave<="054013") | (clave>="054021" & clave<="054023") | (clave>="054031" & clave<="054036") | clave=="054040" | clave=="055101" | (clave>="055211" & clave<="055212") | clave=="055223" | clave=="055301" | clave=="056191" | clave=="093122" ;
+
+replace cris_mon=cris_mon/d42t05 if decena==1;
+replace cris_mon=cris_mon/d42t05 if decena==2;
+replace cris_mon=cris_mon/d42t06 if decena==3;
+replace cris_mon=cris_mon/d42t06 if decena==4;
+replace cris_mon=cris_mon/d42t06 if decena==5;
+replace cris_mon=cris_mon/d42t07 if decena==6;
+replace cris_mon=cris_mon/d42t07 if decena==7;
+replace cris_mon=cris_mon/d42t07 if decena==8;
+replace cris_mon=cris_mon/d42t08 if decena==9;
+replace cris_mon=cris_mon/d42t08 if decena==0;
+
+*Gasto monetario en Enseres domésticos y muebles deflactado (semestral);
+
+gen double ens_mon=gastom if (clave>="173111" & clave<="173113") | clave=="173121" | (clave>="043121" & clave<="043122") | (clave>="051112" & clave<="051116") | clave=="051121" | clave=="051130" | clave=="051141" | clave=="051201" | (clave>="053111" & clave<="053115") | (clave>="053121" & clave<="053122") | (clave>="053131" & clave<="053134") | clave=="053140" | clave=="053190" | (clave>="053211" & clave<="053215") | (clave>="053221" & clave<="053222") | (clave>="053291" & clave<="053293") | (clave>="053301" & clave<="053303") | clave=="055102" | clave=="055223" | (clave>="055302" & clave<="055303") | clave=="081100" ;
+
+replace ens_mon=ens_mon/d41s02 if decena==1;
+replace ens_mon=ens_mon/d41s02 if decena==2;
+replace ens_mon=ens_mon/d41s03 if decena==3;
+replace ens_mon=ens_mon/d41s03 if decena==4;
+replace ens_mon=ens_mon/d41s03 if decena==5;
+replace ens_mon=ens_mon/d41s04 if decena==6;
+replace ens_mon=ens_mon/d41s04 if decena==7;
+replace ens_mon=ens_mon/d41s04 if decena==8;
+replace ens_mon=ens_mon/d41s05 if decena==9;
+replace ens_mon=ens_mon/d41s05 if decena==0;
+
+*Gasto monetario en Medicamento (trimestral);
+gen double med_mon = gastom if ///
+    (clave >= "061111" & clave <= "061119") | ///
+    clave == "06111A" | ///
+    clave == "06111B" | ///
+    clave == "06111C" | ///
+    clave == "06111D" | ///
+    clave == "06111E" | ///
+    clave == "06111G" | ///
+    clave == "06111H" | ///
+    clave == "06111I" | ///
+    clave == "06111K" | ///
+    clave == "06111L" | ///
+    clave == "011994" | ///
+	clave == "062193" | ///
+	clave == "061311";
+
+	
+replace med_mon=med_mon/d51t05 if decena==1;
+replace med_mon=med_mon/d51t05 if decena==2;
+replace med_mon=med_mon/d51t06 if decena==3;
+replace med_mon=med_mon/d51t06 if decena==4;
+replace med_mon=med_mon/d51t06 if decena==5;
+replace med_mon=med_mon/d51t07 if decena==6;
+replace med_mon=med_mon/d51t07 if decena==7;
+replace med_mon=med_mon/d51t07 if decena==8;
+replace med_mon=med_mon/d51t08 if decena==9;
+replace med_mon=med_mon/d51t08 if decena==0;
+
+
+save "$bases\ingmon24.dta", replace;
+
+preserve;
+
+*Gasto no monetario en Alimentos deflactado (semanal) ;
+
+gen double ali_nm=gastom if (clave>="111111" & clave<="111116") | (clave>="111121" & clave<="111126") | (clave>="181111" & clave<="181145") | (clave>="181152" & clave<="181153") | (clave>="181155" & clave<="181171") | clave=="011111" | (clave>="011112" & clave<="011113") | clave=="011121" | clave=="011122" | clave=="011131" | (clave>="011132" & clave<="011139") | clave=="01113A" | clave=="011140" | clave=="011150" | (clave>="011191" & clave<="011196") | clave=="011210" | (clave>="011221" & clave<="011229") | (clave>="01122A" & clave<="01122D") | (clave>="01122F" & clave<="01122I") | (clave>="011231" & clave<="011235") | (clave>="011241" & clave<="011247") | (clave>="011251" & clave<="011256") | clave=="011310" | (clave>="011321" & clave<="011324") | (clave>="011331" & clave<="011332") | (clave>="011341" & clave<="011343") | (clave>="011351" & clave<="011352") | clave=="011360" | clave=="011370" | (clave>="011411" & clave<="011412") | clave=="011420" | (clave>="011432" & clave<="011433") | (clave>="011441" & clave<="011442") | (clave>="011451" & clave<="011452") | (clave>="011454" & clave<="011456") | clave=="011460" | (clave>="011471" & clave<="011473") | (clave>="011481" & clave<="011482") | clave=="011490" | (clave>="011511" & clave<="011512") | clave=="011520" | clave=="011530" | (clave>="011591" & clave<="011593") | (clave>="011611" & clave<="011617") | (clave>="011621" & clave<="011624") | (clave>="011631" & clave<="011635") | (clave>="011641" & clave<="011642") | (clave>="011651" & clave<="011654") | clave=="011660" | clave=="011670" | clave=="011680" | (clave>="011691" & clave<="011692") | (clave>="011711" & clave<="011713") | (clave>="011721" & clave<="011729") | clave=="01172A" | (clave>="011731" & clave<="011733") | (clave>="011741" & clave<="011749") | (clave>="011751" & clave<="011755") | (clave>="011761" & clave<="011764") | clave=="011770" | (clave>="011781" & clave<="011782") | (clave>="011791" & clave<="011799") | clave=="01179A" | clave=="011810" | clave=="011820" | (clave>="011831" & clave<="011834") | (clave>="011841" & clave<="011843") | (clave>="011851" & clave<="011853") | (clave>="011861" & clave<="011862") | (clave>="011891" & clave<="011893") | (clave>="011911" & clave<="011912") | (clave>="011921" & clave<="011925") | (clave>="011931" & clave<="011938") | (clave>="011942" & clave<="011946") | (clave>="011991" & clave<="011996") | clave=="012100" | (clave>="012201" & clave<="012203") | (clave>="012301" & clave<="012302") | clave=="012400" | (clave>="012501" & clave<="012502") | (clave>="012601" & clave<="012604") | (clave>="012901" & clave<="012905") | clave=="012907" | clave=="013000" | clave=="093221";
+
+replace ali_nm=ali_nm/d11w08 if decena==1;
+replace ali_nm=ali_nm/d11w08 if decena==2;
+replace ali_nm=ali_nm/d11w08 if decena==3;
+replace ali_nm=ali_nm/d11w09 if decena==4;
+replace ali_nm=ali_nm/d11w09 if decena==5;
+replace ali_nm=ali_nm/d11w09 if decena==6;
+replace ali_nm=ali_nm/d11w10 if decena==7;
+replace ali_nm=ali_nm/d11w10 if decena==8;
+replace ali_nm=ali_nm/d11w10 if decena==9;
+replace ali_nm=ali_nm/d11w11 if decena==0;
+
+*Gasto no monetario en Alcohol y tabaco deflactado (semanal);
+
+gen double alta_nm=gastom if (clave>="181146" & clave<="181151") | clave=="181154" | (clave>="021101" & clave<="021105") | (clave>="021211" & clave<="021213") | clave=="021220" | (clave>="021301" & clave<="021303") | (clave>="021901" & clave<="021902") | clave=="023010" | clave=="023020" | clave=="023090" | clave=="024000" ;
+
+replace alta_nm=alta_nm/d12w08 if decena==1;
+replace alta_nm=alta_nm/d12w08 if decena==2;
+replace alta_nm=alta_nm/d12w08 if decena==3;
+replace alta_nm=alta_nm/d12w09 if decena==4;
+replace alta_nm=alta_nm/d12w09 if decena==5;
+replace alta_nm=alta_nm/d12w09 if decena==6;
+replace alta_nm=alta_nm/d12w10 if decena==7;
+replace alta_nm=alta_nm/d12w10 if decena==8;
+replace alta_nm=alta_nm/d12w10 if decena==9;
+replace alta_nm=alta_nm/d12w11 if decena==0;
+
+*Gasto no monetario en Vestido y calzado deflactado (trimestral);
+
+gen double veca_nm=gastom if (clave>="172111" & clave<="172119") | (clave>="172121" & clave<="172124") | clave=="031100" | (clave>="031211" & clave<="031219") | (clave>="03121A" & clave<="03121J") | (clave>="031221" & clave<="031229") | (clave>="03122A" & clave<="03122O") | (clave>="031231" & clave<="031232") | (clave>="031235" & clave<="031239") | (clave>="03123A" & clave<="03123C") | (clave>="031313" & clave<="031314") | clave=="031316" | clave=="031420" | (clave>="032111" & clave<="032119") | (clave>="032121" & clave<="032129") | (clave>="032131" & clave<="032139") | (clave>="03213A" & clave<="03213D") | (clave>="032201" & clave<="032202") | clave=="056111" | clave=="17211A" | clave=="17211B" ;
+
+replace veca_nm=veca_nm/d2t05 if decena==1;
+replace veca_nm=veca_nm/d2t05 if decena==2;
+replace veca_nm=veca_nm/d2t06 if decena==3;
+replace veca_nm=veca_nm/d2t06 if decena==4;
+replace veca_nm=veca_nm/d2t06 if decena==5;
+replace veca_nm=veca_nm/d2t07 if decena==6;
+replace veca_nm=veca_nm/d2t07 if decena==7;
+replace veca_nm=veca_nm/d2t07 if decena==8;
+replace veca_nm=veca_nm/d2t08 if decena==9;
+replace veca_nm=veca_nm/d2t08 if decena==0;
+
+*Gasto no monetario en Viviendas y servicios de conservación deflactado (mensual);
+
+gen double viv_nm=gastom if clave=="171611" | clave=="171613" | (clave>="041103" & clave<="041105") | (clave>="041211" & clave<="041212") | clave=="041222" | clave=="043203" | clave=="043204" | clave=="044110" | clave=="044120" | clave=="044200" | clave=="044310" | clave=="044320" | (clave>="044411" & clave<="044412") | clave=="044492" | clave=="045100" | clave=="045210" | (clave>="045221" & clave<="045222") | clave=="045300" | clave=="045410" | clave=="045420" | clave=="045430" | clave=="045490" | clave=="045502" | clave=="05619A" ;
+			
+replace viv_nm=viv_nm/d3m07 if decena==1;
+replace viv_nm=viv_nm/d3m07 if decena==2;
+replace viv_nm=viv_nm/d3m08 if decena==3;
+replace viv_nm=viv_nm/d3m08 if decena==4;
+replace viv_nm=viv_nm/d3m08 if decena==5;
+replace viv_nm=viv_nm/d3m09 if decena==6;
+replace viv_nm=viv_nm/d3m09 if decena==7;
+replace viv_nm=viv_nm/d3m09 if decena==8;
+replace viv_nm=viv_nm/d3m10 if decena==9;
+replace viv_nm=viv_nm/d3m10 if decena==0;
+
+*Gasto no monetario en Artículos de limpieza deflactado (mensual);
+
+gen double lim_nm=gastom if clave=="171101" | (clave>="031411" & clave<="031412") | clave=="044491" | (clave>="055221" & clave<="055222") | (clave>="056112" & clave<="056119") | (clave>="05611A" & clave<="05611E") | (clave>="056192" & clave<="056198") | (clave>="05619B" & clave<="05619C") | (clave>="056211" & clave<="056212") | (clave>="056291" & clave<="056293") | clave=="056295" ;
+
+replace lim_nm=lim_nm/d42m07 if decena==1;
+replace lim_nm=lim_nm/d42m07 if decena==2;
+replace lim_nm=lim_nm/d42m08 if decena==3;
+replace lim_nm=lim_nm/d42m08 if decena==4;
+replace lim_nm=lim_nm/d42m08 if decena==5;
+replace lim_nm=lim_nm/d42m09 if decena==6;
+replace lim_nm=lim_nm/d42m09 if decena==7;
+replace lim_nm=lim_nm/d42m09 if decena==8;
+replace lim_nm=lim_nm/d42m10 if decena==9;
+replace lim_nm=lim_nm/d42m10 if decena==0;
+
+*Gasto no monetario en Cristalería y blancos deflactado (trimestral);
+
+gen double cris_nm=gastom if clave=="132113" | clave=="031320" | clave=="051111" | (clave>="051142" & clave<="051145") | (clave>="052111" & clave<="052113") | (clave>="052121" & clave<="052124") | (clave>="052131" & clave<="052132") | (clave>="052191" & clave<="052193") | clave=="052200" | (clave>="054011" & clave<="054013") | (clave>="054021" & clave<="054023") | (clave>="054031" & clave<="054036") | clave=="054040" | clave=="055101" | (clave>="055211" & clave<="055212") | clave=="055223" | clave=="055301" | clave=="056191" | clave=="093122" ;
+
+replace cris_nm=cris_nm/d42t05 if decena==1;
+replace cris_nm=cris_nm/d42t05 if decena==2;
+replace cris_nm=cris_nm/d42t06 if decena==3;
+replace cris_nm=cris_nm/d42t06 if decena==4;
+replace cris_nm=cris_nm/d42t06 if decena==5;
+replace cris_nm=cris_nm/d42t07 if decena==6;
+replace cris_nm=cris_nm/d42t07 if decena==7;
+replace cris_nm=cris_nm/d42t07 if decena==8;
+replace cris_nm=cris_nm/d42t08 if decena==9;
+replace cris_nm=cris_nm/d42t08 if decena==0;
+
+*Gasto no monetario en Enseres domésticos y muebles deflactado (semestral);
+
+gen double ens_nm=gastom if (clave>="173111" & clave<="173113") | clave=="173121" | (clave>="043121" & clave<="043122") | (clave>="051112" & clave<="051116") | clave=="051121" | clave=="051130" | clave=="051141" | clave=="051201" | (clave>="053111" & clave<="053115") | (clave>="053121" & clave<="053122") | (clave>="053131" & clave<="053134") | clave=="053140" | clave=="053190" | (clave>="053211" & clave<="053215") | (clave>="053221" & clave<="053222") | (clave>="053291" & clave<="053293") | (clave>="053301" & clave<="053303") | clave=="055102" | clave=="055223" | (clave>="055302" & clave<="055303") | clave=="081100" ;
+
+replace ens_nm=ens_nm/d41s02 if decena==1;
+replace ens_nm=ens_nm/d41s02 if decena==2;
+replace ens_nm=ens_nm/d41s03 if decena==3;
+replace ens_nm=ens_nm/d41s03 if decena==4;
+replace ens_nm=ens_nm/d41s03 if decena==5;
+replace ens_nm=ens_nm/d41s04 if decena==6;
+replace ens_nm=ens_nm/d41s04 if decena==7;
+replace ens_nm=ens_nm/d41s04 if decena==8;
+replace ens_nm=ens_nm/d41s05 if decena==9;
+replace ens_nm=ens_nm/d41s05 if decena==0;
+
+*Gasto no monetario en Salud deflactado (trimestral);
+
+gen double sal_nm=gastom if (clave>="121201" & clave<="121202") | clave=="131209" | clave=="133091" | (clave>="061111" & clave<="061119") | (clave>="06111A" & clave<="06111L") | clave=="061120" | (clave>="061211" & clave<="061212") | (clave>="061221" & clave<="061223") | clave=="061230" | (clave>="061311" & clave<="061312") | clave=="061320" | (clave>="061331" & clave<="061336") | (clave>="061401" & clave<="061402") | clave=="062110" | (clave>="062191" & clave<="062198") | clave=="062210" | clave=="062291" | clave=="062292" | (clave>="062311" & clave<="062313") | (clave>="062321" & clave<="062323") | (clave>="063101" & clave<="063106") | clave=="063200" | (clave>="064101" & clave<="064103") | (clave>="064201" & clave<="064202");
+
+replace sal_nm=sal_nm/d51t05 if decena==1;
+replace sal_nm=sal_nm/d51t05 if decena==2;
+replace sal_nm=sal_nm/d51t06 if decena==3;
+replace sal_nm=sal_nm/d51t06 if decena==4;
+replace sal_nm=sal_nm/d51t06 if decena==5;
+replace sal_nm=sal_nm/d51t07 if decena==6;
+replace sal_nm=sal_nm/d51t07 if decena==7;
+replace sal_nm=sal_nm/d51t07 if decena==8;
+replace sal_nm=sal_nm/d51t08 if decena==9;
+replace sal_nm=sal_nm/d51t08 if decena==0;
+
+*Gasto no monetario en Transporte público deflactado (semanal);
+
+gen double tpub_nm=gastom if clave=="181211" | clave=="073111" | (clave>="073121" & clave<="073123") | (clave>="073212" & clave<="073215") | (clave>="073221" & clave<="073222") | clave=="073290" | clave=="073600" ;
+
+replace tpub_nm=tpub_nm/d611w08 if decena==1;
+replace tpub_nm=tpub_nm/d611w08 if decena==2;
+replace tpub_nm=tpub_nm/d611w08 if decena==3;
+replace tpub_nm=tpub_nm/d611w09 if decena==4;
+replace tpub_nm=tpub_nm/d611w09 if decena==5;
+replace tpub_nm=tpub_nm/d611w09 if decena==6;
+replace tpub_nm=tpub_nm/d611w10 if decena==7;
+replace tpub_nm=tpub_nm/d611w10 if decena==8;
+replace tpub_nm=tpub_nm/d611w10 if decena==9;
+replace tpub_nm=tpub_nm/d611w11 if decena==0;
+
+*Gasto no monetario en Transporte foráneo deflactado (semestral);
+	
+gen double tfor_nm=gastom if clave=="041221" | clave=="061337" | clave=="071110" | clave=="071120" | clave=="071200" | clave=="071300" | clave=="071401" | clave=="071402" | clave=="072110" | clave=="072121" | clave=="072122" | (clave>="072131" & clave<="072134") | clave=="072210" | (clave>="072221" & clave<="072222") | clave=="072230" | clave=="072240" | (clave>="072301" & clave<="072309") | clave=="072412" | clave=="072420" | clave=="072440" | clave=="073112" | clave=="073211" | clave=="073310" | clave=="073320" | (clave>="073401" & clave<="073402") | clave=="073500" | clave=="074911" | clave=="091210" | clave=="094210"  ;
+
+replace tfor_nm=tfor_nm/d6s02 if decena==1;
+replace tfor_nm=tfor_nm/d6s02 if decena==2;
+replace tfor_nm=tfor_nm/d6s03 if decena==3;
+replace tfor_nm=tfor_nm/d6s03 if decena==4;
+replace tfor_nm=tfor_nm/d6s03 if decena==5;
+replace tfor_nm=tfor_nm/d6s04 if decena==6;
+replace tfor_nm=tfor_nm/d6s04 if decena==7;
+replace tfor_nm=tfor_nm/d6s04 if decena==8;
+replace tfor_nm=tfor_nm/d6s05 if decena==9;
+replace tfor_nm=tfor_nm/d6s05 if decena==0;
+
+*Gasto no monetario en Comunicaciones deflactado (mensual);
+
+gen double com_nm=gastom if clave=="074110" | clave=="074120" | clave=="081200" | (clave>="083101" & clave<="083104") | (clave>="083201" & clave<="083202") | (clave>="083301" & clave<="083303") | (clave>="083401" & clave<="083405") | clave=="083924" | clave=="083990" ;
+												
+replace com_nm=com_nm/d6m07 if decena==1;
+replace com_nm=com_nm/d6m07 if decena==2;
+replace com_nm=com_nm/d6m08 if decena==3;
+replace com_nm=com_nm/d6m08 if decena==4;
+replace com_nm=com_nm/d6m08 if decena==5;
+replace com_nm=com_nm/d6m09 if decena==6;
+replace com_nm=com_nm/d6m09 if decena==7;
+replace com_nm=com_nm/d6m09 if decena==8;
+replace com_nm=com_nm/d6m10 if decena==9;
+replace com_nm=com_nm/d6m10 if decena==0;
+
+*Gasto no monetario en Educación y recreación deflactado (mensual);
+
+gen double edre_nm=gastom if (clave>="101011" & clave<="101015") | (clave>="101021" & clave<="101025") | (clave>="102001" & clave<="102005") | (clave>="103001" & clave<="103005") | (clave>="104011" & clave<="104019") | clave=="105010" | (clave>="105091" & clave<="105093") | (clave>="112011" & clave<="112014") | clave=="112020" | clave=="112030" | clave=="112090" | clave=="121420" | (clave>="133011" & clave<="133014") | clave=="133092" | clave=="171319" | (clave>="174111" & clave<="174115") | (clave>="031241" & clave<="031245") | clave=="051122" | clave=="072431" | clave=="073230" | (clave>="081311" & clave<="081313") | (clave>="081321" & clave<="081325") | (clave>="081401" & clave<="081409") | clave=="08140A" | (clave>="081501" & clave<="081503") | clave=="081505" | clave=="081910" | clave=="081920" | (clave>="082001" & clave<="082003") | (clave>="083501" & clave<="083502") | (clave>="083921" & clave<="083923") | (clave>="091111" & clave<="091114") | (clave>="091121" & clave<="091122") | clave=="091130" | clave=="091220" | clave=="091230" | (clave>="091241" & clave<="091243") | clave=="091290" | (clave>="092111" & clave<="092118") | (clave>="092121" & clave<="092122") | clave=="092131" | (clave>="092211" & clave<="092213") | clave=="092220" | clave=="093110" | clave=="093121" | clave=="093123" | clave=="093210" | clave=="093222" | clave=="094100" | clave=="094220" | (clave>="094311" & clave<="094312") | clave=="094320" | clave=="094400" | (clave>="094501" & clave<="094502") | (clave>="094611" & clave<="094613") | (clave>="094615" & clave<="094616") | (clave>="094621" & clave<="094625") | clave=="094630" | clave=="094700" | clave=="095100" | (clave>="095201" & clave<="095202") | (clave>="095204" & clave<="095206") | (clave>="096101" & clave<="096105") | (clave>="096201" & clave<="096202") | clave=="096300" | (clave>="096901" & clave<="096906") | (clave>="097111" & clave<="097113") | (clave>="097191" & clave<="097194") | clave=="097210" | clave=="097220" | (clave>="097301" & clave<="097302") | (clave>="097401" & clave<="097408") | (clave>="098001" & clave<="098004") | clave=="10401A" | clave=="091242" | clave=="094220";
+					
+replace edre_nm=edre_nm/d7m07 if decena==1;
+replace edre_nm=edre_nm/d7m07 if decena==2;
+replace edre_nm=edre_nm/d7m08 if decena==3;
+replace edre_nm=edre_nm/d7m08 if decena==4;
+replace edre_nm=edre_nm/d7m08 if decena==5;
+replace edre_nm=edre_nm/d7m09 if decena==6;
+replace edre_nm=edre_nm/d7m09 if decena==7;
+replace edre_nm=edre_nm/d7m09 if decena==8;
+replace edre_nm=edre_nm/d7m10 if decena==9;
+replace edre_nm=edre_nm/d7m10 if decena==0;
+
+*Gasto no monetario en Educación básica deflactado (mensual);
+
+gen double edba_nm=gastom if (clave>="101021" & clave<="101022") | clave=="101025" | (clave>="102001" & clave<="102002") | clave=="102005" | (clave>="031241" & clave<="031245");
+	 
+replace edba_nm=edba_nm/d7m07 if decena==1;
+replace edba_nm=edba_nm/d7m07 if decena==2;
+replace edba_nm=edba_nm/d7m08 if decena==3;
+replace edba_nm=edba_nm/d7m08 if decena==4;
+replace edba_nm=edba_nm/d7m08 if decena==5;
+replace edba_nm=edba_nm/d7m09 if decena==6;
+replace edba_nm=edba_nm/d7m09 if decena==7;
+replace edba_nm=edba_nm/d7m09 if decena==8;
+replace edba_nm=edba_nm/d7m10 if decena==9;
+replace edba_nm=edba_nm/d7m10 if decena==0;
+
+*Gasto no monetario en Cuidado personal deflactado (mensual);
+
+gen double cuip_nm=gastom if (clave>="131111" & clave<="131113") | clave=="131120" | (clave>="131201" & clave<="131208") | (clave>="131311" & clave<="131313") | (clave>="131321" & clave<="131323") | clave=="132916" | clave=="139010" | clave=="061338" | (clave>="13120A" & clave<="13120N");
+
+replace cuip_nm=cuip_nm/d23m07 if decena==1;
+replace cuip_nm=cuip_nm/d23m07 if decena==2;
+replace cuip_nm=cuip_nm/d23m08 if decena==3;
+replace cuip_nm=cuip_nm/d23m08 if decena==4;
+replace cuip_nm=cuip_nm/d23m08 if decena==5;
+replace cuip_nm=cuip_nm/d23m09 if decena==6;
+replace cuip_nm=cuip_nm/d23m09 if decena==7;
+replace cuip_nm=cuip_nm/d23m09 if decena==8;
+replace cuip_nm=cuip_nm/d23m10 if decena==9;
+replace cuip_nm=cuip_nm/d23m10 if decena==0;
+
+*Gasto no monetario en Accesorios personales deflactado (trimestral);
+
+gen double accp_nm=gastom if clave=="132911" |	clave=="031311" |	clave=="132912" |	clave=="132919" |	clave=="132111" |	clave=="132913" |	clave=="132914" |	clave=="132112" |	clave=="031312" |	clave=="132915" |	clave=="132917" |	clave=="132918" |	clave=="132200" |	clave=="13291B" |	clave=="132921" |	clave=="132120" |	clave=="132922" ;
+
+replace accp_nm=accp_nm/d23t05 if decena==1;
+replace accp_nm=accp_nm/d23t05 if decena==2;
+replace accp_nm=accp_nm/d23t06 if decena==3;
+replace accp_nm=accp_nm/d23t06 if decena==4;
+replace accp_nm=accp_nm/d23t06 if decena==5;
+replace accp_nm=accp_nm/d23t07 if decena==6;
+replace accp_nm=accp_nm/d23t07 if decena==7;
+replace accp_nm=accp_nm/d23t07 if decena==8;
+replace accp_nm=accp_nm/d23t08 if decena==9;
+replace accp_nm=accp_nm/d23t08 if decena==0;
+
+*Gasto no monetario en Otros gastos y transferencias deflactado (semestral);
+
+gen double otr_nm=gastom if clave=="121101" |	clave=="121102" |	clave=="121300" |	clave=="121411" |	clave=="121412" |	clave=="121900" |	clave=="122100" |	clave=="122990" |	clave=="133021" |	clave=="133022" |	clave=="133092" |	clave=="139020" |	clave=="139091" |	clave=="139092" |	clave=="139093" |	clave=="139094" |	clave=="139096" |	clave=="171612" |	clave=="173411" |	clave=="173412" |	clave=="173413" |	clave=="173414" |	clave=="173416" |	clave=="173417" |	clave=="181212" |	clave=="031315" |	clave=="056294" |	clave=="072432" |	clave=="13291A" | clave=="074912" | clave=="074920" | clave=="074912" | clave=="074920";
+			  
+replace otr_nm=otr_nm/dINPCs02 if decena==1;
+replace otr_nm=otr_nm/dINPCs02 if decena==2;
+replace otr_nm=otr_nm/dINPCs03 if decena==3;
+replace otr_nm=otr_nm/dINPCs03 if decena==4;
+replace otr_nm=otr_nm/dINPCs03 if decena==5;
+replace otr_nm=otr_nm/dINPCs04 if decena==6;
+replace otr_nm=otr_nm/dINPCs04 if decena==7;
+replace otr_nm=otr_nm/dINPCs04 if decena==8;
+replace otr_nm=otr_nm/dINPCs05 if decena==9;
+replace otr_nm=otr_nm/dINPCs05 if decena==0;
+
+*Gasto no monetario en Regalos Otorgados deflactado;
+
+gen double reda_nm=gastom if (clave>="T901" &	clave<="T915") | clave=="173416" ;
+ 
+replace reda_nm=reda_nm/dINPCs02 if decena==1;
+replace reda_nm=reda_nm/dINPCs02 if decena==2;
+replace reda_nm=reda_nm/dINPCs03 if decena==3;
+replace reda_nm=reda_nm/dINPCs03 if decena==4;
+replace reda_nm=reda_nm/dINPCs03 if decena==5;
+replace reda_nm=reda_nm/dINPCs04 if decena==6;
+replace reda_nm=reda_nm/dINPCs04 if decena==7;
+replace reda_nm=reda_nm/dINPCs04 if decena==8;
+replace reda_nm=reda_nm/dINPCs05 if decena==9;
+replace reda_nm=reda_nm/dINPCs05 if decena==0;
+
+keep if gmon==1;
+
+
+    egen gasto_total = rowtotal( ///
+        ali_nm alta_nm veca_nm viv_nm lim_nm ///
+        cris_nm ens_nm sal_nm tpub_nm tfor_nm ///
+        com_nm edre_nm cuip_nm accp_nm ///
+        otr_nm reda_nm );
+		
+		collapse (sum) gasto_total, by(folioviv foliohog);
+
+    keep folioviv foliohog gasto_total;
+
+    tempfile gasto_total;
+    save `gasto_total';
+
+restore;
+
+*Construcción de la base de pagos en especie a partir de la base 
+de gasto no monetario;
+
+keep if gmon==1; 
+
+collapse (sum) *_mon, by(folioviv foliohog);
+merge 1:1 folioviv foliohog using `gasto_total', nogen;
+
+rename cereales_mon      cereales_monh;
+rename carnes_mon        carnes_monh;
+rename pescado_mon       pescado_monh;
+rename leche_mon         leche_monh;
+rename huevo_mon         huevo_monh;
+rename aceites_mon       aceites_monh;
+rename tuberculo_mon     tuberculo_monh;
+rename verduras_mon      verduras_monh;
+rename frutas_mon        frutas_monh;
+rename azucar_mon        azucar_monh;
+rename cafe_mon          cafe_monh;
+rename especias_mon      especias_monh;
+rename otros_alim_mon    otros_alim_monh;
+rename noalcohol_mon     noalcohol_monh;
+
+rename tabaco_mon        tabaco_monh;
+rename alcohol_mon       alcohol_monh;
+
+rename vestido_mon       vestido_monh;
+rename calzado_mon       calzado_monh;
+
+rename kinder_mon        kinder_monh;
+rename primaria_mon      primaria_monh;
+rename secu_mon          secu_monh;
+rename prepa_mon         prepa_monh;
+rename universidad_mon       universidad_monh;
+rename posgrado_mon      posgrado_monh;
+rename educ_basica_mon   educ_basica_monh;
+rename educ_media_mon    educ_media_monh;
+rename educ_superior_mon educ_superior_monh;
+
+rename cuip_mon          cuip_monh;
+rename accp_mon          accp_monh;
+
+rename cris_mon          cris_monh;
+rename ens_mon           ens_monh;
+
+rename med_mon           med_monh;
+
+rename vestido17_mon           vestido17_monh;
+rename calzado17_mon           calzado17_monh;
+
+
+sort folioviv foliohog;
+save "$bases\monhogar24.dta", replace;
+
+
+use "$bases\ingmon24.dta", clear;
+
+*Construcción de base de regalos a partir de la base no monetaria;
+
+keep if gmonotro==1;
+
+collapse (sum) *_mon, by(folioviv foliohog);
+
+rename cereales_mon      cereales_mono;
+rename carnes_mon        carnes_mono;
+rename pescado_mon       pescado_mono;
+rename leche_mon         leche_mono;
+rename huevo_mon         huevo_mono;
+rename aceites_mon       aceites_mono;
+rename tuberculo_mon     tuberculo_mono;
+rename verduras_mon      verduras_mono;
+rename frutas_mon        frutas_mono;
+rename azucar_mon        azucar_mono;
+rename cafe_mon          cafe_mono;
+rename especias_mon      especias_mono;
+rename otros_alim_mon    otros_alim_mono;
+rename noalcohol_mon     noalcohol_mono;
+
+rename tabaco_mon        tabaco_mono;
+rename alcohol_mon       alcohol_mono;
+
+rename vestido_mon       vestido_mono;
+rename calzado_mon       calzado_mono;
+
+rename kinder_mon        kinder_mono;
+rename primaria_mon      primaria_mono;
+rename secu_mon          secu_mono;
+rename prepa_mon         prepa_mono;
+rename universidad_mon   universidad_mono;
+rename posgrado_mon      posgrado_mono;
+rename educ_basica_mon   educ_basica_mono;
+rename educ_media_mon    educ_media_mono;
+rename educ_superior_mon educ_superior_mono;
+
+
+rename cuip_mon cuip_mono;
+rename accp_mon          accp_mono;
+
+rename cris_mon          cris_mono;
+rename ens_mon           ens_mono;
+
+rename med_mon           med_mono;
+
+sort folioviv foliohog;
+save "$bases\monotro24.dta", replace;
+
+use "$data\ingresos_jcf.dta", clear;
+
+
+scalar	dic23 =	0.9732378523;
+scalar	ene24 =	0.9819281980;
+scalar	feb24 =	0.9828545801;
+scalar	mar24 =	0.9856778396;
+scalar	abr24 =	0.9876702962;
+scalar	may24 =	0.9858395889;
+scalar	jun24 =	0.9895671737;
+scalar	jul24 =	0.9999264776;
+scalar	ago24 =	1.0000000000;
+scalar	sep24 =	1.0004926000;
+scalar	oct24 =	1.0059920743;
+scalar	nov24 =	1.0103740084;
+scalar	dic24 =	1.0142339335;
+
+
+destring mes_*, replace;
+replace ing_6=ing_6/feb24 if mes_6==2;
+replace ing_6=ing_6/mar24 if mes_6==3;
+replace ing_6=ing_6/abr24 if mes_6==4;
+replace ing_6=ing_6/may24 if mes_6==5;
+
+replace ing_5=ing_5/mar24 if mes_5==3;
+replace ing_5=ing_5/abr24 if mes_5==4;
+replace ing_5=ing_5/may24 if mes_5==5;
+replace ing_5=ing_5/jun24 if mes_5==6;
+
+replace ing_4=ing_4/abr24 if mes_4==4;
+replace ing_4=ing_4/may24 if mes_4==5;
+replace ing_4=ing_4/jun24 if mes_4==6;
+replace ing_4=ing_4/jul24 if mes_4==7;
+
+replace ing_3=ing_3/may24 if mes_3==5;
+replace ing_3=ing_3/jun24 if mes_3==6;
+replace ing_3=ing_3/jul24 if mes_3==7;
+replace ing_3=ing_3/ago24 if mes_3==8;
+
+replace ing_2=ing_2/jun24 if mes_2==6;
+replace ing_2=ing_2/jul24 if mes_2==7;
+replace ing_2=ing_2/ago24 if mes_2==8;
+replace ing_2=ing_2/sep24 if mes_2==9;
+
+replace ing_1=ing_1/jul24 if mes_1==7;
+replace ing_1=ing_1/ago24 if mes_1==8;
+replace ing_1=ing_1/sep24 if mes_1==9;
+replace ing_1=ing_1/oct24 if mes_1==10;
+
+egen double ing_jcf=rmean(ing_1 ing_2 ing_3 ing_4 ing_5 ing_6) if clave=="P108";
+
+recode ing_jcf (.=0);
+
+collapse (sum) ing_jcf, by(folioviv foliohog numren);
+
+keep folioviv foliohog numren ing_jcf;
+sort folioviv foliohog numren;
+save "$bases\jcf.dta", replace;
+
+use "$bases\jcf.dta", clear;
+merge 1:1 folioviv foliohog numren using "$data\ingresos_jcf.dta", keepusing(ct_futuro);
+drop _merge;
+sort folioviv foliohog numren;
+save "$bases\jcf.dta", replace;
 
 ************************************************************************
 
@@ -2488,6 +3478,11 @@ tab _merge;
 drop _merge;
 sort folioviv foliohog numren;
 
+merge folioviv foliohog numren using "$bases\jcf.dta";
+tab _merge;
+drop _merge;
+sort folioviv foliohog numren;
+
 merge folioviv foliohog numren using "$bases\labor.dta";
 tab _merge;
 drop _merge;
@@ -2509,6 +3504,16 @@ drop _merge;
 sort folioviv foliohog;
 
 merge folioviv foliohog using "$bases\assets.dta";
+tab _merge;
+drop _merge;
+sort folioviv foliohog;
+
+merge folioviv foliohog using "$bases\monhogar24.dta";
+tab _merge;
+drop _merge;
+sort folioviv foliohog;
+
+merge folioviv foliohog using "$bases\monotro24.dta";
 tab _merge;
 drop _merge;
 sort folioviv foliohog;
@@ -2608,22 +3613,22 @@ keep 	folioviv foliohog numren est_dis upm
 		ic_cv icv_pisos icv_muros icv_techos icv_hac
 		ic_sbv isb_agua isb_dren isb_luz isb_combus
 		ic_ali_nc id_men tot_iaad tot_iamen ins_ali ic_ali lca dch
-		plp_e plp p65mas tot_integ 
-		tamhogesc ictpc ict ing_mens ing_mon ing_lab ing_ren ing_tra nomon pago_esp reg_esp 
-		hli edad anac_e student niv_ed  remittances inc_pam1 mon_inc lab_inc rent_inc month_inc
-parentesco hli educ time_work time_study time_repair time_leisure formal htrab sinco scian etnia discap  num_auto num_suv num_pickup num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego acc_techo acc_piso acc_muro wealth;
+		plp_e plp p65mas cereales_monh carnes_monh pescado_monh leche_monh huevo_monh aceites_monh tuberculo_monh verduras_monh frutas_monh azucar_monh cafe_monh especias_monh otros_alim_monh noalcohol_monh tabaco_monh alcohol_monh vestido_monh calzado_monh kinder_monh primaria_monh secu_monh prepa_monh universidad_monh posgrado_monh cuip_monh accp_monh cereales_mono carnes_mono pescado_mono leche_mono huevo_mono aceites_mono tuberculo_mono verduras_mono frutas_mono azucar_mono cafe_mono especias_mono otros_alim_mono noalcohol_mono tabaco_mono alcohol_mono vestido_mono calzado_mono kinder_mono primaria_mono secu_mono prepa_mono universidad_mono posgrado_mono cuip_mono accp_mono cris_monh cris_mono ens_monh ens_mono tot_integ
+		tamhogesc ictpc ict ing_mens ing_mon ing_lab ing_ren ing_tra nomon pago_esp reg_esp remittances inc_pam1 mon_inc lab_inc rent_inc month_inc
+		hli edad anac_e student niv_ed  asis_esc ing_jcf ct_futuro
+parentesco hli educ time_work time_study time_repair time_leisure formal htrab sinco scian etnia discap  num_auto num_suv num_pick num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego alim17_1 alim17_2 alim17_3 alim17_4 alim17_5 alim17_6 alim17_7 alim17_8 alim17_9 alim17_10 alim17_11 alim17_12 acc_techo acc_piso acc_muro wealth edad_jefe sexo_jefe ali_dentro vesti_calz vestido calzado pea12 med_monh med_mono educ_basica_monh educ_media_monh educ_superior_monh vestido17_monh calzado17_monh time_tc c_futuro ing_jcf gasto_total time_lc;
 		
 order 	folioviv foliohog numren est_dis upm
 		factor tam_loc rururb ent ubica_geo edad sexo parentesco 
 		 anac_e niv_ed 
-		ic_asalud  ic_segsoc sa_dir ss_dir s_salud par jef_ss cony_ss hijo_ss pea jub pam ing_pam tipo_trab* ing_pens
+		ic_asalud  ic_segsoc sa_dir ss_dir s_salud par jef_ss cony_ss hijo_ss pea jub pam ing_pam tipo_trab*  ing_pens
 		ic_cv icv_pisos icv_muros icv_techos icv_hac
 		ic_sbv isb_agua isb_dren isb_luz isb_combus
 		ic_ali_nc id_men tot_iaad tot_iamen ins_ali ic_ali lca dch
-		plp_e plp p65mas tot_integ
-		tamhogesc ictpc ict ing_mens ing_mon ing_lab ing_ren ing_tra nomon pago_esp reg_esp 
-		hli edad anac_e student niv_ed  remittances inc_pam1 mon_inc lab_inc rent_inc month_inc
-parentesco hli educ time_work time_study time_repair time_leisure formal htrab sinco scian etnia discap  num_auto num_suv num_pickup num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego acc_techo acc_piso acc_muro wealth; 
+		plp_e plp p65mas cereales_monh carnes_monh pescado_monh leche_monh huevo_monh aceites_monh tuberculo_monh verduras_monh frutas_monh azucar_monh cafe_monh especias_monh otros_alim_monh noalcohol_monh tabaco_monh alcohol_monh vestido_monh calzado_monh kinder_monh primaria_monh secu_monh prepa_monh universidad_monh posgrado_monh cuip_monh accp_monh cereales_mono carnes_mono pescado_mono leche_mono huevo_mono aceites_mono tuberculo_mono verduras_mono frutas_mono azucar_mono cafe_mono especias_mono otros_alim_mono noalcohol_mono tabaco_mono alcohol_mono vestido_mono calzado_mono kinder_mono primaria_mono secu_mono prepa_mono universidad_mono posgrado_mono cuip_mono accp_mono cris_monh cris_mono ens_monh ens_mono tot_integ
+		tamhogesc ictpc ict ing_mens ing_mon ing_lab ing_ren ing_tra nomon pago_esp reg_esp remittances inc_pam1 mon_inc lab_inc rent_inc month_inc
+		hli edad anac_e student niv_ed  asis_esc ing_jcf ct_futuro
+parentesco hli educ time_work time_study time_repair time_leisure formal htrab sinco scian etnia discap  num_auto num_suv num_pick num_moto num_bici num_trici num_carret num_canoa num_otro num_ester num_radio num_tva num_tvd num_dvd num_licua num_tosta num_micro num_refri num_estuf num_lavad num_planc num_maqui num_venti num_aspir num_compu num_impre num_juego alim17_1 alim17_2 alim17_3 alim17_4 alim17_5 alim17_6 alim17_7 alim17_8 alim17_9 alim17_10 alim17_11 alim17_12 acc_techo acc_piso acc_muro wealth edad_jefe sexo_jefe ali_dentro vesti_calz vestido calzado pea12 med_monh med_mono educ_basica_monh educ_media_monh educ_superior_monh vestido17_monh calzado17_monh time_tc c_futuro ing_jcf gasto_total time_lc;  
 			
 label var sexo "Sexo";
 label var parentesco "Parentesco con el jefe del hogar";
@@ -2701,7 +3706,6 @@ gen unempl=pea==2;
 label var unempl "Unemployed";
 gen inactive=pea==0;
 label var inactive "Inactive";
-drop pea;
 rename ing_pam inc_pam;
 gen epoor=plp_e==1;
 label var epoor "Individual in extreme poverty";
