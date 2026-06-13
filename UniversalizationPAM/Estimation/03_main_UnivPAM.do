@@ -4,13 +4,24 @@
 *=====================================================================*
 clear all
 set more off
-
+gl data= "https://raw.githubusercontent.com/galvez-soriano"
 gl rd="C:\Users\Oscar Galvez Soriano\Documents\Papers\UniversalizationPAM\Data"
 gl gr="C:\Users\Oscar Galvez Soriano\Documents\Papers\UniversalizationPAM\Doc"
+*=====================================================================*
+/*
+*Run this section of the code only once to pull the data from the 
+*GitHub website. Once the data is stored in your computer, you can
+*run this code without downloading the data again.
+
+use "$data/Papers/main/UniversalizationPAM/Data/dbasePAM_1.dta", clear
+foreach x in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ///
+21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 {
+    append using "$data/Papers/main/UniversalizationPAM/Data/dbasePAM_`x'.dta"
+}
+save "$base\dbasePAM.dta", replace 
+*/
 *=================================================================================*
 use "$rd\dbasePAM.dta", clear
-*=====================================================================*
-
 *=====================================================================*
 /* Table 1: Summary statistics */
 *=====================================================================*
