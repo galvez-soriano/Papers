@@ -5,13 +5,13 @@
 *========================================================================*
 clear
 set more off
-gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\BankDRegulation\Data"
-gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\BankDRegulation\Doc"
+gl data= "https://raw.githubusercontent.com/galvez-soriano/Papers/main/BankDR/Data"
+gl base= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\BankDRegulation\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\BankDRegulation\Doc"
 
 graph set window fontface "Times New Roman"
 *========================================================================*
-use "$base/Ag_RNA.dta", clear
+use "$data/Ag_RNA.dta", clear
 
 gen lcropsP = log(CropPrcIdx)
 gen lcropsQ = log(CropQty)
@@ -36,6 +36,12 @@ rename Year year
 encode Region, generate(region)
 rename State state
 drop if StateName==""
+
+merge 1:1 state year using "$data/ag_patents_state_year.dta"
+drop if _merge==2
+drop _merge
+
+gen lpatent=log(ag_patent_count)
 
 gen first_year=Eff_Year_RNA // first affected year
 sum first_year
@@ -454,6 +460,27 @@ event_plot ols_iinputq, ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
 graph export "$doc\PTA_TWFE_IInputsQ.png", replace
+
+/* Patents */
+reghdfe lpatent F*event L*event, ///
+absorb(state year) vce(cluster state)
+estimates store ols_patent
+
+event_plot ols_patent, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(F#event) ///
+    stub_lag(L#event) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-4(2)4, labs(medium) grid format(%5.0f)) ///
+	ytitle("Number of patents", size(medium) height(5)) ///
+	xlabel(-25(1)15, angle(90)) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Years since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_TWFE_Patent.png", replace
 
 *========================================================================*
 /* Borusyak, Jaravel, and Spiess (2024) */
@@ -875,6 +902,28 @@ event_plot bjs_iinputq, ///
 	) ///
     lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
 graph export "$doc\PTA_BJS_IInputsQ.png", replace
+
+/* Patents */
+did_imputation lpatent state year first_year, ///
+horizons(0/5) pretrend(5) ///
+cluster(state) fe(state year region#year) autos minn(0)
+estimates store bjs_patent
+
+event_plot bjs_patent, ///
+    plottype(scatter) ciplottype(rspike) alpha(0.05) ///
+    stub_lead(pre#) ///
+    stub_lag(tau#) ///
+    together noautolegend ///
+	graph_opt( ///
+	ylabel(-1(0.5)1, labs(medium) grid format(%5.2f)) ///
+	ytitle("Percentage change in Intermediate Inputs Quantity", size(medium) height(5)) ///
+	xlabel(-5(1)5, angle(90)) yline(0, lpattern(solid)) ///
+	xline(-0.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+	xtitle("Years since policy intervention", size(medium) height(5)) ///
+	legend(off) ///
+	) ///
+    lag_opt1(msize(small) msymbol(O) mfcolor(navy) mlcolor(navy) mlwidth(thin)) lag_ci_opt1(color(navy) lwidth(medthick))
+graph export "$doc\PTA_BJS_patent.png", replace
 
 *========================================================================*
 use "$base/ProductionExpense_RNA.dta", clear
