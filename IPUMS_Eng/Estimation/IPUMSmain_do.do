@@ -6,8 +6,10 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
-gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
+*gl base= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
+*gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
+gl base= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
+gl doc= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
 
 graph set window fontface "Times New Roman"
 *========================================================================*
@@ -59,86 +61,10 @@ label var treat_`x' "`x'"
 }
 replace treat_1999=0
 *========================================================================*
-*Control for years in the USA // only immigrants after 2008
-*========================================================================*
-/* English skills */
-reghdfe eng treat_* [aw=perwt] if yrimmig>2008 & bpld<=20000, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of speaking English", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-graph export "$doc\figEng.png", replace
-
-reghdfe eng after_treat [aw=perwt] if yrimmig>2008 & bpld<=20000, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
-
-/* Education */
-reghdfe schooling treat_* [aw=perwt] if yrimmig>2008 & bpld<=20000, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Years of education", size(medium) height(5)) ///
-ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-2 2)) 
-graph export "$doc\figEdu.png", replace
-
-/* High school or more */
-reghdfe high_school treat_* [aw=perwt] if yrimmig>2008 & bpld<=20000, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having high school education or more", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-graph export "$doc\figHighS_More.png", replace
-
-/* Some college */
-reghdfe college treat_* [aw=perwt] if yrimmig>2008 & bpld<=20000, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having some college", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-graph export "$doc\figCollege.png", replace
-
-/* Enrollment */
-reghdfe school treat_* [aw=perwt] if yrimmig>2008 & bpld<=20000, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of being enrolled in school", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-graph export "$doc\figEnroll.png", replace
-
-/* Private */
-reghdfe private treat_* [aw=perwt] if yrimmig>2008 & bpld<=20000, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of being enrolled in private school", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-graph export "$doc\figPrivate.png", replace
-*========================================================================*
 /* Only Hispanic immigrants, all migrated after 2008, controls for year of migration, and yrs in the USA */
 *========================================================================* 
 /* English skills */
-reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
+reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -149,10 +75,10 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
 graph export "$doc\figEng_Immigrants.png", replace
 
-reghdfe eng after_treat [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#year yrsusa2#year) vce(cluster cluster)
+reghdfe eng after_treat [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 /* Education */
-reghdfe schooling treat_* [aw=perwt] if yrimm!=0 & yrimmig>2008, absorb(bpld cohort year yrsusa2#year) vce(cluster cluster)
+reghdfe schooling treat_* [aw=perwt] if yrimm!=0 & yrimmig>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -163,8 +89,12 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-2 2)) 
 graph export "$doc\figEdu_Immigrants.png", replace
 
+reghdfe schooling after_treat [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+
 /* High school or more */
-reghdfe high_school treat_* [aw=perwt] if yrimm!=0 & yrimmig>2008, absorb(bpld cohort year yrsusa2#year) vce(cluster cluster)
+reghdfe high_school treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
+treat_2004 treat_2005 treat_2006 [aw=perwt] if yrimm!=0 & yrimmig>2008 ///
+& age>=18, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -175,57 +105,55 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
 graph export "$doc\figHighS_More_Immigrants.png", replace
 
-/* Some college */
-reghdfe college treat_* [aw=perwt] if yrimm!=0 & yrimmig>2008, absorb(bpld cohort year yrsusa2#year) vce(cluster cluster)
+reghdfe high_school after_treat [aw=perwt] if yrimm!=0 & yrimm>2008 & age>=18, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of having some college", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-graph export "$doc\figCollege_Immigrants.png", replace
-
-/* Enrollment */
-reghdfe school treat_* [aw=perwt] if yrimm!=0 & yrimmig>2008, absorb(bpld cohort year yrsusa2#year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of being enrolled in school", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-graph export "$doc\figEnroll_Immigrants.png", replace
-
-/* Private */
-reghdfe private treat_* [aw=perwt] if yrimm!=0 & yrimmig>2008, absorb(bpld cohort year yrsusa2#year) vce(cluster cluster)
-
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
-xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of being enrolled in private school", size(medium) height(5)) ///
-ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
-xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
-graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
-ysc(r(-0.2 0.2)) 
-graph export "$doc\figPrivate_Immigrants.png", replace
 *========================================================================* 
 /* Descriptive data */
 *========================================================================* 
 label var cohort "Cohort"
 bysort cohort: egen eng_mex=mean(eng) if treat==1 & year==2024 & yrimmig>=2009
-
-bysort cohort: egen eng_other=mean(eng) if treat==0 & bpld>5600 & year==2024 & yrimmig>=2009
-
+bysort cohort: egen eng_other=mean(eng) if treat==0 & bpld>5600 & year==2024 
 bysort cohort: egen eng_us=mean(eng) if treat==0 & bpld<=5600 & year==2024
 
 set scheme s1color
-twoway line eng_mex cohort, msymbol(diamond) xlabel(1995(1)2010, angle(vertical)) ///
-ytitle(Proportion of English speakers) ylabel(,nogrid) ///
+twoway line eng_mex cohort, msymbol(diamond) ///
+xlabel(1995(1)2010, angle(vertical) labsize(small)) ///
+ytitle(Proportion of English speakers) ylabel(,nogrid format(%9.1f) angle(0)) ///
 graphregion(fcolor(white)) bgcolor(white) ///
 legend(pos(5) ring(0) col(1) size(small)) ///
 xline(2000, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
 || line eng_other cohort || line eng_us cohort, ///
-legend(label(1 "Mexicans") label(2 "Other LACs") label(3 "American Hispanics"))
+legend(label(1 "Mexicans") label(2 "Other nationalities") label(3 "American Hispanics"))
 graph export "$doc\graph_Eng.png", replace
+
+
+bysort cohort: egen edu_mex=mean(schooling) if treat==1 & year==2024 & yrimmig>=2009
+bysort cohort: egen edu_other=mean(schooling) if treat==0 & bpld>5600 & year==2024 
+bysort cohort: egen edu_us=mean(schooling) if treat==0 & bpld<=5600 & year==2024
+
+set scheme s1color
+twoway line edu_mex cohort, msymbol(diamond) ///
+xlabel(1995(1)2010, angle(vertical) labsize(small)) ///
+ytitle(Average years of education) ylabel(,nogrid format(%9.1f) angle(0)) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(6) ring(0) col(1) size(small)) ///
+xline(2000, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line edu_other cohort || line edu_us cohort, ///
+legend(label(1 "Mexicans") label(2 "Other nationalities") label(3 "American Hispanics"))
+graph export "$doc\graph_Edu.png", replace
+
+
+bysort cohort: egen hs_mex=mean(high_school) if treat==1 & year==2024 & yrimmig>=2009 & age>=18
+bysort cohort: egen hs_other=mean(high_school) if treat==0 & bpld>5600 & year==2024 & age>=18
+bysort cohort: egen hs_us=mean(high_school) if treat==0 & bpld<=5600 & year==2024 & age>=18
+
+set scheme s1color
+twoway line hs_mex cohort if cohort<=2006, msymbol(diamond) ///
+xlabel(1995(1)2006, angle(vertical) labsize(small)) ///
+ytitle(Proportion of individuals with high school or more) ylabel(,nogrid format(%9.1f) angle(0)) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(7) ring(0) col(1) size(small)) ///
+xline(2000, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line hs_other cohort if cohort<=2006 || line hs_us cohort if cohort<=2006, ///
+legend(label(1 "Mexicans") label(2 "Other nationalities") label(3 "American Hispanics"))
+graph export "$doc\graph_HighS.png", replace
