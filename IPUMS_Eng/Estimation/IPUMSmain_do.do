@@ -6,25 +6,33 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-*gl base= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
-*gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
-gl base= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
-gl doc= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
+gl base= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
+gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
+// gl base= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Data"
+// gl doc= "C:\Users\Oscar Galvez Soriano\OneDrive - The University of Chicago\Documents\Papers\IPUMS\Doc"
 
 graph set window fontface "Times New Roman"
 *========================================================================*
-use "$base\ACS22_24.dta", clear
+/* Spillover effects */
+*========================================================================*
+use "$base\ACS12_24.dta", clear
 rename birthyr cohort
-*Potentially affected cohorts 
-keep if cohort>=1995 & cohort<=2010
 
+keep if year>=2022
 *All Hispanic
 keep if hispan!=0
 
 /* Assign the treatment to individuals who were born in Mexico */
 gen treat=bpld==20000 
 
-gen after=cohort>=2000
+/* Create cohort treatment at the household level */
+gen child_t=1 if (relate==3 | relate==4) & (cohort>=1995 & cohort<=2010)
+bysort serial: egen num_ec=sum(child_t)
+gen sample_hh=1 if famsize>num_ec & num_ec!=0 & num_ec!=. 
+drop if cohort>2010
+bysort serial: egen cohort_t=max(cohort)
+
+gen after=cohort_t>=2000
 gen after_treat=after*treat
 
 /* Indicator for individuals who self-report that they speak English well,
@@ -55,6 +63,71 @@ replace yrsusa2=age if yrsusa1==0 & bpld<=5600
 foreach x in 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 ///
 2006 2007 2008 2009 2010 {
 gen treat_`x'=0
+replace treat_`x'=1 if treat==1 & cohort_t==`x'
+replace treat_`x'=. if treat==.
+label var treat_`x' "`x'"
+}
+replace treat_1999=0
+ 
+/* English skills */
+reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>2008 & age>=30, absorb(age bpld cohort_t year yrimmig#cohort_t#year) vce(cluster cluster)
+
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) 
+graph export "$doc\figEng_ImmigrantsP.png", replace
+
+reghdfe eng after_treat [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(age bpld cohort_t year yrimmig#cohort_t#year) vce(cluster cluster)
+
+*========================================================================*
+use "$base\ACS22_24.dta", clear
+rename birthyr cohort
+
+*All Hispanic
+keep if hispan!=0
+
+/* Assign the treatment to individuals who were born in Mexico */
+gen treat=bpld==20000 
+
+gen after=cohort>=2000
+gen after_treat=after*treat
+
+*Potentially affected cohorts 
+keep if cohort>=1995 & cohort<=2010
+
+/* Indicator for individuals who self-report that they speak English well,
+very well or they only speak English */ 
+gen eng=speakeng>=3 & speakeng<=5
+replace eng=0 if speakeng==6
+
+replace inctot=. if inctot==9999999 | inctot==9999998
+replace incwage=. if incwage==999999 | incwage==999998
+
+gen lincome=asinh(inctot)
+gen lwage=asinh(incwage)
+gen work=empstat==1
+gen white=race==1
+recode labforce (0=.) (1=0) (2=1)
+recode sex (2=0)
+gen schooling=educd
+recode schooling (2=0) (11=0) (12=0) (14=1) (15=2) (16=3) (17=4) (22=5) ///
+(23=6) (25=7) (26=8) (30=9) (40=10) (50=11) (61=12) (63=12) (64=12) (65=13) ///
+(71=14) (81=15) (101=16) (114=17) (115=19) (116=22)
+gen high_school=(educ>=6)
+gen college=(educ>=7)
+gen private=schltype==3
+gen speakeng_home=language==1
+
+gen yrsusa2=yrsusa1 if bpld>5600
+replace yrsusa2=age if yrsusa1==0 & bpld<=5600
+
+foreach x in 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 ///
+2006 2007 2008 2009 2010 {
+gen treat_`x'=0
 replace treat_`x'=1 if treat==1 & cohort==`x'
 replace treat_`x'=. if treat==.
 label var treat_`x' "`x'"
@@ -77,8 +150,24 @@ graph export "$doc\figEng_Immigrants.png", replace
 
 reghdfe eng after_treat [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
+/* Speaks English at home */
+reghdfe speakeng_home treat_* [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) 
+graph export "$doc\figEngHome_Immigrants.png", replace
+
+reghdfe speakeng_home after_treat [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+
 /* Education */
-reghdfe schooling treat_* [aw=perwt] if yrimm!=0 & yrimmig>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+reghdfe schooling treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
+treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19, ///
+absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -89,12 +178,12 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-2 2)) 
 graph export "$doc\figEdu_Immigrants.png", replace
 
-reghdfe schooling after_treat [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+reghdfe schooling after_treat [aw=perwt] if yrimm!=0 & yrimm>2008 & age>=19, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 /* High school or more */
 reghdfe high_school treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
-treat_2004 treat_2005 treat_2006 [aw=perwt] if yrimm!=0 & yrimmig>2008 ///
-& age>=18, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19, ///
+absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -105,15 +194,17 @@ graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
 graph export "$doc\figHighS_More_Immigrants.png", replace
 
-reghdfe high_school after_treat [aw=perwt] if yrimm!=0 & yrimm>2008 & age>=18, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+reghdfe high_school after_treat [aw=perwt] if yrimm!=0 & yrimm>2008 & age>=19, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 *========================================================================* 
 /* Descriptive data */
 *========================================================================* 
+/* 2022-2024 */
+*========================================================================* 
 label var cohort "Cohort"
-bysort cohort: egen eng_mex=mean(eng) if treat==1 & year==2024 & yrimmig>=2009
-bysort cohort: egen eng_other=mean(eng) if treat==0 & bpld>5600 & year==2024 
-bysort cohort: egen eng_us=mean(eng) if treat==0 & bpld<=5600 & year==2024
+bysort cohort: egen eng_mex=mean(eng) if treat==1 & yrimmig>=2009
+bysort cohort: egen eng_other=mean(eng) if treat==0 & bpld>5600
+bysort cohort: egen eng_us=mean(eng) if treat==0 & bpld<=5600
 
 set scheme s1color
 twoway line eng_mex cohort, msymbol(diamond) ///
@@ -127,33 +218,47 @@ legend(label(1 "Mexicans") label(2 "Other nationalities") label(3 "American Hisp
 graph export "$doc\graph_Eng.png", replace
 
 
-bysort cohort: egen edu_mex=mean(schooling) if treat==1 & year==2024 & yrimmig>=2009
-bysort cohort: egen edu_other=mean(schooling) if treat==0 & bpld>5600 & year==2024 
-bysort cohort: egen edu_us=mean(schooling) if treat==0 & bpld<=5600 & year==2024
+bysort cohort: egen enghh_mex=mean(speakeng_home) if treat==1 & yrimmig>=2009
+bysort cohort: egen enghh_other=mean(speakeng_home) if treat==0 & bpld>5600
+bysort cohort: egen enghh_us=mean(speakeng_home) if treat==0 & bpld<=5600
+
+twoway line enghh_mex cohort, msymbol(diamond) ///
+xlabel(1995(1)2010, angle(vertical) labsize(small)) ///
+ytitle(Proportion of HHs that speak English at home) ylabel(,nogrid format(%9.1f) angle(0)) ///
+graphregion(fcolor(white)) bgcolor(white) ///
+legend(pos(3) ring(0) col(1) size(small)) ///
+xline(2000, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
+|| line enghh_other cohort || line enghh_us cohort, ///
+legend(label(1 "Mexicans") label(2 "Other nationalities") label(3 "American Hispanics"))
+graph export "$doc\graph_EngHH.png", replace
+
+
+bysort cohort: egen edu_mex=mean(schooling) if treat==1 & yrimmig>=2009 & age>=19
+bysort cohort: egen edu_other=mean(schooling) if treat==0 & bpld>5600 & age>=19
+bysort cohort: egen edu_us=mean(schooling) if treat==0 & bpld<=5600 & age>=19
 
 set scheme s1color
-twoway line edu_mex cohort, msymbol(diamond) ///
-xlabel(1995(1)2010, angle(vertical) labsize(small)) ///
+twoway line edu_mex cohort if cohort<=2005, msymbol(diamond) ///
+xlabel(1995(1)2005, angle(vertical) labsize(small)) ///
 ytitle(Average years of education) ylabel(,nogrid format(%9.1f) angle(0)) ///
 graphregion(fcolor(white)) bgcolor(white) ///
-legend(pos(6) ring(0) col(1) size(small)) ///
+legend(pos(2) ring(0) col(1) size(small)) ///
 xline(2000, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
-|| line edu_other cohort || line edu_us cohort, ///
+|| line edu_other cohort if cohort<=2005 || line edu_us cohort if cohort<=2005, ///
 legend(label(1 "Mexicans") label(2 "Other nationalities") label(3 "American Hispanics"))
 graph export "$doc\graph_Edu.png", replace
 
 
-bysort cohort: egen hs_mex=mean(high_school) if treat==1 & year==2024 & yrimmig>=2009 & age>=18
-bysort cohort: egen hs_other=mean(high_school) if treat==0 & bpld>5600 & year==2024 & age>=18
-bysort cohort: egen hs_us=mean(high_school) if treat==0 & bpld<=5600 & year==2024 & age>=18
+bysort cohort: egen hs_mex=mean(high_school) if treat==1 & yrimmig>=2009 & age>=19
+bysort cohort: egen hs_other=mean(high_school) if treat==0 & bpld>5600 & age>=19
+bysort cohort: egen hs_us=mean(high_school) if treat==0 & bpld<=5600 & age>=19
 
-set scheme s1color
-twoway line hs_mex cohort if cohort<=2006, msymbol(diamond) ///
-xlabel(1995(1)2006, angle(vertical) labsize(small)) ///
+twoway line hs_mex cohort if cohort<=2005, msymbol(diamond) ///
+xlabel(1995(1)2005, angle(vertical) labsize(small)) ///
 ytitle(Proportion of individuals with high school or more) ylabel(,nogrid format(%9.1f) angle(0)) ///
 graphregion(fcolor(white)) bgcolor(white) ///
-legend(pos(7) ring(0) col(1) size(small)) ///
+legend(pos(5) ring(0) col(1) size(small)) ///
 xline(2000, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
-|| line hs_other cohort if cohort<=2006 || line hs_us cohort if cohort<=2006, ///
+|| line hs_other cohort if cohort<=2005 || line hs_us cohort if cohort<=2005, ///
 legend(label(1 "Mexicans") label(2 "Other nationalities") label(3 "American Hispanics"))
 graph export "$doc\graph_HighS.png", replace
