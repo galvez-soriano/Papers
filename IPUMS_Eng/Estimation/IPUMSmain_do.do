@@ -13,26 +13,21 @@ gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\
 
 graph set window fontface "Times New Roman"
 *========================================================================*
-/* Spillover effects */
+/* Placebo test */
 *========================================================================*
-use "$base\ACS12_24.dta", clear
+use "$base\ACS02_24.dta", clear
 rename birthyr cohort
 
-keep if year>=2022
+keep if year<2022
 *All Hispanic
 keep if hispan!=0
 
+*Potentially affected cohorts 
+keep if cohort>=1985 & cohort<=2000
+
 /* Assign the treatment to individuals who were born in Mexico */
 gen treat=bpld==20000 
-
-/* Create cohort treatment at the household level */
-gen child_t=1 if (relate==3 | relate==4) & (cohort>=1995 & cohort<=2010)
-bysort serial: egen num_ec=sum(child_t)
-gen sample_hh=1 if famsize>num_ec & num_ec!=0 & num_ec!=. 
-drop if cohort>2010
-bysort serial: egen cohort_t=max(cohort)
-
-gen after=cohort_t>=2000
+gen after=cohort>=1990
 gen after_treat=after*treat
 
 /* Indicator for individuals who self-report that they speak English well,
@@ -60,17 +55,17 @@ gen private=schltype==3
 gen yrsusa2=yrsusa1 if bpld>5600
 replace yrsusa2=age if yrsusa1==0 & bpld<=5600
 
-foreach x in 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 ///
-2006 2007 2008 2009 2010 {
+foreach x in 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 ///
+1996 1997 1998 1999 2000 {
 gen treat_`x'=0
-replace treat_`x'=1 if treat==1 & cohort_t==`x'
+replace treat_`x'=1 if treat==1 & cohort==`x'
 replace treat_`x'=. if treat==.
 label var treat_`x' "`x'"
 }
-replace treat_1999=0
+replace treat_1989=0
  
 /* English skills */
-reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>2008 & age>=30, absorb(age bpld cohort_t year yrimmig#cohort_t#year) vce(cluster cluster)
+reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>1998, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -79,9 +74,9 @@ ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
-graph export "$doc\figEng_ImmigrantsP.png", replace
+graph export "$doc\figEng_Placebo.png", replace
 
-reghdfe eng after_treat [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(age bpld cohort_t year yrimmig#cohort_t#year) vce(cluster cluster)
+reghdfe eng after_treat [aw=perwt] if yrimm!=0 & yrimm>1998, absorb(age bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
 
 *========================================================================*
 use "$base\ACS22_24.dta", clear
@@ -134,7 +129,8 @@ label var treat_`x' "`x'"
 }
 replace treat_1999=0
 *========================================================================*
-/* Only Hispanic immigrants, all migrated after 2008, controls for year of migration, and yrs in the USA */
+/* Only Hispanic immigrants, all migrated after 2008, controls for year 
+of migration, and yrs in the USA */
 *========================================================================* 
 /* English skills */
 reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
@@ -155,7 +151,7 @@ reghdfe speakeng_home treat_* [aw=perwt] if yrimm!=0 & yrimm>2008, absorb(bpld c
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
-ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+ytitle("Likelihood of speaking English at home", size(medium) height(5)) ///
 ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
@@ -195,6 +191,74 @@ ysc(r(-0.2 0.2))
 graph export "$doc\figHighS_More_Immigrants.png", replace
 
 reghdfe high_school after_treat [aw=perwt] if yrimm!=0 & yrimm>2008 & age>=19, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+*========================================================================* 
+/* Heterogeneity by sex */
+*========================================================================*
+/* English skills */
+reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>2008 & sex==0, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+estimates store eng_women
+reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>2008 & sex==1, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+estimates store eng_men
+
+coefplot (eng_women, label(Women) offset(-.1) ciopt(lc(navy) recast(rcap)) m(S) ///
+mcolor(navy) mlcolor(navy)) (eng_men, ciopt(lc(black) ///
+recast(rcap)) label(Men) offset(.1) m(T) mcolor(white) mlcolor(black)) ///
+, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+ylabel(-0.3(0.15)0.3, labs(medium) grid format(%5.2f)) ///
+legend(pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.3 0.3)) 
+graph export "$doc\figEng_ImmigSex.png", replace
+
+/* Speaks English at home */
+reghdfe speakeng_home treat_* [aw=perwt] if yrimm!=0 & yrimm>2008 & sex==0, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+estimates store speakh_women
+reghdfe speakeng_home treat_* [aw=perwt] if yrimm!=0 & yrimm>2008 & sex==1, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+estimates store speakheng_men
+
+coefplot (speakh_women, label(Women) offset(-.1) ciopt(lc(navy) recast(rcap)) m(S) ///
+mcolor(navy) mlcolor(navy)) (speakheng_men, ciopt(lc(black) ///
+recast(rcap)) label(Men) offset(.1) m(T) mcolor(white) mlcolor(black)) ///
+, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking English at home", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+legend(pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) 
+graph export "$doc\figEngHome_ImmigSex.png", replace
+
+/* Education */
+reghdfe schooling treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
+treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19, ///
+absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Years of education", size(medium) height(5)) ///
+ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-2 2)) 
+graph export "$doc\figEdu_Immigrants.png", replace
+
+/* High school or more */
+reghdfe high_school treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
+treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19, ///
+absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of having high school education or more", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) 
+graph export "$doc\figHighS_More_Immigrants.png", replace
 
 *========================================================================* 
 /* Descriptive data */
@@ -224,7 +288,7 @@ bysort cohort: egen enghh_us=mean(speakeng_home) if treat==0 & bpld<=5600
 
 twoway line enghh_mex cohort, msymbol(diamond) ///
 xlabel(1995(1)2010, angle(vertical) labsize(small)) ///
-ytitle(Proportion of HHs that speak English at home) ylabel(,nogrid format(%9.1f) angle(0)) ///
+ytitle(Proportion of individuals that speak English at home) ylabel(,nogrid format(%9.1f) angle(0)) ///
 graphregion(fcolor(white)) bgcolor(white) ///
 legend(pos(3) ring(0) col(1) size(small)) ///
 xline(2000, lstyle(grid) lpattern(dash) lcolor(red)) scheme(s2mono) ///
