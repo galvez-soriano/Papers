@@ -13,12 +13,12 @@ gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\
 
 graph set window fontface "Times New Roman"
 *========================================================================*
-/* Placebo test */
+/* Placebo test 2012-2014 */
 *========================================================================*
 use "$base\ACS02_24.dta", clear
 rename birthyr cohort
 
-keep if year<2022
+keep if year<2022 & year>2004
 *All Hispanic
 keep if hispan!=0
 
@@ -65,7 +65,7 @@ label var treat_`x' "`x'"
 replace treat_1989=0
  
 /* English skills */
-reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>1998, absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>1998, absorb(bpld cohort year yrsusa2 yrimmig#cohort#year) vce(cluster cluster)
 
 coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
@@ -74,12 +74,75 @@ ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
-graph export "$doc\figEng_Placebo.png", replace
-
-reghdfe eng after_treat [aw=perwt] if yrimm!=0 & yrimm>1998, absorb(age bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+graph export "$doc\figEng_Placebo12-14.png", replace
 
 *========================================================================*
-use "$base\ACS22_24.dta", clear
+/* Placebo test 2012-2014 */
+*========================================================================*
+use "$base\ACS02_24.dta", clear
+rename birthyr cohort
+
+keep if year<2012
+*All Hispanic
+keep if hispan!=0
+
+*Potentially affected cohorts 
+keep if cohort>=1975 & cohort<=1990
+
+/* Assign the treatment to individuals who were born in Mexico */
+gen treat=bpld==20000 
+gen after=cohort>=1980
+gen after_treat=after*treat
+
+/* Indicator for individuals who self-report that they speak English well,
+very well or they only speak English */ 
+gen eng=speakeng>=3 & speakeng<=5
+replace eng=0 if speakeng==6
+
+replace inctot=. if inctot==9999999 | inctot==9999998
+replace incwage=. if incwage==999999 | incwage==999998
+
+gen lincome=asinh(inctot)
+gen lwage=asinh(incwage)
+gen work=empstat==1
+gen white=race==1
+recode labforce (0=.) (1=0) (2=1)
+recode sex (2=0)
+gen schooling=educd
+recode schooling (2=0) (11=0) (12=0) (14=1) (15=2) (16=3) (17=4) (22=5) ///
+(23=6) (25=7) (26=8) (30=9) (40=10) (50=11) (61=12) (63=12) (64=12) (65=13) ///
+(71=14) (81=15) (101=16) (114=17) (115=19) (116=22)
+gen high_school=(educ>=6)
+gen college=(educ>=7)
+gen private=schltype==3
+
+gen yrsusa2=yrsusa1 if bpld>5600
+replace yrsusa2=age if yrsusa1==0 & bpld<=5600
+
+foreach x in 1975 1976 1977 1978 1979 1980 1981 1982 1983 1984 1985 ///
+1986 1987 1988 1989 1990 {
+gen treat_`x'=0
+replace treat_`x'=1 if treat==1 & cohort==`x'
+replace treat_`x'=. if treat==.
+label var treat_`x' "`x'"
+}
+replace treat_1979=0
+ 
+/* English skills */
+reghdfe eng treat_* [aw=perwt] if yrimm!=0 & yrimm>1988, absorb(bpld cohort year yrsusa2 yrimmig#cohort#year) vce(cluster cluster)
+
+coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+ytitle("Likelihood of speaking English", size(medium) height(5)) ///
+ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
+xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
+graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
+ysc(r(-0.2 0.2)) 
+graph export "$doc\figEng_Placebo02-04.png", replace
+
+*========================================================================*
+use "$base\ACS02_24.dta", clear
+keep if year>=2022
 rename birthyr cohort
 
 *All Hispanic
@@ -234,31 +297,49 @@ graph export "$doc\figEngHome_ImmigSex.png", replace
 
 /* Education */
 reghdfe schooling treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
-treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19, ///
+treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19 & sex==0, ///
 absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+estimates store edu_women
+reghdfe schooling treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
+treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19 & sex==1, ///
+absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+estimates store edu_men
 
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+coefplot (edu_women, label(Women) offset(-.1) ciopt(lc(navy) recast(rcap)) m(S) ///
+mcolor(navy) mlcolor(navy)) (edu_men, ciopt(lc(black) ///
+recast(rcap)) label(Men) offset(.1) m(T) mcolor(white) mlcolor(black)) ///
+, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
 ytitle("Years of education", size(medium) height(5)) ///
+legend(pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
 ylabel(-2(1)2, labs(medium) grid format(%5.0f)) ///
 xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-2 2)) 
-graph export "$doc\figEdu_Immigrants.png", replace
+graph export "$doc\figEdu_ImmigSex.png", replace
 
 /* High school or more */
 reghdfe high_school treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
-treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19, ///
+treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19 & sex==0, ///
 absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+estimates store hs_women
+reghdfe high_school treat_19* treat_2000 treat_2001 treat_2002 treat_2003 ///
+treat_2004 treat_2005 [aw=perwt] if yrimm!=0 & yrimmig>2008 & age>=19 & sex==1, ///
+absorb(bpld cohort year yrimmig#cohort#year) vce(cluster cluster)
+estimates store hs_men
 
-coefplot, vertical keep(treat_*) yline(0) omitted baselevels ///
+coefplot (hs_women, label(Women) offset(-.1) ciopt(lc(navy) recast(rcap)) m(S) ///
+mcolor(navy) mlcolor(navy)) (hs_men, ciopt(lc(black) ///
+recast(rcap)) label(Men) offset(.1) m(T) mcolor(white) mlcolor(black)) ///
+, vertical keep(treat_*) yline(0) omitted baselevels ///
 xline(5.5, lstyle(grid) lpattern(dash) lcolor(red)) ///
+legend(pos(8) ring(0) col(1) region(lcolor(white)) size(medium)) ///
 ytitle("Likelihood of having high school education or more", size(medium) height(5)) ///
 ylabel(-0.2(0.1)0.2, labs(medium) grid format(%5.2f)) ///
 xtitle("Cohort", size(medium) height(5)) xlabel(, angle(90) labs(medium)) ///
 graphregion(color(white)) scheme(s2mono) ciopts(recast(rcap)) ///
 ysc(r(-0.2 0.2)) 
-graph export "$doc\figHighS_More_Immigrants.png", replace
+graph export "$doc\figHighS_More_ImmigSex.png", replace
 
 *========================================================================* 
 /* Descriptive data */
