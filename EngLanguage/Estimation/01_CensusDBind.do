@@ -6,8 +6,8 @@
 clear
 set more off
 gl data= "https://raw.githubusercontent.com/galvez-soriano"
-gl base= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngLanguage\Data"
-gl doc= "C:\Users\Oscar Galvez Soriano\Documents\Papers\EngLanguage\Doc"
+gl base= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IndLanguage\Data"
+gl doc= "C:\Users\ogalvez\OneDrive - The University of Chicago\Documents\Papers\IndLanguage\Doc"
 *========================================================================*
 import delimited "$data/data/main/MexCensus/2020/Migrantes00.CSV", clear
 keep ent mun factor id_viv id_mii mper factor msexo medad mfecemim mfecemia ///
@@ -67,7 +67,7 @@ keep ent mun id_viv id_persona factor sexo edad asisten mun_asi ent_pais_asi esc
 ent_pais_res_5a mun_res_5a conact ocupacion_c aguinaldo vacaciones servicio_medico ///
 incap_sueldo sar_afore credito_vivienda ingtrmen hortra actividades_c ///
 mun_trab ent_pais_trab tamloc utilidades perte_indigena hlengua qdialect_inali ///
-hespanol elengua situa_conyugal ident_pareja numper
+hespanol elengua situa_conyugal ident_pareja numper parentesco
 
 rename id_persona id
 tostring id_viv, replace format(%012.0f) force
@@ -88,27 +88,6 @@ replace formal=0 if work==1 & conact!=30
 replace formal=1 if (aguinaldo==1 | vacaciones==3 | servicio_medico==5 ///
 | incap_sueldo==1 | sar_afore==3 | credito_vivienda==5 | utilidades==7)
 drop vacaciones servicio_medico incap_sueldo sar_afore credito_vivienda utilidades
-replace formal=1 if actividades_c>=9311 & actividades_c<=9399
-replace formal=1 if actividades_c==2110 | actividades_c==2132
-replace formal=1 if actividades_c==2211 | actividades_c==2381
-replace formal=1 if actividades_c==3120 | actividades_c==3340 | actividades_c==3350 | actividades_c==3360
-replace formal=1 if actividades_c==4810 | actividades_c==4820 | actividades_c==4910 | actividades_c==4920
-replace formal=1 if actividades_c>=5110 & actividades_c<=5180
-replace formal=1 if actividades_c>=5210 & actividades_c<=5221 | (actividades_c>=5230 & actividades_c<=5250)
-replace formal=1 if actividades_c==5321 | actividades_c==5330
-replace formal=1 if actividades_c>=5411 & actividades_c<=5414
-replace formal=1 if actividades_c==5510
-replace formal=1 if actividades_c>=6111 & actividades_c<=6150
-replace formal=1 if actividades_c>=6211 & actividades_c<=6229 | (actividades_c>=6251 & actividades_c<=6252)
-replace formal=1 if actividades_c==7112 | actividades_c==7120
-
-replace formal=1 if ocupacion_c>=111 & ocupacion_c<=254
-replace formal=1 if ocupacion_c>=256 & ocupacion_c<=311
-replace formal=1 if ocupacion_c>=320 & ocupacion_c<=323
-replace formal=1 if ocupacion_c>=420 & ocupacion_c<=421
-replace formal=1 if ocupacion_c==510 | ocupacion_c==520 | ocupacion_c==530 | ocupacion_c==540 | ocupacion_c==541
-replace formal=1 if ocupacion_c>=820 & ocupacion_c<=833
-replace formal=1 if ocupacion_c==899
 
 gen indigenous=perte_indigena==1
 drop perte_indigena
@@ -151,6 +130,19 @@ merge m:1 id_viv id_spouse using "$base\spouse_indigenous.dta"
 drop if _merge==2
 drop _merge
 
+rename parentesco relative
+
+preserve
+bysort id_viv: gen co_res_sind=1 if (relative>=101 & relative<=203) & hlengua==1
+bysort id_viv: gen co_res_ind=1 if (relative>=101 & relative<=203) & indigenous==1
+collapse co_res_ind co_res_sind, by(id_viv)
+save "$base\co_residence.dta", replace
+restore
+
+merge m:1 id_viv using "$base\co_residence.dta"
+drop _merge
+replace co_res_ind=0 if co_res_ind==.
+replace co_res_sind=0 if co_res_sind==.
 
 /*
 sum elengua [fw= factor] if state==1 & age>=3
@@ -200,18 +192,6 @@ replace geo=(state+mun) if geo=="" & migrant==1
 replace state5=migrant_state if state5=="" & migrant==1
 drop migrant_state 
 
-catplot ind_act cohort [fw=factor] if cohort>=1984 & cohort<=1994, percent(cohort) ///
-graphregion(fcolor(white)) scheme(s2mono) ///
-var1opts(label(labsize(small))) ///
-var2opts(label(labsize(small)) relabel(`r(relabel)')) ///
-ytitle("Percentage of individuals by labor market status", size(small)) ///
-asyvars stack ///
-legend(rows(1) stack size(small) ///
-order(1 "Student" 2 "Formal worker" ///
-3 "Informal worker" 4 "Looking for a job" 5 "Inactive" 6 "Intl. migrant") ///
-symplacement(center))
-graph export "$doc\econ_status.png", replace
-
 save "$base\census20.dta", replace
 *========================================================================* 
 use "$base\census20.dta", clear
@@ -231,10 +211,36 @@ rename hrs_exp2 hrs_exp
 replace hrs_exp=hrs_exp3 if hrs_exp==.
 drop _merge hrs_exp3
 
+merge m:1 geo_mun cohort using "$data/Papers/main/EngLanguage/Data/exposuret_mun.dta"
+drop if _merge==2
+drop _merge
+
+merge m:1 state cohort using "$data/Papers/main/EngLanguage/Data/exposuret_state.dta"
+drop if _merge!=3
+
+rename teach_exp2 teach_exp 
+replace teach_exp=teach_exp3 if teach_exp==.
+drop _merge teach_exp3
+
+merge m:1 geo_mun cohort using "$data/Papers/main/EngLanguage/Data/exposures_mun.dta"
+drop if _merge==2
+drop _merge
+
+merge m:1 state cohort using "$data/Papers/main/EngLanguage/Data/exposures_state.dta"
+drop if _merge!=3
+
+rename school_exp2 school_exp 
+replace school_exp=school_exp3 if school_exp==.
+drop _merge school_exp3
+
 gen imputed_state=geo=="."
 drop geo
 gen str geo=(state+mun)
 order geo
+
+merge m:1 geo_mun using "$data/Papers/main/EngLanguage/Data/border_mun.dta"
+drop if _merge==2
+drop _merge
 
 replace student=0 if ind_act!=0
 replace work=0 if ind_act==0 | ind_act==4 | migrant==1
@@ -249,6 +255,11 @@ gen nim_iw = (female == 0 & indigenous == 0 & married == 1 & indigenous_sp == 1)
 gen interethnic = max(niw_im, nim_iw)
 
 gen dmigrant=geo!=geo_mun
+replace dmigrant=. if state5=="." | mun5=="999"
+
+gen dsmigrant=state!=state5
+replace dsmigrant=. if state5=="."
+
 drop geo_mun mun_asi ent_pais_asi aguinaldo
 
 keep if cohort>=1984 & cohort<=1994
@@ -259,12 +270,14 @@ save "$base\labor_census20.dta", replace
 *========================================================================* 
 use "$base\labor_census20.dta", clear
 
-collapse hrs_exp, by(geo cohort)
+collapse hrs_exp teach_exp school_exp, by(geo cohort)
 rename hrs_exp hrs_exp2
+rename teach_exp teach_exp2
+rename school_exp school_exp2
 save "$base\exp_mun_cohort.dta", replace
 merge 1:m geo cohort using "$base\labor_census20.dta", nogen
 
-order geo cohort hrs_exp hrs_exp2
+order geo cohort hrs_exp hrs_exp2 teach_exp teach_exp2 school_exp school_exp2
 save "$base\labor_census20.dta", replace
 
-/* End of do-file for now */
+/* End of do-file */
